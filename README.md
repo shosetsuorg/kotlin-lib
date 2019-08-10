@@ -1,2 +1,2 @@
-[![](https://jitpack.io/v/Doomsdayrs/novelreader-services.svg)](https://jitpack.io/#Doomsdayrs/shosetsu-services)
+[![](https://jitpack.io/v/Doomsdayrs/shosetsu-services.svg)](https://jitpack.io/#Doomsdayrs/shosetsu-services)
 # Structuring of novelreader_core
