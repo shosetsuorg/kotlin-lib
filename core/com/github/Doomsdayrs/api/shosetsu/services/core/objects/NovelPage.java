@@ -35,10 +35,12 @@ public class NovelPage implements Serializable {
     public String[] tags;
     public String[] artists;
     public String language;
+
     /**
      * If chapter list is incrementing, then this is used to prevent the loader from going past it
      */
     public int maxChapterPage;
+
     public List<NovelChapter> novelChapters;
 
 
