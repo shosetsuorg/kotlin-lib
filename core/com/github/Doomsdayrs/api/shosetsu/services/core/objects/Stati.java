@@ -26,6 +26,8 @@ public enum Stati implements Serializable {
     PAUSED("Paused"),
     UNKNOWN("Unknown");
 
+    static final long serialVersionUID = 1004;
+
     final String title;
 
     Stati(String title) {

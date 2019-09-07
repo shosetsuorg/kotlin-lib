@@ -22,6 +22,8 @@ import java.io.Serializable;
  * @noinspection WeakerAccess
  */
 public class NovelGenre implements Serializable {
+    static final long serialVersionUID = 1002;
+
     public final String name;
     public boolean isURL;
 

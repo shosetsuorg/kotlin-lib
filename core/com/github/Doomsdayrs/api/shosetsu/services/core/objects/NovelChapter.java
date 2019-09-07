@@ -22,6 +22,8 @@ import java.io.Serializable;
  * @noinspection WeakerAccess
  */
 public class NovelChapter implements Serializable {
+    static final long serialVersionUID = 1001;
+
     public String release = "";
     public String chapterNum = "";
     public String link = "";

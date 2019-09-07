@@ -22,6 +22,7 @@ import java.io.Serializable;
  * @noinspection WeakerAccess
  */
 public class Novel implements Serializable {
+    static final long serialVersionUID = 1000;
     public String title;
     public String link;
     public String imageURL;

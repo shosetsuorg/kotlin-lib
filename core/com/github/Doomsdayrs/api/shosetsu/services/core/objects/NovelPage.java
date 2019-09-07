@@ -24,6 +24,8 @@ import java.util.List;
  * @noinspection WeakerAccess
  */
 public class NovelPage implements Serializable {
+    static final long serialVersionUID = 1003;
+
     public String title;
     public String imageURL;
     public String description;
