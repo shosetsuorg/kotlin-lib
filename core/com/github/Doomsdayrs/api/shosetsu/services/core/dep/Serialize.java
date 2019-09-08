@@ -1,6 +1,8 @@
-package com.github.Doomsdayrs.api.shosetsu.services.core.objects;
+package com.github.Doomsdayrs.api.shosetsu.services.core.dep;
 
-import com.sun.org.apache.bcel.internal.classfile.ClassFormatException;
+import com.github.Doomsdayrs.api.shosetsu.services.core.objects.NovelChapter;
+import com.github.Doomsdayrs.api.shosetsu.services.core.objects.NovelPage;
+import com.github.Doomsdayrs.api.shosetsu.services.core.objects.Stati;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -29,6 +31,12 @@ import java.util.Base64;
  */
 public class Serialize {
     private static final String[] NOVELPAGEKEYS = {"title", "imageURL", "description", "genres", "authors", "status", "tags", "artists", "language", "maxChapterPage", "novelChapters"};
+    private static final String[] NOVELCHAPTERKEYS = {"release", "chapterNum", "link"};
+    private static boolean debug = false;
+
+    public static void toggleDebug() {
+        debug = !debug;
+    }
 
     /**
      * Turns an object into a JSON counterpart, then serializes it along with data in it
@@ -36,11 +44,12 @@ public class Serialize {
      * @param object NovelPage or NovelChapter
      * @return Serialized JSON
      */
-    public static String serializeOBJECT(Object object) throws IOException {
+    public static String serializeOBJECT(Object object) throws Exception {
         if (object.getClass().equals(NovelChapter.class)) {
             NovelChapter novelChapter = (NovelChapter) object;
             return serialize(novelChapterToJSON(novelChapter).toString());
-        } else if (object.getClass().equals(NovelPage.class)) {
+        } else
+            if (object.getClass().equals(NovelPage.class)) {
             NovelPage novelPage = (NovelPage) object;
             JSONObject jsonObject = new JSONObject();
 
@@ -97,17 +106,22 @@ public class Serialize {
             if (novelPage.novelChapters != null) {
                 JSONArray jsonArray = new JSONArray();
                 for (NovelChapter novelChapter : novelPage.novelChapters)
-                    jsonArray.put(serialize(novelChapterToJSON(novelChapter)));
+                    jsonArray.put(serialize(novelChapterToJSON(novelChapter).toString()));
                 jsonObject.put("novelChapters", jsonArray);
             } else jsonObject.put("novelChapters", new JSONArray());
+
+            if (debug)
+                System.out.println("JSON to be serialized: " + jsonObject.toString());
+
             return serialize(jsonObject.toString());
-        } else throw new ClassFormatException("Illegal class");
+        } else throw new Exception("Illegal class");
     }
 
     public static NovelPage deserializeNovelPageJSON(String serial) throws IOException, ClassNotFoundException {
         NovelPage novelPage = new NovelPage();
-        JSONObject jsonObject = new JSONObject(deserialize(serial));
-
+        JSONObject jsonObject = new JSONObject((String) deserialize(serial));
+        if (debug)
+            System.out.println("Deserialize-d json: " + jsonObject);
         for (String key : NOVELPAGEKEYS) {
             if (!jsonObject.has(key))
                 throw new MalformedParametersException("JSON is invalid due to missing key[" + key + "]");
@@ -118,7 +132,7 @@ public class Serialize {
                     break;
 
                 case "status":
-                    switch ((String) deserialize(jsonObject.getString(key))) {
+                    switch (jsonObject.getString(key)) {
                         case "Publishing":
                             novelPage.status = Stati.PUBLISHING;
                             break;
@@ -168,25 +182,68 @@ public class Serialize {
                     novelPage.novelChapters = novelChapters;
                     break;
                 default:
-                    String response = (String) deserialize(jsonObject.getString(key));
-                    switch (key) {
-
+                    String response = jsonObject.getString(key);
+                    if (!response.equals("null")) {
+                        if (debug)
+                            System.out.println("Serial response of novelChapter key [" + key + "]: " + response);
+                        response = (String) deserialize(response);
                     }
-
-
-
+                    switch (key) {
+                        case "title":
+                            if (response.equals("null"))
+                                novelPage.title = null;
+                            else novelPage.title = response;
+                            break;
+                        case "imageURL":
+                            if (response.equals("null"))
+                                novelPage.imageURL = null;
+                            else novelPage.imageURL = response;
+                            break;
+                        case "description":
+                            if (response.equals("null"))
+                                novelPage.description = null;
+                            else novelPage.description = response;
+                            break;
+                        case "language":
+                            if (response.equals("null"))
+                                novelPage.language = null;
+                            else novelPage.language = response;
+                            break;
+                    }
                     break;
             }
         }
         return novelPage;
     }
 
-    public static NovelChapter deserializeNovelChapterJSON(String serial) {
+    public static NovelChapter deserializeNovelChapterJSON(String serial) throws IOException, ClassNotFoundException {
         NovelChapter novelChapter = new NovelChapter();
+        JSONObject jsonObject = new JSONObject((String) deserialize(serial));
+        for (String key : NOVELCHAPTERKEYS) {
+            if (!jsonObject.has(key))
+                throw new MalformedParametersException("JSON is invalid due to missing key[" + key + "]");
 
+            String response = (String) deserialize(jsonObject.getString(key));
+            switch (key) {
+                case "release":
+                    if (response.equals("null"))
+                        novelChapter.release = null;
+                    else novelChapter.release = response;
+                    break;
+                case "chapterNum":
+                    if (response.equals("null"))
+                        novelChapter.chapterNum = null;
+                    else novelChapter.chapterNum = response;
+                    break;
+                case "link":
+                    if (response.equals("null"))
+                        novelChapter.link = null;
+                    else novelChapter.link = response;
+                    break;
+            }
+        }
         return novelChapter;
     }
-
 
     private static JSONObject novelChapterToJSON(NovelChapter novelChapter) throws IOException {
         JSONObject jsonObject = new JSONObject();
@@ -197,7 +254,7 @@ public class Serialize {
     }
 
 
-    public static String serialize(Object object) throws IOException {
+    private static String serialize(Object object) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
         objectOutputStream.writeObject(object);
@@ -206,7 +263,7 @@ public class Serialize {
     }
 
 
-    public static Object deserialize(String string) throws IOException, ClassNotFoundException {
+    private static Object deserialize(String string) throws IOException, ClassNotFoundException {
         byte[] bytes = Base64.getDecoder().decode(string.getBytes());
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
