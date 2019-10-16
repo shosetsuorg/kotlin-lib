@@ -25,15 +25,17 @@ public class NovelChapter implements Serializable {
     static final long serialVersionUID = 1001;
 
     public String release = "";
-    public String chapterNum = "";
+    public String title = "";
     public String link = "";
+    public double order;
 
     @Override
     public String toString() {
         return "NovelChapter{" +
                 "release='" + release + '\'' +
-                ", chapterNum=" + chapterNum +
+                ", title='" + title + '\'' +
                 ", link='" + link + '\'' +
+                ", order=" + order +
                 '}';
     }
 }
