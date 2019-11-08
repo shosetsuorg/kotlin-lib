@@ -97,7 +97,7 @@ public abstract class ScrapeFormat implements Formatter {
     }
 
     /**
-     * Fixes URL
+     * Fixes URL. Whenever a URL enters the code, or leaves. It should be verified.
      *
      * @param baseURL the starter of the URL. IE `https://www.novelsite.net` or `https://www.novelsite.net/`
      * @param target  the url to verify, ie '/subURL' or 'subURL'

@@ -3,6 +3,7 @@ package com.github.Doomsdayrs.api.shosetsu.services.core.dep;
 import com.github.Doomsdayrs.api.shosetsu.services.core.objects.Novel;
 import com.github.Doomsdayrs.api.shosetsu.services.core.objects.NovelGenre;
 import com.github.Doomsdayrs.api.shosetsu.services.core.objects.NovelPage;
+import com.github.Doomsdayrs.api.shosetsu.services.core.objects.Ordering;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -29,22 +30,6 @@ import java.util.List;
  * @noinspection unused
  */
 public interface Formatter {
-    public enum Ordering {
-        TopBottomLatestOldest(0),
-        BottomTopLatestOldest(1);
-        private final int a;
-
-        Ordering(int a) {
-            this.a = a;
-        }
-
-        @Override
-        public String toString() {
-            return "Ordering{" +
-                    "a=" + a +
-                    '}';
-        }
-    }
 
 
     void setBuilder(Request.Builder builder);
