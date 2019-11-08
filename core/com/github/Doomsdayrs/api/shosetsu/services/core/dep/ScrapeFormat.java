@@ -3,6 +3,7 @@ package com.github.Doomsdayrs.api.shosetsu.services.core.dep;
 import com.github.Doomsdayrs.api.shosetsu.services.core.objects.Novel;
 import com.github.Doomsdayrs.api.shosetsu.services.core.objects.NovelGenre;
 import com.github.Doomsdayrs.api.shosetsu.services.core.objects.NovelPage;
+import com.github.Doomsdayrs.api.shosetsu.services.core.objects.Ordering;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.ResponseBody;

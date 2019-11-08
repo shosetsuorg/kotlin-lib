@@ -88,6 +88,7 @@ public interface Formatter {
      * @param URL Incoming Novel chapter URL to parse
      * @return The Passage of the novel
      */
+    @Deprecated
     String getNovelPassage(String URL) throws IOException;
 
     /**
@@ -96,6 +97,7 @@ public interface Formatter {
      * @param URL Incoming Novel page URL to parse
      * @return NovelPage object with as many parameters filled as possible;
      */
+    @Deprecated
     NovelPage parseNovel(String URL) throws IOException;
 
     /**
@@ -106,6 +108,7 @@ public interface Formatter {
      * @return NovelPage of parsed chapters
      * @throws IOException If any error occurs
      */
+    @Deprecated
     NovelPage parseNovel(String URL, int increment) throws IOException;
 
     /**
@@ -114,18 +117,21 @@ public interface Formatter {
      * @param page page number
      * @return string URL of the next latest page
      */
+    @Deprecated
     String getLatestURL(int page);
 
     /**
      * @param URL LatestPage URL to be parsed for novels
      * @return List of novels listed
      */
+    @Deprecated
     List<Novel> parseLatest(String URL) throws IOException;
 
     /**
      * @param query query string to be searched for
      * @return List of novels listed
      */
+    @Deprecated
     List<Novel> search(String query) throws IOException;
 
     // TODO Make an side menu builder
