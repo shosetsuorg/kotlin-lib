@@ -218,21 +218,49 @@ public abstract class ScrapeFormat implements Formatter {
         return latestOrdering;
     }
 
+
+    @Override
     public abstract String getName();
 
+    @Override
     public abstract String getImageURL();
 
-    public abstract String getNovelPassage(String URL) throws IOException;
+    @Override
+    public abstract String getNovelPassage(Document document);
 
-    public abstract NovelPage parseNovel(String URL) throws IOException;
+    @Override
+    public abstract NovelPage parseNovel(Document document);
 
-    public abstract NovelPage parseNovel(String URL, int increment) throws IOException;
+    @Override
+    public abstract String novelPageCombiner(String url, int increment);
 
+    @Override
+    public abstract List<Novel> parseLatest(Document document);
+
+    @Override
+    public abstract String getSearchString(String query);
+
+    @Override
+    public abstract List<Novel> parseSearch(Document document);
+
+    @Override
     public abstract String getLatestURL(int page);
 
+    @Override
+    public abstract NovelGenre[] getGenres();
+
+    @Deprecated
+    public abstract String getNovelPassage(String URL) throws IOException;
+
+    @Deprecated
+    public abstract NovelPage parseNovel(String URL) throws IOException;
+
+    @Deprecated
+    public abstract NovelPage parseNovel(String URL, int increment) throws IOException;
+
+    @Deprecated
     public abstract List<Novel> parseLatest(String URL) throws IOException;
 
+    @Deprecated
     public abstract List<Novel> search(String query) throws IOException;
-
-    public abstract NovelGenre[] getGenres();
 }

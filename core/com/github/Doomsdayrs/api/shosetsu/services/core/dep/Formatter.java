@@ -6,6 +6,7 @@ import com.github.Doomsdayrs.api.shosetsu.services.core.objects.NovelPage;
 import com.github.Doomsdayrs.api.shosetsu.services.core.objects.Ordering;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.List;
@@ -85,18 +86,32 @@ public interface Formatter {
     /**
      * Parse the novel Chapter
      *
-     * @param URL Incoming Novel chapter URL to parse
+     * @param document incoming page to parse
      * @return The Passage of the novel
      */
+    String getNovelPassage(Document document);
+
     @Deprecated
     String getNovelPassage(String URL) throws IOException;
 
     /**
      * Parse the novelPage
      *
-     * @param URL Incoming Novel page URL to parse
+     * @param document incoming document to parse
      * @return NovelPage object with as many parameters filled as possible;
      */
+    NovelPage parseNovel(Document document);
+
+    /**
+     * Only if isIncrementingChapterList() is true, this can be used
+     *
+     * Returns a URL that includes the specified increment
+     * @param url URL of the novel
+     * @param increment increment to add to the URL
+     * @return Combined URL
+     */
+    String novelPageCombiner(String url, int increment);
+
     @Deprecated
     NovelPage parseNovel(String URL) throws IOException;
 
@@ -117,20 +132,30 @@ public interface Formatter {
      * @param page page number
      * @return string URL of the next latest page
      */
-    @Deprecated
     String getLatestURL(int page);
 
     /**
-     * @param URL LatestPage URL to be parsed for novels
+     * @param document document to parse
      * @return List of novels listed
      */
+    List<Novel> parseLatest(Document document);
+
     @Deprecated
     List<Novel> parseLatest(String URL) throws IOException;
 
     /**
      * @param query query string to be searched for
-     * @return List of novels listed
+     * @return String url of the query
      */
+    String getSearchString(String query);
+
+    /**
+     * Parse document to get list
+     * @param document document to parse
+     * @return List of novels
+     */
+    List<Novel> parseSearch(Document document);
+
     @Deprecated
     List<Novel> search(String query) throws IOException;
 
