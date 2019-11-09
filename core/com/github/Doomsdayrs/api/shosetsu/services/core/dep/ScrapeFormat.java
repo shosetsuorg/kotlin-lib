@@ -238,6 +238,9 @@ public abstract class ScrapeFormat implements Formatter {
     public abstract List<Novel> parseLatest(Document document);
 
     @Override
+    public abstract NovelPage parseNovel(Document document, int increment);
+
+    @Override
     public abstract String getSearchString(String query);
 
     @Override

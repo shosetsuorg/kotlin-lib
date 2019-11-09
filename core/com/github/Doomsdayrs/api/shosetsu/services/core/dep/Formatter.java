@@ -103,10 +103,20 @@ public interface Formatter {
     NovelPage parseNovel(Document document);
 
     /**
-     * Only if isIncrementingChapterList() is true, this can be used
+     * Above but with increment
      *
+     * @param document  doc to parse
+     * @param increment increment
+     * @return NovelPage
+     */
+    NovelPage parseNovel(Document document, int increment);
+
+    /**
+     * Only if isIncrementingChapterList() is true, this can be used
+     * <p>
      * Returns a URL that includes the specified increment
-     * @param url URL of the novel
+     *
+     * @param url       URL of the novel
      * @param increment increment to add to the URL
      * @return Combined URL
      */
@@ -151,6 +161,7 @@ public interface Formatter {
 
     /**
      * Parse document to get list
+     *
      * @param document document to parse
      * @return List of novels
      */
