@@ -7,7 +7,6 @@ import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.nodes.Document
-import java.io.IOException
 
 /*
  * This file is part of shosetsu-services.
@@ -31,6 +30,7 @@ import java.io.IOException
  * @author github.com/doomsdayrs
  * @noinspection unused
  */
+@Suppress("unused")
 interface Formatter {
     /**
      * @return Name of the class
@@ -90,9 +90,6 @@ interface Formatter {
      */
     fun getNovelPassage(document: Document): String
 
-    @Deprecated("")
-    @Throws(IOException::class)
-    fun getNovelPassage(URL: String): String
 
     /**
      * Parse the novelPage
@@ -123,21 +120,6 @@ interface Formatter {
      */
     fun novelPageCombiner(url: String, increment: Int): String
 
-    @Deprecated("")
-    @Throws(IOException::class)
-    fun parseNovel(URL: String): NovelPage
-
-    /**
-     * the above, except if isIncrementingChapterList() returns true this will be used in its stead
-     *
-     * @param URL       Incoming Novel page URL to parse
-     * @param increment What increment to use
-     * @return NovelPage of parsed chapters
-     * @throws IOException If any error occurs
-     */
-    @Deprecated("")
-    @Throws(IOException::class)
-    fun parseNovel(URL: String, increment: Int): NovelPage
 
     /**
      * If there is a latest page, use this to return a certain page. Starts at 1 onwards
@@ -153,9 +135,6 @@ interface Formatter {
      */
     fun parseLatest(document: Document): List<Novel>
 
-    @Deprecated("")
-    @Throws(IOException::class)
-    fun parseLatest(URL: String): List<Novel>
 
     /**
      * @param query query string to be searched for
@@ -171,9 +150,6 @@ interface Formatter {
      */
     fun parseSearch(document: Document): List<Novel>
 
-    @Deprecated("")
-    @Throws(IOException::class)
-    fun search(query: String): List<Novel>
 
     // TODO Make an side menu builder
     /**

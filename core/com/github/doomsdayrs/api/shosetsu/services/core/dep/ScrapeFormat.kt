@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.github.doomsdayrs.api.shosetsu.services.core.dep
 
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
@@ -106,26 +108,6 @@ abstract class ScrapeFormat(override val formatterID: Int = -2) : Formatter {
     abstract override fun parseSearch(document: Document): List<Novel>
     abstract override fun getLatestURL(page: Int): String
     abstract override val genres: Array<NovelGenre>
-
-    @Deprecated("")
-    @Throws(IOException::class)
-    abstract override fun getNovelPassage(URL: String): String
-
-    @Deprecated("")
-    @Throws(IOException::class)
-    abstract override fun parseNovel(URL: String): NovelPage
-
-    @Deprecated("")
-    @Throws(IOException::class)
-    abstract override fun parseNovel(URL: String, increment: Int): NovelPage
-
-    @Deprecated("")
-    @Throws(IOException::class)
-    abstract override fun parseLatest(URL: String): List<Novel>
-
-    @Deprecated("")
-    @Throws(IOException::class)
-    abstract override fun search(query: String): List<Novel>
 
     companion object {
         /**
