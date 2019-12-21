@@ -1,6 +1,4 @@
-package com.github.Doomsdayrs.api.shosetsu.services.core.objects;
-
-import java.io.Serializable;
+package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
 /*
  * This file is part of shosetsu-services.
@@ -15,23 +13,15 @@ import java.io.Serializable;
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
- * novelreader-core
+ */
+/**
+ * shosetsu-services
  * 12 / June / 2019
  *
  * @author github.com/doomsdayrs
- * @noinspection WeakerAccess
  */
-public class NovelGenre implements Serializable {
-    static final long serialVersionUID = 1002;
-
-    public final String name;
-    public boolean isURL;
-
-    public final String type;
-
-    public NovelGenre(String name, boolean isURL, String type) {
-        this.name = name;
-        this.isURL = isURL;
-        this.type = type;
+class NovelGenre(val name: String, var isURL: Boolean, val type: String){
+    override fun toString(): String {
+        return "NovelGenre(name='$name', isURL=$isURL, type='$type')"
     }
 }

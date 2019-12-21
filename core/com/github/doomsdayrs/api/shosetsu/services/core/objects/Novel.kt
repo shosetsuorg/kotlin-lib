@@ -1,6 +1,4 @@
-package com.github.Doomsdayrs.api.shosetsu.services.core.objects;
-
-import java.io.Serializable;
+package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
 /*
  * This file is part of shosetsu-services.
@@ -15,24 +13,19 @@ import java.io.Serializable;
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
- * novelreader-core
+ */
+/**
+ * shosetsu-services
  * 29 / May / 2019
  *
  * @author github.com/doomsdayrs
- * @noinspection WeakerAccess
  */
-public class Novel implements Serializable {
-    static final long serialVersionUID = 1000;
-    public String title;
-    public String link;
-    public String imageURL;
+class Novel {
+    var title: String = "unknown"
+    var link: String = ""
+    var imageURL: String = ""
 
-    @Override
-    public String toString() {
-        return "Novel{" +
-                "title='" + title + '\'' +
-                ", link='" + link + '\'' +
-                ", imageURL='" + imageURL + '\'' +
-                '}';
+    override fun toString(): String {
+        return "Novel(title='$title', link='$link', imageURL='$imageURL')"
     }
 }

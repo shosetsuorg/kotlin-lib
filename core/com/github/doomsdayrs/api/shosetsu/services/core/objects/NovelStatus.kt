@@ -1,6 +1,4 @@
-package com.github.Doomsdayrs.api.shosetsu.services.core.objects;
-
-import java.io.Serializable;
+package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
 /*
  * This file is part of shosetsu-services.
@@ -15,27 +13,17 @@ import java.io.Serializable;
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
- * novelreader-core
+ */
+/**
+ * shosetsu-services
  * 30 / May / 2019
  *
  * @author github.com/doomsdayrs
  */
-public enum Stati implements Serializable {
-    PUBLISHING("Publishing"),
-    COMPLETED("Completed"),
-    PAUSED("Paused"),
-    UNKNOWN("Unknown");
+enum class NovelStatus(val title: String) {
+    PUBLISHING("Publishing"), COMPLETED("Completed"), PAUSED("Paused"), UNKNOWN("Unknown");
 
-    static final long serialVersionUID = 1004;
-
-    final String title;
-
-    Stati(String title) {
-        this.title = title;
-    }
-
-    @Override
-    public String toString() {
-        return title;
+    override fun toString(): String {
+        return "NovelStatus(title='$title')"
     }
 }

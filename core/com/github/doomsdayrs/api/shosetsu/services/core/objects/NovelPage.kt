@@ -1,8 +1,4 @@
-package com.github.Doomsdayrs.api.shosetsu.services.core.objects;
-
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
+package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
 /*
  * This file is part of shosetsu-services.
@@ -17,46 +13,33 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
- * novelreader-core
+ */
+
+/**
+ * shosetsu-services
  * 30 / May / 2019
  *
  * @author github.com/doomsdayrs
- * @noinspection WeakerAccess
  */
-public class NovelPage implements Serializable {
-    static final long serialVersionUID = 1003;
-
-    public String title;
-    public String imageURL;
-    public String description;
-    public String[] genres;
-    public String[] authors;
-    public Stati status = Stati.UNKNOWN;
-    public String[] tags;
-    public String[] artists;
-    public String language;
+@Suppress("MemberVisibilityCanBePrivate")
+class NovelPage {
+    var title: String = "unknown"
+    var imageURL: String = ""
+    var description: String = "unknown"
+    var genres: Array<String> = arrayOf()
+    var authors: Array<String> = arrayOf()
+    var status = NovelStatus.UNKNOWN
+    var tags: Array<String> = arrayOf()
+    var artists: Array<String> = arrayOf()
+    var language: String = "unknown"
 
     /**
      * If chapter list is incrementing, then this is used to prevent the loader from going past it
      */
-    public int maxChapterPage;
+    var maxChapterPage = 0
+    var novelChapters: List<NovelChapter> = arrayListOf()
 
-    public List<NovelChapter> novelChapters;
-
-
-    @Override
-    public String toString() {
-        return "NovelPage{" +
-                "title='" + title + '\'' +
-                ", imageURL='" + imageURL + '\'' +
-                ", description='" + description + '\'' +
-                ", genres=" + Arrays.toString(genres) +
-                ", authors=" + Arrays.toString(authors) +
-                ", status=" + status +
-                ", tags=" + Arrays.toString(tags) +
-                ", artists=" + Arrays.toString(artists) +
-                ", language='" + language + '\'' +
-                ", novelChapters=" + novelChapters +
-                '}';
+    override fun toString(): String {
+        return "NovelPage(title='$title', imageURL='$imageURL', description='$description', genres=${genres.contentToString()}, authors=${authors.contentToString()}, status=$status, tags=${tags.contentToString()}, artists=${artists.contentToString()}, language='$language', maxChapterPage=$maxChapterPage, novelChapters=$novelChapters)"
     }
 }

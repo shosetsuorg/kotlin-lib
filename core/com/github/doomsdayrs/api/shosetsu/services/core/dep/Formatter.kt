@@ -1,15 +1,13 @@
-package com.github.Doomsdayrs.api.shosetsu.services.core.dep;
+package com.github.doomsdayrs.api.shosetsu.services.core.dep
 
-import com.github.Doomsdayrs.api.shosetsu.services.core.objects.Novel;
-import com.github.Doomsdayrs.api.shosetsu.services.core.objects.NovelGenre;
-import com.github.Doomsdayrs.api.shosetsu.services.core.objects.NovelPage;
-import com.github.Doomsdayrs.api.shosetsu.services.core.objects.Ordering;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import org.jsoup.nodes.Document;
-
-import java.io.IOException;
-import java.util.List;
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.jsoup.nodes.Document
+import java.io.IOException
 
 /*
  * This file is part of shosetsu-services.
@@ -24,64 +22,65 @@ import java.util.List;
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
+ */
+
+/**
  * shosetsu-services
  * 30 / May / 2019
  *
  * @author github.com/doomsdayrs
  * @noinspection unused
  */
-public interface Formatter {
-
-
-    void setBuilder(Request.Builder builder);
-
-    void setClient(OkHttpClient client);
-
-    /**
-     * @return True if has cloudflare protection
-     */
-    boolean hasCloudFlare();
-
+interface Formatter {
     /**
      * @return Name of the class
      */
-    String getName();
+    val name: String
 
     /**
      * @return Image URL of the parser, yes it can be custom
      */
-    String getImageURL();
+    val imageURL: String
 
     /**
      * Set int ID as param in constructor and pass it up to the ScrapeFormat
      *
      * @return Formatter ID
      */
-    int getID();
+    val formatterID: Int
 
-    /**
-     * @return Has Search?
-     */
-    boolean hasSearch();
-
-    /**
-     * @return Has Genres?
-     */
-    boolean hasGenres();
+    var builder: Request.Builder
+    var client: OkHttpClient
 
     /**
      * @return returns true if the chapter list is split into many pages
      */
-    boolean isIncrementingChapterList();
+    val isIncrementingChapterList: Boolean
 
     /**
      * @return returns true if the novel passage is spilt into many pages
      */
-    boolean isIncrementingPassagePage();
+    val isIncrementingPassagePage: Boolean
 
-    Ordering chapterOrder();
+    /**
+     * @return True if has cloudflare protection
+     */
+    fun hasCloudFlare(): Boolean
 
-    Ordering latestOrder();
+
+    /**
+     * @return Has Search?
+     */
+    fun hasSearch(): Boolean
+
+    /**
+     * @return Has Genres?
+     */
+    fun hasGenres(): Boolean
+
+    fun chapterOrder(): Ordering
+
+    fun latestOrder(): Ordering
 
     /**
      * Parse the novel Chapter
@@ -89,10 +88,11 @@ public interface Formatter {
      * @param document incoming page to parse
      * @return The Passage of the novel
      */
-    String getNovelPassage(Document document);
+    fun getNovelPassage(document: Document): String
 
-    @Deprecated
-    String getNovelPassage(String URL) throws IOException;
+    @Deprecated("")
+    @Throws(IOException::class)
+    fun getNovelPassage(URL: String): String
 
     /**
      * Parse the novelPage
@@ -100,7 +100,7 @@ public interface Formatter {
      * @param document incoming document to parse
      * @return NovelPage object with as many parameters filled as possible;
      */
-    NovelPage parseNovel(Document document);
+    fun parseNovel(document: Document): NovelPage
 
     /**
      * Above but with increment
@@ -109,21 +109,23 @@ public interface Formatter {
      * @param increment increment
      * @return NovelPage
      */
-    NovelPage parseNovel(Document document, int increment);
+    fun parseNovel(document: Document, increment: Int): NovelPage
 
     /**
      * Only if isIncrementingChapterList() is true, this can be used
-     * <p>
+     *
+     *
      * Returns a URL that includes the specified increment
      *
      * @param url       URL of the novel
      * @param increment increment to add to the URL
      * @return Combined URL
      */
-    String novelPageCombiner(String url, int increment);
+    fun novelPageCombiner(url: String, increment: Int): String
 
-    @Deprecated
-    NovelPage parseNovel(String URL) throws IOException;
+    @Deprecated("")
+    @Throws(IOException::class)
+    fun parseNovel(URL: String): NovelPage
 
     /**
      * the above, except if isIncrementingChapterList() returns true this will be used in its stead
@@ -133,8 +135,9 @@ public interface Formatter {
      * @return NovelPage of parsed chapters
      * @throws IOException If any error occurs
      */
-    @Deprecated
-    NovelPage parseNovel(String URL, int increment) throws IOException;
+    @Deprecated("")
+    @Throws(IOException::class)
+    fun parseNovel(URL: String, increment: Int): NovelPage
 
     /**
      * If there is a latest page, use this to return a certain page. Starts at 1 onwards
@@ -142,22 +145,23 @@ public interface Formatter {
      * @param page page number
      * @return string URL of the next latest page
      */
-    String getLatestURL(int page);
+    fun getLatestURL(page: Int): String
 
     /**
      * @param document document to parse
      * @return List of novels listed
      */
-    List<Novel> parseLatest(Document document);
+    fun parseLatest(document: Document): List<Novel>
 
-    @Deprecated
-    List<Novel> parseLatest(String URL) throws IOException;
+    @Deprecated("")
+    @Throws(IOException::class)
+    fun parseLatest(URL: String): List<Novel>
 
     /**
      * @param query query string to be searched for
      * @return String url of the query
      */
-    String getSearchString(String query);
+    fun getSearchString(query: String): String
 
     /**
      * Parse document to get list
@@ -165,17 +169,17 @@ public interface Formatter {
      * @param document document to parse
      * @return List of novels
      */
-    List<Novel> parseSearch(Document document);
+    fun parseSearch(document: Document): List<Novel>
 
-    @Deprecated
-    List<Novel> search(String query) throws IOException;
+    @Deprecated("")
+    @Throws(IOException::class)
+    fun search(query: String): List<Novel>
 
     // TODO Make an side menu builder
-
     /**
      * ArrayList of genres site has
      *
      * @return genres
      */
-    NovelGenre[] getGenres();
+    val genres: Array<NovelGenre>
 }
