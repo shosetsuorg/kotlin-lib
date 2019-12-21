@@ -30,8 +30,7 @@ import java.net.URL
  *
  * @author github.com/doomsdayrs
  */
-abstract class ScrapeFormat : Formatter {
-    override val formatterID: Int = -2
+abstract class ScrapeFormat(override val formatterID: Int = -2) : Formatter {
     // Variables that can be adjusted
     var hasSearch = true
     override var isIncrementingChapterList: Boolean = false
