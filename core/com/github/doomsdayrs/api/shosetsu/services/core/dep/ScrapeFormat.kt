@@ -6,6 +6,8 @@ import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -33,15 +35,17 @@ import java.net.URL
  * @author github.com/doomsdayrs
  */
 abstract class ScrapeFormat(override val formatterID: Int = -2) : Formatter {
+
     // Variables that can be adjusted
-    var hasSearch = true
+    override var builder: Request.Builder = Request.Builder()
+    override var client: OkHttpClient = OkHttpClient()
     override var isIncrementingChapterList: Boolean = false
     override var isIncrementingPassagePage: Boolean = false
-    var hasGenres = false
-    var chapterOrdering = Ordering.TopBottomLatestOldest
-    var latestOrdering = Ordering.TopBottomLatestOldest
-    var hasCloudFlare = false
-
+    override var chapterOrder = Ordering.TopBottomLatestOldest
+    override var latestOrder = Ordering.TopBottomLatestOldest
+    override val hasCloudFlare: Boolean = false
+    override val hasSearch: Boolean = true
+    override val hasGenres: Boolean = false
 
     /**
      * Requests the data
@@ -71,32 +75,7 @@ abstract class ScrapeFormat(override val formatterID: Int = -2) : Formatter {
         return Jsoup.parse(request(URL)!!.string())
     }
 
-
-    // Methods below override the formatter classes methods
-    override fun hasCloudFlare(): Boolean {
-        return hasCloudFlare
-    }
-
-    fun hasCloudFlare(hasCloudFlare: Boolean): Boolean {
-        this.hasCloudFlare = hasCloudFlare
-        return hasCloudFlare
-    }
-
-    /**
-     * On default will return true, stating site does have a search feature
-     *
-     * @return Has Search
-     */
-    override fun hasSearch(): Boolean {
-        return hasSearch
-    }
-
-    fun hasSearch(hasSearch: Boolean): Boolean {
-        this.hasSearch = hasSearch
-        return hasSearch
-    }
-
-
+    // Methods and variables that MUST be initialized
     abstract override val name: String
     abstract override val imageURL: String
     abstract override fun getNovelPassage(document: Document): String

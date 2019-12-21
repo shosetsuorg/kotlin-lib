@@ -32,56 +32,22 @@ import org.jsoup.nodes.Document
  */
 @Suppress("unused")
 interface Formatter {
-    /**
-     * @return Name of the class
-     */
-    val name: String
-
-    /**
-     * @return Image URL of the parser, yes it can be custom
-     */
-    val imageURL: String
-
-    /**
-     * Set int ID as param in constructor and pass it up to the ScrapeFormat
-     *
-     * @return Formatter ID
-     */
     val formatterID: Int
 
+    // May be changed
     var builder: Request.Builder
     var client: OkHttpClient
-
-    /**
-     * @return returns true if the chapter list is split into many pages
-     */
     val isIncrementingChapterList: Boolean
-
-    /**
-     * @return returns true if the novel passage is spilt into many pages
-     */
     val isIncrementingPassagePage: Boolean
+    val hasCloudFlare: Boolean
+    val hasSearch: Boolean
+    val hasGenres: Boolean
+    val chapterOrder: Ordering
+    val latestOrder: Ordering
 
-    /**
-     * @return True if has cloudflare protection
-     */
-    fun hasCloudFlare(): Boolean
-
-
-    /**
-     * @return Has Search?
-     */
-    fun hasSearch(): Boolean
-
-    /**
-     * @return Has Genres?
-     */
-    fun hasGenres(): Boolean
-
-    fun chapterOrder(): Ordering
-
-    fun latestOrder(): Ordering
-
+    // Must be initialized
+    val name: String
+    val imageURL: String
     /**
      * Parse the novel Chapter
      *
@@ -89,7 +55,6 @@ interface Formatter {
      * @return The Passage of the novel
      */
     fun getNovelPassage(document: Document): String
-
 
     /**
      * Parse the novelPage
@@ -120,7 +85,6 @@ interface Formatter {
      */
     fun novelPageCombiner(url: String, increment: Int): String
 
-
     /**
      * If there is a latest page, use this to return a certain page. Starts at 1 onwards
      *
@@ -134,7 +98,6 @@ interface Formatter {
      * @return List of novels listed
      */
     fun parseLatest(document: Document): List<Novel>
-
 
     /**
      * @param query query string to be searched for
@@ -150,12 +113,6 @@ interface Formatter {
      */
     fun parseSearch(document: Document): List<Novel>
 
-
     // TODO Make an side menu builder
-    /**
-     * ArrayList of genres site has
-     *
-     * @return genres
-     */
     val genres: Array<NovelGenre>
 }
