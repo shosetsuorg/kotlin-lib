@@ -1,7 +1,4 @@
-package com.github.doomsdayrs.api.shosetsu.services.core.objects;
-
-
-import java.util.Arrays;
+package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
 /**
  * com.github.doomsdayrs.api.shosetsu.extensions.lang.en
@@ -9,23 +6,17 @@ import java.util.Arrays;
  *
  * @author github.com/doomsdayrs
  */
-public class StringArray {
-    public String[] strings;
+class StringArray {
+    var strings: Array<String> = arrayOf()
 
-    public void setSize(int size){
-        strings = new String[size];
-        Arrays.fill(strings, "");
+    fun setSize(size: Int) {
+        val strings: ArrayList<String> = ArrayList()
+        for (i in 1..size)
+            strings.add("")
+        this.strings = strings.toArray(arrayOf(""))
     }
 
-    public String[] getStrings() {
-        return strings;
-    }
-
-    public void setStrings(String[] strings) {
-        this.strings = strings;
-    }
-
-    public void setPosition(int index, String value){
-        strings[index] = value;
+    fun setPosition(index: Int, value: String) {
+        strings[index] = value
     }
 }

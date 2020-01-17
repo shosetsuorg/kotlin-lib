@@ -1,4 +1,4 @@
-package com.github.doomsdayrs.api.shosetsu.extensions.lang.en.aaa
+package com.github.doomsdayrs.api.shosetsu.services.core.dep
 
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre

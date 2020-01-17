@@ -1,6 +1,4 @@
-package com.github.doomsdayrs.api.shosetsu.extensions.lang.en.aaa
-
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.*
+package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
 /**
  * com.github.doomsdayrs.api.shosetsu.extensions.lang.en
