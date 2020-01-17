@@ -20,7 +20,7 @@ class LuaSupport {
     }
 
     /**
-     * type Type of NovelStatus {0:PUBLISHING,1:COMPLETED,2:PAUSED,3:UNKNOWN}
+     * @param type Type of NovelStatus {0:PUBLISHING,1:COMPLETED,2:PAUSED,3:UNKNOWN}
      */
     fun getStatus(type: Int): NovelStatus {
         return when (type) {
@@ -28,6 +28,18 @@ class LuaSupport {
             1 -> NovelStatus.COMPLETED
             2 -> NovelStatus.PAUSED
             else -> NovelStatus.UNKNOWN
+        }
+    }
+
+
+    /**
+     * @param type  TopBottomLatestOldest, BottomTopLatestOldest
+     */
+    fun getOrdering(type: Int): Ordering {
+        return when (type) {
+            0 -> Ordering.TopBottomLatestOldest
+            1 -> Ordering.BottomTopLatestOldest
+            else -> Ordering.TopBottomLatestOldest
         }
     }
 

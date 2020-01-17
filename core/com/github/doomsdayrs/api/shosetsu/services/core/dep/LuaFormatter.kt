@@ -3,6 +3,7 @@ package com.github.doomsdayrs.api.shosetsu.services.core.dep
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
 import org.jsoup.nodes.Document
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
@@ -34,6 +35,63 @@ import org.luaj.vm2.lib.jse.CoerceLuaToJava
  * @author github.com/doomsdayrs
  */
 class LuaFormatter(val luaObject: LuaValue) : ScrapeFormat(luaObject.get("getID").call().toint()) {
+    companion object {
+        val keys: Array<String> = arrayOf(
+                "isIncrementingChapterList",
+                "isIncrementingPassagePage",
+                "chapterOrder",
+                "latestOrder",
+                "hasCloudFlare",
+                "hasSearch",
+                "hasGenres",
+                "genres",
+                "getImageURL",
+                "getName",
+                "getLatestURL",
+                "getNovelPassage",
+                "getSearchString",
+                "novelPageCombiner",
+                "parseLatest",
+                "parseNovel",
+                "parseSearch"
+        )
+    }
+
+    init {
+        val missings: ArrayList<String> = ArrayList()
+        for (key in keys) {
+            if (luaObject.get(key) == null) {
+                missings.add(key)
+            }
+        }
+        if (missings.size > 0)
+            throw NullPointerException("Lua Script is missing methods:$missings")
+    }
+
+    override var isIncrementingChapterList: Boolean
+        get() = luaObject.get("isIncrementingChapterList").call().toboolean()
+        set(value) {}
+
+    override var isIncrementingPassagePage: Boolean
+        get() = luaObject.get("isIncrementingPassagePage").call().toboolean()
+        set(value) {}
+
+    override var chapterOrder: Ordering
+        get() = CoerceLuaToJava.coerce(luaObject.get("chapterOrder").call(), Ordering::class.java) as Ordering
+        set(value) {}
+
+    override var latestOrder: Ordering
+        get() = CoerceLuaToJava.coerce(luaObject.get("latestOrder").call(), Ordering::class.java) as Ordering
+        set(value) {}
+
+    override val hasCloudFlare: Boolean
+        get() = luaObject.get("hasCloudFlare").call().toboolean()
+
+    override val hasSearch: Boolean
+        get() = luaObject.get("hasSearch").call().toboolean()
+
+    override val hasGenres: Boolean
+        get() = luaObject.get("hasGenres").call().toboolean()
 
 
     override val genres: Array<NovelGenre>
