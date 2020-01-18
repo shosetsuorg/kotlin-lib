@@ -61,7 +61,7 @@ class LuaFormatter(val luaObject: LuaValue) : ScrapeFormat(luaObject.get("getID"
         //TODO Check if script has a function
         val missings: ArrayList<String> = ArrayList()
         for (key in keys) {
-            if (luaObject.get(key).call() == null) {
+            if (luaObject.get(key) == null) {
                 missings.add(key)
             }
         }
