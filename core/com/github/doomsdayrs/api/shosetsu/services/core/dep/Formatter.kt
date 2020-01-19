@@ -34,9 +34,6 @@ import org.jsoup.nodes.Document
 interface Formatter {
     val formatterID: Int
 
-    // May be changed
-    var builder: Request.Builder
-    var client: OkHttpClient
     val isIncrementingChapterList: Boolean
     val isIncrementingPassagePage: Boolean
     val hasCloudFlare: Boolean

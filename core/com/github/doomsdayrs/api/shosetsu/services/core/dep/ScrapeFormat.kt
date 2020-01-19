@@ -34,11 +34,12 @@ import java.net.URL
  *
  * @author github.com/doomsdayrs
  */
+@Deprecated("Outdated", ReplaceWith("LuaFormatter"), DeprecationLevel.WARNING)
 abstract class ScrapeFormat(override val formatterID: Int = -2) : Formatter {
 
     // Variables that can be adjusted
-    override var builder: Request.Builder = Request.Builder()
-    override var client: OkHttpClient = OkHttpClient()
+    var builder: Request.Builder = Request.Builder()
+    var client: OkHttpClient = OkHttpClient()
     override var isIncrementingChapterList: Boolean = false
     override var isIncrementingPassagePage: Boolean = false
     override var chapterOrder = Ordering.TopBottomLatestOldest

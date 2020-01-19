@@ -1,14 +1,13 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.dep
 
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.*
 import org.json.JSONObject
 import org.jsoup.nodes.Document
 import org.luaj.vm2.LuaValue
+import org.luaj.vm2.lib.jse.CoerceJavaToLua
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
+import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -39,7 +38,7 @@ import java.io.IOException
  *
  * @author github.com/doomsdayrs
  */
-class LuaFormatter(val file: File, val luaObject: LuaValue) : ScrapeFormat(luaObject.get("getID").call().toint()) {
+class LuaFormatter(val file: File) : Formatter {
     companion object {
         val keys: Array<String> = arrayOf(
                 "isIncrementingChapterList",
@@ -58,7 +57,8 @@ class LuaFormatter(val file: File, val luaObject: LuaValue) : ScrapeFormat(luaOb
                 "novelPageCombiner",
                 "parseLatest",
                 "parseNovel",
-                "parseSearch"
+                "parseSearch",
+                "getID"
         )
     }
 
@@ -75,17 +75,31 @@ class LuaFormatter(val file: File, val luaObject: LuaValue) : ScrapeFormat(luaOb
         }
     }
 
+    fun getScriptFromSystem(path: String): LuaValue {
+        val script: LuaValue = JsePlatform.standardGlobals()
+        script.checkglobals().STDOUT = System.out
+        val support = LuaSupport()
+        script.checkglobals().set("LuaSupport", CoerceJavaToLua.coerce(support))
+        script["dofile"].call(LuaValue.valueOf(path))
+        return script
+    }
+
+    val luaObject: LuaValue = getScriptFromSystem(file.absolutePath);
+
     init {
         //TODO Check if script has a function
         val missings: ArrayList<String> = ArrayList()
         for (key in keys) {
-            if (luaObject.get(key) == null) {
+            if (!luaObject.get(key).isfunction()) {
                 missings.add(key)
             }
         }
         if (missings.size > 0)
             throw NullPointerException("Lua Script is missing methods:$missings")
     }
+
+    override val formatterID: Int
+        get() = luaObject.get("getID").call().toint()
 
     override var isIncrementingChapterList: Boolean
         get() = luaObject.get("isIncrementingChapterList").call().toboolean()
