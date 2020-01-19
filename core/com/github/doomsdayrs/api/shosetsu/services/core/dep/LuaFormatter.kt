@@ -4,10 +4,15 @@ import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
+import org.json.JSONObject
 import org.jsoup.nodes.Document
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import java.io.IOException
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -34,7 +39,7 @@ import org.luaj.vm2.lib.jse.CoerceLuaToJava
  *
  * @author github.com/doomsdayrs
  */
-class LuaFormatter(val luaObject: LuaValue) : ScrapeFormat(luaObject.get("getID").call().toint()) {
+class LuaFormatter(val file: File, val luaObject: LuaValue) : ScrapeFormat(luaObject.get("getID").call().toint()) {
     companion object {
         val keys: Array<String> = arrayOf(
                 "isIncrementingChapterList",
@@ -55,6 +60,19 @@ class LuaFormatter(val luaObject: LuaValue) : ScrapeFormat(luaObject.get("getID"
                 "parseNovel",
                 "parseSearch"
         )
+    }
+
+    fun getMetaData(): JSONObject? {
+        return try {
+            BufferedReader(FileReader(file)).use { br ->
+                val line: String? = br.readLine()
+                br.close()
+                if (line != null) JSONObject(line.toString().replace("-- ", "")) else null
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
     }
 
     init {
