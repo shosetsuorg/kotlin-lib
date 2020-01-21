@@ -43,7 +43,15 @@ class ShosetsuLib : TwoArgFunction() {
         }
     }
 
+    /**
+     * Makes use of lua metatables and its "__index" metamethod, which is called when
+     * trying to index a table and a key is not present, to inject our library into the script's Globals.
+     */
     internal class __index(var g: Globals) : TwoArgFunction() {
+        /*
+         * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(lib, ...),
+         * the "wrap" function bypasses this.
+         */
         private var wrap: LuaFunction = g["load"].call("local o,f = ...; return function(...) return f(o, ...) end") as LuaFunction
         private var lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
 
