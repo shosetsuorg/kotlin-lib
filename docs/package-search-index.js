@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.github.Doomsdayrs.api.shosetsu.services.core.dep"},{"l":"com.github.Doomsdayrs.api.shosetsu.services.core.objects"}]

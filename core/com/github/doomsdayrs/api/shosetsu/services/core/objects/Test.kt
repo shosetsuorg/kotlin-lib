@@ -1,16 +1,4 @@
-package core.com.github.doomsdayrs.api.shosetsu.services.core
-
-import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.LuaSupport
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.ResponseBody
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import java.io.File
-import java.io.IOException
-import java.net.URL
-import java.util.concurrent.TimeUnit
+package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
 
 /*
@@ -91,7 +79,6 @@ internal class Test {
                 println()
 
                 println("DEBUG")
-                com.github.doomsdayrs.api.shosetsu.services.core.objects.LuaSupport.printBuffer()
             }
 
         }
