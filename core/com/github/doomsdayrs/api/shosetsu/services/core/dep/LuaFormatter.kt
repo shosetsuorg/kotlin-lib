@@ -3,6 +3,7 @@ package com.github.doomsdayrs.api.shosetsu.services.core.dep
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.*
 import org.json.JSONObject
 import org.jsoup.nodes.Document
+import org.luaj.vm2.Globals
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
@@ -76,10 +77,8 @@ class LuaFormatter(val file: File) : Formatter {
     }
 
     fun getScriptFromSystem(path: String): LuaValue {
-        val script: LuaValue = JsePlatform.standardGlobals()
-        script.checkglobals().STDOUT = System.out
-        val support = LuaSupport()
-        script.checkglobals().set("LuaSupport", CoerceJavaToLua.coerce(support))
+        val script: Globals = JsePlatform.standardGlobals()
+        script.load(ShosetsuLib())
         script["dofile"].call(LuaValue.valueOf(path))
         return script
     }
