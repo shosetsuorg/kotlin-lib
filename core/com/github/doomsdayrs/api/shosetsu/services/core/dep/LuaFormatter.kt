@@ -5,7 +5,6 @@ import org.json.JSONObject
 import org.jsoup.nodes.Document
 import org.luaj.vm2.Globals
 import org.luaj.vm2.LuaValue
-import org.luaj.vm2.lib.jse.CoerceJavaToLua
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import org.luaj.vm2.lib.jse.JsePlatform
@@ -79,6 +78,7 @@ class LuaFormatter(val file: File) : Formatter {
     fun getScriptFromSystem(path: String): LuaValue {
         val script: Globals = JsePlatform.standardGlobals()
         script.load(ShosetsuLib())
+        script.STDOUT = System.out
         script["dofile"].call(LuaValue.valueOf(path))
         return script
     }
