@@ -78,8 +78,8 @@ class LuaFormatter(val file: File) : Formatter {
     fun getScriptFromSystem(path: String): LuaValue {
         val script: Globals = JsePlatform.standardGlobals()
         script.load(ShosetsuLib())
-        script.STDOUT = System.out
         script["dofile"].call(LuaValue.valueOf(path))
+        script.STDOUT = System.out
         return script
     }
 
