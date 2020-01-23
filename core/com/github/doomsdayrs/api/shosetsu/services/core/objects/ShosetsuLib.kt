@@ -1,13 +1,11 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
-import org.luaj.vm2.*
-import org.luaj.vm2.lib.VarArgFunction
-import org.luaj.vm2.lib.ZeroArgFunction
-import org.luaj.vm2.lib.OneArgFunction
+import org.luaj.vm2.Globals
+import org.luaj.vm2.LuaFunction
+import org.luaj.vm2.LuaTable
+import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.TwoArgFunction
-import org.luaj.vm2.lib.ThreeArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
-import org.luaj.vm2.lib.jse.CoerceLuaToJava
 
 /**
  * com.github.doomsdayrs.api.shosetsu.extensions.lang.en
@@ -16,10 +14,17 @@ import org.luaj.vm2.lib.jse.CoerceLuaToJava
  * @author github.com/technojo4
  */
 class ShosetsuLib : TwoArgFunction() {
+    companion object {
+        // TODO Set libraries for this in shosetsu
+        // TODO > Request libraries via meta
+        // TODO > Retrieve libraries with names
+        val libraries: MutableMap<String, LuaValue> = mutableMapOf()
+    }
+
     internal class LibFunctions {
-        fun <E>List(): ArrayList<E> = ArrayList()
-        fun <E>AsList(arr: Array<E>): ArrayList<E> = ArrayList<E>(arr.asList())
-        fun <E>Reverse(arr: ArrayList<E>) = arr.reverse()
+        fun <E> List(): ArrayList<E> = ArrayList()
+        fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList<E>(arr.asList())
+        fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
         fun Novel() = com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel()
         fun NovelChapter() = com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelChapter()
