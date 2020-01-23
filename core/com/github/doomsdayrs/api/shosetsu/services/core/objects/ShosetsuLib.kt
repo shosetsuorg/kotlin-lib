@@ -55,7 +55,7 @@ class ShosetsuLib : TwoArgFunction() {
          * @return [LuaValue] of the library if it is available, [LuaValue.NIL] otherwise
          */
         fun Require(name: String): LuaValue? {
-            return libraries[name]
+            return libraries[name] ?: LuaValue.NIL
         }
 
         /**

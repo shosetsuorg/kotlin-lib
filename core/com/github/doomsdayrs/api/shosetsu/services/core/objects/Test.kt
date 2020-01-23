@@ -1,5 +1,10 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
+import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
+import org.luaj.vm2.Globals
+import org.luaj.vm2.LuaValue
+import org.luaj.vm2.lib.jse.JsePlatform
+
 
 /*
  * This file is part of shosetsu-extensions.
@@ -26,14 +31,16 @@ internal class Test {
     companion object {
         // The below is methods robbed from ScrapeFormat class
         private val builder: okhttp3.Request.Builder = okhttp3.Request.Builder()
-        private val client: okhttp3.OkHttpClient = okhttp3.OkHttpClient()
+//        private val client: okhttp3.OkHttpClient = okhttp3.OkHttpClient()
 
         @Throws(java.io.IOException::class)
         private fun request(url: String?): okhttp3.ResponseBody? {
             println(url)
             val u = java.net.URL(url)
             val request = builder.url(u).build()
-            return client.newCall(request).execute().body
+            //          return client.newCall(request).execute().body
+            return null
+
         }
 
         @Throws(java.io.IOException::class)
@@ -41,14 +48,41 @@ internal class Test {
             return org.jsoup.Jsoup.parse(request(URL)!!.string())
         }
 
+
+        fun getScriptFromSystem(path: String): LuaValue {
+            val script: Globals = JsePlatform.standardGlobals()
+            script.load(ShosetsuLib())
+            script["dofile"].call(LuaValue.valueOf(path))
+            script.STDOUT = System.out
+            return script
+        }
+
+
         @Throws(java.io.IOException::class, InterruptedException::class)
         @JvmStatic
         fun main(args: Array<String>) {
+            testLibrary()
+        }
+
+        fun testLibrary() {
+            run {
+                val pathLibrary = "./LibraryWithFunctions.lua"
+                ShosetsuLib.libraries.putIfAbsent("Test", getScriptFromSystem(pathLibrary))
+
+            }
+            run {
+                val path = "./LibraryTest.lua"
+                getScriptFromSystem(path)
+            }
+        }
+
+        fun testScripts() {
             val formatters = arrayOf(
-                    "src/main/resources/src/BestLightNovel.lua"
+                    "src/main/resources/BestLightNovel.lua"
             )
             for (format in formatters) {
                 println("========== $format ==========")
+
 
                 val luaFormatter = com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter(java.io.File(format))
 
@@ -80,7 +114,7 @@ internal class Test {
 
                 println("DEBUG")
             }
-
         }
+
     }
 }
