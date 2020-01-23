@@ -2,6 +2,7 @@ package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
 import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
 import org.luaj.vm2.Globals
+import org.luaj.vm2.LuaError
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 
@@ -40,7 +41,6 @@ internal class Test {
             val request = builder.url(u).build()
             //          return client.newCall(request).execute().body
             return null
-
         }
 
         @Throws(java.io.IOException::class)
@@ -48,15 +48,18 @@ internal class Test {
             return org.jsoup.Jsoup.parse(request(URL)!!.string())
         }
 
-
+        @Throws(org.luaj.vm2.LuaError::class)
         fun getScriptFromSystem(path: String): LuaValue {
             val script: Globals = JsePlatform.standardGlobals()
             script.load(ShosetsuLib())
-            script["dofile"].call(LuaValue.valueOf(path))
+            try {
+                script["dofile"].call(LuaValue.valueOf(path))
+            } catch (e: LuaError) {
+                throw e
+            }
             script.STDOUT = System.out
             return script
         }
-
 
         @Throws(java.io.IOException::class, InterruptedException::class)
         @JvmStatic
@@ -67,12 +70,21 @@ internal class Test {
         fun testLibrary() {
             run {
                 val pathLibrary = "./LibraryWithFunctions.lua"
-                ShosetsuLib.libraries.putIfAbsent("Test", getScriptFromSystem(pathLibrary))
-
+                // ShosetsuLib.libraries.putIfAbsent("Test", getScriptFromSystem(pathLibrary))
+                ShosetsuLib.libraries.putIfAbsent("Test", LuaValue.NIL)
             }
             run {
                 val path = "./LibraryTest.lua"
-                getScriptFromSystem(path)
+                try {
+                    getScriptFromSystem(path)
+                } catch (e: LuaError) {
+                    if (e.message != null && e.message!!.contains("MISLIB")) {
+                        val error = e.message!!.split(":")
+                        println("Missing library:\t${error[1]}")
+                    } else {
+                        println("Unknown error")
+                    }
+                }
             }
         }
 

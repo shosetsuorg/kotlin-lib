@@ -5,5 +5,7 @@
 ---
 
 local Library = Require("Test")
-
+if Library == nil then
+    return error("MISLIB:Test")
+end
 print(Library.libraryMethod())
