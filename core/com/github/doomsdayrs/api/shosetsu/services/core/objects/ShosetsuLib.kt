@@ -7,6 +7,21 @@ import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
 
+/*
+ * This file is part of shosetsu-services.
+ * shosetsu-services is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * shosetsu-services is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
+ * ====================================================================
+ */
+
 /**
  * com.github.doomsdayrs.api.shosetsu.extensions.lang.en
  * 20 / January / 2020
@@ -18,18 +33,35 @@ class ShosetsuLib : TwoArgFunction() {
         // TODO Set libraries for this in shosetsu
         // TODO > Request libraries via meta
         // TODO > Retrieve libraries with names
+        /**
+         * Libraries loaded in via shosetsu.
+         * The [String] key is the name of the library
+         * If contained, it will return a [LuaValue] of the library
+         */
         val libraries: MutableMap<String, LuaValue> = mutableMapOf()
     }
 
     internal class LibFunctions {
         fun <E> List(): ArrayList<E> = ArrayList()
-        fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList<E>(arr.asList())
+        fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
         fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
         fun Novel() = com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel()
         fun NovelChapter() = com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelChapter()
         fun NovelPage() = com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage()
 
+        /**
+         * @param name Name of the library to request
+         * @return [LuaValue] of the library if it is available, [LuaValue.NIL] otherwise
+         */
+        fun Require(name: String): LuaValue? {
+            return libraries[name]
+        }
+
+        /**
+         * @param type specified by an ID.[NovelStatus.PUBLISHING]=0,[NovelStatus.COMPLETED]=1,[NovelStatus.PAUSED]=2, else [NovelStatus.UNKNOWN]
+         * @return [NovelStatus]
+         */
         fun NovelStatus(type: Int): NovelStatus {
             return when (type) {
                 0 -> NovelStatus.PUBLISHING
@@ -39,6 +71,10 @@ class ShosetsuLib : TwoArgFunction() {
             }
         }
 
+        /**
+         * @param type specified by an ID.[Ordering.TopBottomLatestOldest]=0|default,[Ordering.BottomTopLatestOldest]=1
+         * @return [Ordering]
+         */
         fun Ordering(type: Int): Ordering {
             return when (type) {
                 0 -> Ordering.TopBottomLatestOldest
@@ -60,7 +96,7 @@ class ShosetsuLib : TwoArgFunction() {
         private var wrap: LuaFunction = g["load"].call("local o,f = ...; return function(...) return f(o, ...) end") as LuaFunction
         private var lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
 
-        override fun call(_self: org.luaj.vm2.LuaValue, k: LuaValue): LuaValue {
+        override fun call(_self: LuaValue, k: LuaValue): LuaValue {
             if (!k.isstring()) return LuaValue.NIL
 
             val o = lib.get(k.tostring())

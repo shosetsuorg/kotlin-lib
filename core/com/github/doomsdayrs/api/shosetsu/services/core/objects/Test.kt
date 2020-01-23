@@ -47,7 +47,7 @@ internal class Test {
             val formatters = arrayOf(
                     "src/main/resources/src/BestLightNovel.lua"
             )
-            for (format in formatters){
+            for (format in formatters) {
                 println("========== $format ==========")
 
                 val luaFormatter = com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter(java.io.File(format))
@@ -70,7 +70,7 @@ internal class Test {
 
                 // Novel
                 java.util.concurrent.TimeUnit.SECONDS.sleep(1)
-                val novel = luaFormatter.parseNovel(docFromURL(luaFormatter.novelPageCombiner(list[0].link,2)),2)
+                val novel = luaFormatter.parseNovel(docFromURL(luaFormatter.novelPageCombiner(list[0].link, 2)), 2)
                 println(novel)
 
                 // Parse novel passage
