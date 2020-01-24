@@ -53,7 +53,7 @@ internal class Test {
             val script: Globals = JsePlatform.standardGlobals()
             script.load(ShosetsuLib())
             try {
-                script["dofile"].call(LuaValue.valueOf(path))
+                script["dofile"].call(LuaValue.valueOf(path))!!
             } catch (e: LuaError) {
                 throw e
             }
@@ -71,6 +71,7 @@ internal class Test {
             run {
                 val pathLibrary = "./LibraryWithFunctions.lua"
                 ShosetsuLib.libraries.putIfAbsent("Test", getScriptFromSystem(pathLibrary))
+                ShosetsuLib.libraries.putIfAbsent("Madara", getScriptFromSystem("./MadaraScrapeLibrary.lua"))
                 ShosetsuLib.libraries.putIfAbsent("Test", LuaValue.NIL)
             }
             run {

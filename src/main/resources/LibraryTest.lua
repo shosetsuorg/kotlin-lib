@@ -4,5 +4,8 @@
 --- DateTime: 1/23/20 5:23 PM
 ---
 
-local Library = Require("Test")
-print(Library.libraryMethod())
+local Madara = Require("Madara"):new("A Site","url","lang","date")
+
+print(Madara)
+print(Madara.name)
+Madara:test()
