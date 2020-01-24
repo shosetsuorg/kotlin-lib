@@ -4,8 +4,6 @@
 --- DateTime: 1/23/20 5:23 PM
 ---
 
-local Madara = Require("Madara"):new("A Site","url","lang","date")
+local Madara = Require("Madara").Madara:new(nil, "A Site", "url", "lang", "date")
 
-print(Madara)
 print(Madara.name)
-Madara:test()
