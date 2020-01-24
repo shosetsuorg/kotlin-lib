@@ -5,21 +5,16 @@
 ---
 
 local Library = Require("Madara")
-local Madara = Library.Madara:new(nil, "A Site", "url", "lang", "date")
+local Wrap = Require("FormatterObject")
 
-Madara.test()
-
-VipNovel = Library.Madara:new(nil, "VipNovel", "https://vipnovel.com/", "en", "MMMM yy dd")
+local VipNovel = Library.Madara:new(nil, "VipNovel", "https://vipnovel.com/", "en", "MMMM yy dd")
 
 function VipNovel:test()
     return ("This is " .. self.name)
 end
 
-print(VipNovel:test())
+Wrap.object = VipNovel
 
-function get()
-    print("LUA:\t" .. VipNovel.name)
-    return VipNovel
+function wrap()
+    return Wrap
 end
-
-return VipNovel

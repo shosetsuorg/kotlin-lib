@@ -72,13 +72,14 @@ internal class Test {
                 val pathLibrary = "./LibraryWithFunctions.lua"
                 ShosetsuLib.libraries.putIfAbsent("Test", getScriptFromSystem(pathLibrary))
                 ShosetsuLib.libraries.putIfAbsent("Madara", getScriptFromSystem("./MadaraScrapeLibrary.lua"))
-                ShosetsuLib.libraries.putIfAbsent("Test", LuaValue.NIL)
+                ShosetsuLib.libraries.putIfAbsent("FormatterObject", getScriptFromSystem("./FormatterObject.lua"))
             }
             run {
                 val path = "./LibraryTest.lua"
 
                 val luaObject: LuaValue? = try {
-                    getScriptFromSystem(path).get("get").call()
+                    println("Script load")
+                    getScriptFromSystem(path).get("wrap").call()
                 } catch (e: LuaError) {
                     if (e.message != null && e.message!!.contains("MISLIB")) {
                         println(e.message)
@@ -90,10 +91,9 @@ internal class Test {
                         null
                     }
                 }
-                println("Java:\t"+luaObject!!["name"])
-
+                println("Test")
                 // Has to pass object to script
-                println(luaObject["test"].call(luaObject))
+                println(luaObject!!["test"]?.call())
             }
         }
 

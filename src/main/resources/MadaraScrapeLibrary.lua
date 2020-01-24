@@ -4,6 +4,7 @@
 --- DateTime: 1/24/20 8:24 AM
 ---
 
+
 -- Meta class
 Madara = { name = "", baseURL = "", lang = "", dateFormat = "" }
 
