@@ -15,6 +15,4 @@ end
 
 Wrap.object = VipNovel
 
-function wrap()
-    return Wrap
-end
+return Wrap
