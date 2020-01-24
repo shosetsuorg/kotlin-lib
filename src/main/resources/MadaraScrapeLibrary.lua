@@ -21,3 +21,8 @@ function Madara:new (o, name, baseURL, lang, dateFormat)
     self.dateFormat = dateFormat
     return self
 end
+
+function Madara:test()
+    print("Madara Test")
+end
+

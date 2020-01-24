@@ -4,6 +4,20 @@
 --- DateTime: 1/23/20 5:23 PM
 ---
 
-local Madara = Require("Madara").Madara:new(nil, "A Site", "url", "lang", "date")
+local Library = Require("Madara")
+local Madara = Library.Madara:new(nil, "A Site", "url", "lang", "date")
 
-print(Madara.name)
+Madara.test()
+
+VipNovel = Library.Madara:new(nil, "VipNovel", "https://vipnovel.com/", "en", "MMMM yy dd")
+
+function VipNovel:test()
+    return ("This is " .. self.name)
+end
+
+print(VipNovel:test())
+
+function get()
+    print("LUA:\t" .. VipNovel.name)
+    return VipNovel
+end

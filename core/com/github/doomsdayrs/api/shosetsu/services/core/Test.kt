@@ -76,17 +76,22 @@ internal class Test {
             }
             run {
                 val path = "./LibraryTest.lua"
-                try {
-                    getScriptFromSystem(path)
+
+                val luaObject: LuaValue? = try {
+                    getScriptFromSystem(path).get("get").call()
                 } catch (e: LuaError) {
                     if (e.message != null && e.message!!.contains("MISLIB")) {
                         println(e.message)
                         val error = e.message!!.split(":")
                         println("Missing library at ${error[0]} line ${error[1].substring(0, error[1].indexOf("vm")).trim()}:\t${error[4]}")
+                        null
                     } else {
                         println(e.message)
+                        null
                     }
                 }
+                println("Java:\t"+luaObject!!["name"])
+                println(luaObject["test"].call(luaObject))
             }
         }
 
