@@ -1,5 +1,6 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.dep
 
+import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.*
 import org.json.JSONObject
 import org.jsoup.nodes.Document

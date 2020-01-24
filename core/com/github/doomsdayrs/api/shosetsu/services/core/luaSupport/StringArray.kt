@@ -1,4 +1,4 @@
-package com.github.doomsdayrs.api.shosetsu.services.core.objects
+package com.github.doomsdayrs.api.shosetsu.services.core.luaSupport
 
 /*
  * This file is part of shosetsu-services.

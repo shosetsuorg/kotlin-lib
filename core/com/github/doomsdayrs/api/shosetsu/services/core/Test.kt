@@ -1,6 +1,6 @@
-package com.github.doomsdayrs.api.shosetsu.services.core.objects
+package com.github.doomsdayrs.api.shosetsu.services.core
 
-import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
+import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
 import org.luaj.vm2.Globals
 import org.luaj.vm2.LuaError
 import org.luaj.vm2.LuaValue
@@ -70,7 +70,7 @@ internal class Test {
         fun testLibrary() {
             run {
                 val pathLibrary = "./LibraryWithFunctions.lua"
-                // ShosetsuLib.libraries.putIfAbsent("Test", getScriptFromSystem(pathLibrary))
+                ShosetsuLib.libraries.putIfAbsent("Test", getScriptFromSystem(pathLibrary))
                 ShosetsuLib.libraries.putIfAbsent("Test", LuaValue.NIL)
             }
             run {
@@ -79,10 +79,11 @@ internal class Test {
                     getScriptFromSystem(path)
                 } catch (e: LuaError) {
                     if (e.message != null && e.message!!.contains("MISLIB")) {
+                        println(e.message)
                         val error = e.message!!.split(":")
-                        println("Missing library:\t${error[1]}")
+                        println("Missing library at ${error[0]} line ${error[1].substring(0, error[1].indexOf("vm")).trim()}:\t${error[4]}")
                     } else {
-                        println("Unknown error")
+                        println(e.message)
                     }
                 }
             }

@@ -1,9 +1,8 @@
-package com.github.doomsdayrs.api.shosetsu.services.core.objects
+package com.github.doomsdayrs.api.shosetsu.services.core.luaSupport
 
-import org.luaj.vm2.Globals
-import org.luaj.vm2.LuaFunction
-import org.luaj.vm2.LuaTable
-import org.luaj.vm2.LuaValue
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelStatus
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
+import org.luaj.vm2.*
 import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
 
@@ -52,10 +51,16 @@ class ShosetsuLib : TwoArgFunction() {
 
         /**
          * @param name Name of the library to request
+         * @throws LuaError if library not present
          * @return [LuaValue] of the library if it is available, [LuaValue.NIL] otherwise
          */
+        @Throws(org.luaj.vm2.LuaError::class)
         fun Require(name: String): LuaValue? {
-            return libraries[name] ?: LuaValue.NIL
+            return libraries[name].takeIf {
+                if (it == LuaValue.NIL || it == null) {
+                    throw LuaError("MISLIB:$name")
+                } else true
+            }
         }
 
         /**
