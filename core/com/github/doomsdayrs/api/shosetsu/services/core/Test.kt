@@ -91,6 +91,8 @@ internal class Test {
                     }
                 }
                 println("Java:\t"+luaObject!!["name"])
+
+                // Has to pass object to script
                 println(luaObject["test"].call(luaObject))
             }
         }

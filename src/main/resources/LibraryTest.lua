@@ -21,3 +21,5 @@ function get()
     print("LUA:\t" .. VipNovel.name)
     return VipNovel
 end
+
+return VipNovel
