@@ -4,26 +4,21 @@
 --- DateTime: 1/24/20 8:24 AM
 ---
 
+local DefaultStructure = Require("DefaultStructure").Formatter
 
--- Meta class
-Madara = { name = "", baseURL = "", lang = "", dateFormat = "" }
+Madara = { lang = "", dateFormat = "" }
 
-function test()
-    print("test")
-end
-
-
--- Base class method new
-function Madara:new (o, name, baseURL, lang, dateFormat)
-    o = o or {}
-    self.name = name
-    self.baseURL = baseURL
+function Madara:new (o, baseURL, identification, imageURL, name, lang, dateFormat)
+    o = o or DefaultStructure:new(o, baseURL, identification, imageURL, name)
     self.lang = lang
     self.dateFormat = dateFormat
     return self
 end
 
 function Madara:test()
-    print("Madara Test")
+    print("This is MADARA")
 end
 
+function get()
+    return Madara:new(nil, nil, nil, nil, nil, nil, nil)
+end

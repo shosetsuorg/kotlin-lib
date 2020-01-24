@@ -64,22 +64,22 @@ internal class Test {
         @Throws(java.io.IOException::class, InterruptedException::class)
         @JvmStatic
         fun main(args: Array<String>) {
-            testLibrary()
+            ShosetsuLib.libraries.putIfAbsent("DefaultStructure", getScriptFromSystem("./DefaultStructure.lua"))
+            ShosetsuLib.libraries.putIfAbsent("Madara", getScriptFromSystem("./MadaraScrapeLibrary.lua"))
+
+            //testLibrary()
+            testScripts()
         }
 
         fun testLibrary() {
             run {
-                val pathLibrary = "./LibraryWithFunctions.lua"
-                ShosetsuLib.libraries.putIfAbsent("Test", getScriptFromSystem(pathLibrary))
-                ShosetsuLib.libraries.putIfAbsent("Madara", getScriptFromSystem("./MadaraScrapeLibrary.lua"))
-                ShosetsuLib.libraries.putIfAbsent("FormatterObject", getScriptFromSystem("./FormatterObject.lua"))
-            }
-            run {
-                val path = "./LibraryTest.lua"
 
+                val path = "./VipNovel.lua"
+                val path2 = "./BoxNovel.lua"
+                val path3 = "./DefaultStructure.lua"
+                val path4 = "./MadaraScrapeLibrary.lua"
                 val luaObject: LuaValue? = try {
-                    println("Script load")
-                    getScriptFromSystem(path).get("wrap").call()
+                    getScriptFromSystem(path2).get("get").call()
                 } catch (e: LuaError) {
                     if (e.message != null && e.message!!.contains("MISLIB")) {
                         println(e.message)
@@ -87,19 +87,19 @@ internal class Test {
                         println("Missing library at ${error[0]} line ${error[1].substring(0, error[1].indexOf("vm")).trim()}:\t${error[4]}")
                         null
                     } else {
-                        println(e.message)
+                        e.printStackTrace()
                         null
                     }
                 }
-                println("Test")
-                // Has to pass object to script
-                println(luaObject!!["test"]?.call())
+                println(luaObject!!)
+                println(luaObject["test"])
+                luaObject["test"].call()
             }
         }
 
         fun testScripts() {
             val formatters = arrayOf(
-                    "src/main/resources/BestLightNovel.lua"
+                    "/src/main/resources/BoxNovel.lua"
             )
             for (format in formatters) {
                 println("========== $format ==========")

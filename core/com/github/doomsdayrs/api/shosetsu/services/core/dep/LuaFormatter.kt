@@ -1,7 +1,10 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.dep
 
 import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.*
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
 import org.json.JSONObject
 import org.jsoup.nodes.Document
 import org.luaj.vm2.Globals
@@ -81,7 +84,7 @@ class LuaFormatter(val file: File) : Formatter {
         script.load(ShosetsuLib())
         script["dofile"].call(LuaValue.valueOf(path))
         script.STDOUT = System.out
-        return script
+        return script.get("get").call()
     }
 
     val luaObject: LuaValue = getScriptFromSystem(file.absolutePath);
@@ -93,6 +96,7 @@ class LuaFormatter(val file: File) : Formatter {
             if (!luaObject.get(key).isfunction()) {
                 missings.add(key)
             }
+            else println("Has\t$key")
         }
         if (missings.size > 0)
             throw NullPointerException("Lua Script is missing methods:$missings")
