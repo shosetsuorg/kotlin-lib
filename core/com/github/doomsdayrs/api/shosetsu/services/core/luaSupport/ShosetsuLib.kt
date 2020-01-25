@@ -90,6 +90,7 @@ class ShosetsuLib : TwoArgFunction() {
             else -> Ordering.TopBottomLatestOldest
         }
 
+        // For normal people, these simple GET and POST are sufficient.
         fun GET(
                 url: String,
                 headers: Headers = DEFAULT_HEADERS,
@@ -103,6 +104,11 @@ class ShosetsuLib : TwoArgFunction() {
                 cacheControl: CacheControl = DEFAULT_CACHE_CONTROL
         ): Request = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
 
+        // For advanced users who want to do everything themselves.
+        fun RequestBuilder() = Request.Builder()
+        fun HeadersBuilder() = Headers.Builder()
+        fun FormBodyBuilder() = FormBody.Builder()
+        fun DefaultCacheControl() = DEFAULT_CACHE_CONTROL
     }
 
     /**

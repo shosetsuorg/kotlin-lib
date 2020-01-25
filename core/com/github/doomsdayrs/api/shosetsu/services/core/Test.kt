@@ -66,10 +66,8 @@ internal class Test {
         @JvmStatic
         fun main(args: Array<String>) {
             ShosetsuLib.libraryLoaderSync = object : LibraryLoaderSync {
-                override fun getScript(name: String): LuaValue? {
-                    println("Dynamic call for script")
-                    return loadScript(File("src/main/resources/lib/$name.lua"))
-                }
+                override fun getScript(name: String): LuaValue?
+                        = loadScript(File("src/main/resources/lib/$name.lua"))
             }
 
             testScripts()
