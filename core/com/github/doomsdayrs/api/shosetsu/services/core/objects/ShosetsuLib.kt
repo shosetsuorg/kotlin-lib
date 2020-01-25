@@ -1,9 +1,6 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.objects
 
-import org.luaj.vm2.Globals
-import org.luaj.vm2.LuaFunction
-import org.luaj.vm2.LuaTable
-import org.luaj.vm2.LuaValue
+import org.luaj.vm2.*
 import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
 
@@ -54,33 +51,31 @@ class ShosetsuLib : TwoArgFunction() {
          * @param name Name of the library to request
          * @return [LuaValue] of the library if it is available, [LuaValue.NIL] otherwise
          */
-        fun Require(name: String): LuaValue? {
-            return libraries[name] ?: LuaValue.NIL
+        fun Require(name: String): LuaValue? = libraries[name].takeIf {
+            if (it == LuaValue.NIL || it == null)
+                throw LuaError("MISLIB:$name")
+            true
         }
 
         /**
          * @param type specified by an ID.[NovelStatus.PUBLISHING]=0,[NovelStatus.COMPLETED]=1,[NovelStatus.PAUSED]=2, else [NovelStatus.UNKNOWN]
          * @return [NovelStatus]
          */
-        fun NovelStatus(type: Int): NovelStatus {
-            return when (type) {
-                0 -> NovelStatus.PUBLISHING
-                1 -> NovelStatus.COMPLETED
-                2 -> NovelStatus.PAUSED
-                else -> NovelStatus.UNKNOWN
-            }
+        fun NovelStatus(type: Int): NovelStatus = when (type) {
+            0 -> NovelStatus.PUBLISHING
+            1 -> NovelStatus.COMPLETED
+            2 -> NovelStatus.PAUSED
+            else -> NovelStatus.UNKNOWN
         }
 
         /**
          * @param type specified by an ID.[Ordering.TopBottomLatestOldest]=0|default,[Ordering.BottomTopLatestOldest]=1
          * @return [Ordering]
          */
-        fun Ordering(type: Int): Ordering {
-            return when (type) {
-                0 -> Ordering.TopBottomLatestOldest
-                1 -> Ordering.BottomTopLatestOldest
-                else -> Ordering.TopBottomLatestOldest
-            }
+        fun Ordering(type: Int): Ordering = when (type) {
+            0 -> Ordering.TopBottomLatestOldest
+            1 -> Ordering.BottomTopLatestOldest
+            else -> Ordering.TopBottomLatestOldest
         }
     }
 
@@ -88,7 +83,7 @@ class ShosetsuLib : TwoArgFunction() {
      * Makes use of lua metatables and its "__index" metamethod, which is called when
      * trying to index a table and a key is not present, to inject our library into the script's Globals.
      */
-    internal class __index(var g: Globals) : TwoArgFunction() {
+    internal class __index(g: Globals) : TwoArgFunction() {
         /*
          * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(lib, ...),
          * the "wrap" function bypasses this.

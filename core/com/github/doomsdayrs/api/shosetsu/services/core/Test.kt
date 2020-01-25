@@ -1,6 +1,6 @@
-package com.github.doomsdayrs.api.shosetsu.services.core.objects
+package com.github.doomsdayrs.api.shosetsu.services.core
 
-import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.ShosetsuLib
 import org.luaj.vm2.Globals
 import org.luaj.vm2.LuaError
 import org.luaj.vm2.LuaValue
@@ -32,15 +32,14 @@ internal class Test {
     companion object {
         // The below is methods robbed from ScrapeFormat class
         private val builder: okhttp3.Request.Builder = okhttp3.Request.Builder()
-//        private val client: okhttp3.OkHttpClient = okhttp3.OkHttpClient()
+        private val client: okhttp3.OkHttpClient = okhttp3.OkHttpClient()
 
         @Throws(java.io.IOException::class)
         private fun request(url: String?): okhttp3.ResponseBody? {
             println(url)
             val u = java.net.URL(url)
             val request = builder.url(u).build()
-            //          return client.newCall(request).execute().body
-            return null
+            return client.newCall(request).execute().body
         }
 
         @Throws(java.io.IOException::class)
@@ -64,7 +63,7 @@ internal class Test {
         @Throws(java.io.IOException::class, InterruptedException::class)
         @JvmStatic
         fun main(args: Array<String>) {
-            testLibrary()
+            testScripts()
         }
 
         fun testLibrary() {
@@ -89,12 +88,12 @@ internal class Test {
         }
 
         fun testScripts() {
-            val formatters = arrayOf(
-                    "src/main/resources/BestLightNovel.lua"
-            )
-            for (format in formatters) {
+            for (format in arrayOf(
+                    "src/main/resources/src/BoxNovel.lua",
+                    "src/main/resources/src/FastNovel.lua",
+                    "src/main/resources/src/NovelFull.lua"
+            )) {
                 println("========== $format ==========")
-
 
                 val luaFormatter = com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter(java.io.File(format))
 
