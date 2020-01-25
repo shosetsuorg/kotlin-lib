@@ -41,7 +41,7 @@ class ShosetsuLib : TwoArgFunction() {
          * If contained, it will return a [LuaValue] of the library
          */
         val libraries: MutableMap<String, LuaValue> = mutableMapOf()
-        var libraryLoaderSync: LibraryLoaderSync = throw Exception("Stub!")
+        lateinit var libraryLoaderSync: LibraryLoaderSync
     }
 
 
@@ -70,7 +70,6 @@ class ShosetsuLib : TwoArgFunction() {
                 }!!
             }
         }
-        //throw LuaError("MISLIB:$name")
 
         /**
          * @param type specified by an ID.[NovelStatus.PUBLISHING]=0,[NovelStatus.COMPLETED]=1,[NovelStatus.PAUSED]=2, else [NovelStatus.UNKNOWN]
