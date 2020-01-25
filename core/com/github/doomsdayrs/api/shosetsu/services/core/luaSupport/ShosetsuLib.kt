@@ -63,12 +63,10 @@ class ShosetsuLib : TwoArgFunction() {
          * @throws LuaError if library not present
          * @return [LuaValue] of the library if it is available, [LuaValue.NIL] otherwise
          */
-        fun Require(name: String): LuaValue? {
-            return libraries.computeIfAbsent(name) {
-                libraryLoaderSync.getScript(it).takeIf { value ->
-                    if (value != LuaValue.NIL || value != null) true else throw LuaError("MISLIB:$it")
-                }!!
-            }
+        fun Require(name: String): LuaValue? = libraries.computeIfAbsent(name) {
+            libraryLoaderSync.getScript(it).takeIf { value ->
+                if (value != LuaValue.NIL || value != null) true else throw LuaError("MISLIB:$it")
+            }!!
         }
 
         /**
