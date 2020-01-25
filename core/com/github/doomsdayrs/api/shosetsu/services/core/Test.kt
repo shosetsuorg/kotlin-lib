@@ -1,5 +1,6 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
+import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
 import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.*
 import org.luaj.vm2.Globals
 import org.luaj.vm2.LuaError
@@ -49,58 +50,37 @@ internal class Test {
             return org.jsoup.Jsoup.parse(request(URL)!!.string())
         }
 
-        @Throws(org.luaj.vm2.LuaError::class)
-        fun getScriptFromSystem(path: String): LuaTable {
+
+        private fun loadScript(file: File): LuaValue {
             val script = JsePlatform.standardGlobals()
             script.load(ShosetsuLib())
             val l = try {
-                script.loadfile(path)!!
+                script.load(file.readText())!!
             } catch (e: Error) {
                 throw e
             }
 
-            return l.call() as LuaTable
+            return l.call()!!
         }
+
 
         @Throws(java.io.IOException::class, InterruptedException::class)
         @JvmStatic
         fun main(args: Array<String>) {
+            for (lib in arrayOf(
+                "Madara"
+            )) ShosetsuLib.libraries[lib] = loadScript(File("src/main/resources/lib/$lib.lua"))
+
             testScripts()
         }
 
-        fun testLibrary() {
-            run {
-
-                val path = "./VipNovel.lua"
-                val path2 = "./BoxNovel.lua"
-                val path3 = "./DefaultStructure.lua"
-                val path4 = "./MadaraScrapeLibrary.lua"
-                val luaObject: LuaValue? = try {
-                    getScriptFromSystem(path2).get("get").call()
-                } catch (e: LuaError) {
-                    if (e.message != null && e.message!!.contains("MISLIB")) {
-                        println(e.message)
-                        val error = e.message!!.split(":")
-                        println("Missing library at ${error[0]} line ${error[1].substring(0, error[1].indexOf("vm")).trim()}:\t${error[4]}")
-                        null
-                    } else {
-                        e.printStackTrace()
-                        null
-                    }
-                }
-                println(luaObject!!)
-                println(luaObject["test"])
-                luaObject["test"].call()
-            }
-        }
-
-        fun testScripts() {
+        private fun testScripts() {
             for (format in arrayOf(
-                    "src/main/resources/src/BoxNovel.lua"
+                    "src/main/resources/src/ReadNovelForLife.lua"
             )) {
                 println("========== $format ==========")
 
-                val luaFormatter = com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter(java.io.File(format))
+                val luaFormatter = LuaFormatter(File(format))
 
                 // Data
                 println(luaFormatter.genres)
@@ -111,6 +91,7 @@ internal class Test {
                 // Latest
                 java.util.concurrent.TimeUnit.SECONDS.sleep(1)
                 val list = luaFormatter.parseLatest(docFromURL(luaFormatter.getLatestURL(1)))
+                println(list)
                 println()
 
                 // Search
