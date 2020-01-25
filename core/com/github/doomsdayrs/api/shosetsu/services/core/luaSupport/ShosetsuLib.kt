@@ -118,15 +118,10 @@ class ShosetsuLib : TwoArgFunction() {
      * trying to index a table and a key is not present, to inject our library into the script's Globals.
      */
     internal class __index(g: Globals) : TwoArgFunction() {
-        /*
-         * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(lib, ...),
-         * the "wrap" function bypasses this.
-         */
         private val load: LuaFunction = g["load"] as LuaFunction
-        private val wrap: LuaFunction = load.call("local o,f = ...; return function(...) return f(o, ...) end") as LuaFunction
         private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
 
-        private val luaFuncs: Map<LuaValue, LuaValue> = mapOf(
+        private val luaFuncs: Map<String, LuaValue> = mapOf(
                 Pair("map", """
                         local o, f = ...
                         local t = {}
@@ -157,18 +152,30 @@ class ShosetsuLib : TwoArgFunction() {
                             if f(v) then return v end
                         end
                         return nil
+                """.trimIndent()),
+                Pair("wrap", """
+                        local o, f = ...
+                        return function(...)
+                            return f(o, ...)
+                        end
                 """.trimIndent())
-        ).map { e -> Pair(LuaValue.valueOf(e.key), load.call(e.value)) }.toMap()
+        ).map { e -> Pair(e.key, load.call(e.value)) }.toMap()
+
+        /**
+         * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(o, ...),
+         * the "wrap" function bypasses this.
+         */
+        private val wrap: LuaFunction = luaFuncs["wrap"] as LuaFunction
 
         override fun call(_self: LuaValue, k: LuaValue): LuaValue {
-            if (!k.isstring()) return LuaValue.NIL
+            if (k.isstring()) {
+                val o = lib[k.tostring()]
+                if (o != null && o != LuaValue.NIL)
+                    return wrap.call(lib, o)
 
-            val o = lib.get(k.tostring())
-            if (o != null && o != LuaValue.NIL)
-                return wrap.call(lib, o)
-
-            val f = luaFuncs[k.tostring()]
-            if (f != null) return f
+                val f = luaFuncs[k.tojstring()]
+                if (f != null) return f
+            }
 
             return LuaValue.NIL
         }
