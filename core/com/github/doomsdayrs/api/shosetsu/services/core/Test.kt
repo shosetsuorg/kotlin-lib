@@ -1,10 +1,8 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
 import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
-import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.*
-import org.luaj.vm2.Globals
-import org.luaj.vm2.LuaError
-import org.luaj.vm2.LuaTable
+import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.LibraryLoaderSync
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
@@ -67,9 +65,12 @@ internal class Test {
         @Throws(java.io.IOException::class, InterruptedException::class)
         @JvmStatic
         fun main(args: Array<String>) {
-            for (lib in arrayOf(
-                "Madara"
-            )) ShosetsuLib.libraries[lib] = loadScript(File("src/main/resources/lib/$lib.lua"))
+            ShosetsuLib.libraryLoaderSync = object : LibraryLoaderSync {
+                override fun getScript(name: String): LuaValue? {
+                    println("Dynamic call for script")
+                    return loadScript(File("src/main/resources/lib/$name.lua"))
+                }
+            }
 
             testScripts()
         }
