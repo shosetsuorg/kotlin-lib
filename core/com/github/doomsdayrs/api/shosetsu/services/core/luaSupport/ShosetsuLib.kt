@@ -1,5 +1,8 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.luaSupport
 
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelStatus
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
+import org.intellij.lang.annotations.Language
 import org.luaj.vm2.*
 import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
@@ -89,8 +92,44 @@ class ShosetsuLib : TwoArgFunction() {
          * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(lib, ...),
          * the "wrap" function bypasses this.
          */
-        private var wrap: LuaFunction = g["load"].call("local o,f = ...; return function(...) return f(o, ...) end") as LuaFunction
-        private var lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
+        private val load: LuaFunction = g["load"] as LuaFunction
+        private val wrap: LuaFunction = load.call("local o,f = ...; return function(...) return f(o, ...) end") as LuaFunction
+        private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
+
+        private val luaFuncs: Map<LuaValue, LuaValue> = mapOf(
+                Pair("map", """
+                        local o, f = ...
+                        local t = {}
+                        for i=1, o:size() do
+                            t[i] = f(o:get(i-1))
+                        end
+                        return t
+                """.trimIndent()),
+                Pair("map2flat", """
+                        local o1, f1, f2 = ...
+                        local t = {}
+                        local i = 1
+                        for j = 1, o1:size() do
+                            local o2 = f1(o1:get(j - 1))
+                            if o2 then
+                                for k = 1, o2:size() do
+                                    t[i] = f2(o2:get(k - 1))
+                                    i = i + 1
+                                end
+                            end
+                        end
+                        return t
+                """.trimIndent()),
+                Pair("first", """
+                        local o, f = ...
+                        for i=1, o:size() do
+                            local v = o:get(i-1)
+                            if f(v) then return v end
+                        end
+                        return nil
+                """.trimIndent())
+        ).map { e -> Pair(LuaValue.valueOf(e.key), load.call(e.value)) }.toMap()
+
 
         override fun call(_self: LuaValue, k: LuaValue): LuaValue {
             if (!k.isstring()) return LuaValue.NIL

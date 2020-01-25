@@ -1,10 +1,12 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.ShosetsuLib
+import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.*
 import org.luaj.vm2.Globals
 import org.luaj.vm2.LuaError
+import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
+import java.io.File
 
 
 /*
@@ -48,16 +50,16 @@ internal class Test {
         }
 
         @Throws(org.luaj.vm2.LuaError::class)
-        fun getScriptFromSystem(path: String): LuaValue {
-            val script: Globals = JsePlatform.standardGlobals()
+        fun getScriptFromSystem(path: String): LuaTable {
+            val script = JsePlatform.standardGlobals()
             script.load(ShosetsuLib())
-            try {
-                script["dofile"].call(LuaValue.valueOf(path))!!
-            } catch (e: LuaError) {
+            val l = try {
+                script.loadfile(path)!!
+            } catch (e: Error) {
                 throw e
             }
-            script.STDOUT = System.out
-            return script
+
+            return l.call() as LuaTable
         }
 
         @Throws(java.io.IOException::class, InterruptedException::class)
