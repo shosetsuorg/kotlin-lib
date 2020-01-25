@@ -93,8 +93,7 @@ object Test {
 
             // Data
             val ge = luaFormatter.genres
-            for (g in ge)
-                println(g.toString())
+            for (g in ge) println(g.toString())
 
             println(luaFormatter.name)
             println(luaFormatter.formatterID)
@@ -118,12 +117,10 @@ object Test {
 
             // Parse novel passage
             java.util.concurrent.TimeUnit.SECONDS.sleep(1)
-            println(luaFormatter.getNovelPassage(docFromURL(novel.novelChapters[0].link)).takeUnless {
-                if (it.length < 10)
-                    true
-                else {
-                    print("In short: " + it.substring(0, 10));false
-                }
+            println({
+                val it = luaFormatter.getNovelPassage(docFromURL(novel.novelChapters[0].link))
+                if (it.length < 25) it
+                else "${it.length} chars long: ${it.take(10)} [...] ${it.takeLast(10)}"
             })
             println()
 

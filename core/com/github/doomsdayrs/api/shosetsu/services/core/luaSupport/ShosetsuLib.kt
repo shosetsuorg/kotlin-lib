@@ -45,6 +45,7 @@ class ShosetsuLib : TwoArgFunction() {
     }
 
 
+    @Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
     internal class LibFunctions {
         private val DEFAULT_CACHE_CONTROL = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
         private val DEFAULT_HEADERS = Headers.Builder().build()
