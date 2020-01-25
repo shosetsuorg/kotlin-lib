@@ -2,10 +2,11 @@ package com.github.doomsdayrs.api.shosetsu.services.core.luaSupport
 
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelStatus
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
-import org.intellij.lang.annotations.Language
+import okhttp3.*
 import org.luaj.vm2.*
 import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
+import java.util.concurrent.TimeUnit
 
 /*
  * This file is part of shosetsu-services.
@@ -41,7 +42,12 @@ class ShosetsuLib : TwoArgFunction() {
         val libraries: MutableMap<String, LuaValue> = mutableMapOf()
     }
 
+
     internal class LibFunctions {
+        private val DEFAULT_CACHE_CONTROL = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
+        private val DEFAULT_HEADERS = Headers.Builder().build()
+        private val DEFAULT_BODY: RequestBody = FormBody.Builder().build()
+
         fun <E> List(): ArrayList<E> = ArrayList()
         fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
         fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
@@ -81,6 +87,20 @@ class ShosetsuLib : TwoArgFunction() {
             1 -> Ordering.BottomTopLatestOldest
             else -> Ordering.TopBottomLatestOldest
         }
+
+        fun GET(
+                url: String,
+                headers: Headers = DEFAULT_HEADERS,
+                cacheControl: CacheControl = DEFAULT_CACHE_CONTROL
+        ): Request = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
+
+        fun POST(
+                url: String,
+                headers: Headers = DEFAULT_HEADERS,
+                body: RequestBody = DEFAULT_BODY,
+                cacheControl: CacheControl = DEFAULT_CACHE_CONTROL
+        ): Request = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
+
     }
 
     /**
