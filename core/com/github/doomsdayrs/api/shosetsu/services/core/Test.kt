@@ -96,9 +96,7 @@ internal class Test {
 
         fun testScripts() {
             for (format in arrayOf(
-                    "src/main/resources/src/BoxNovel.lua",
-                    "src/main/resources/src/FastNovel.lua",
-                    "src/main/resources/src/NovelFull.lua"
+                    "src/main/resources/src/BoxNovel.lua"
             )) {
                 println("========== $format ==========")
 

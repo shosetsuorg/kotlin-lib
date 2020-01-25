@@ -150,13 +150,15 @@ class ShosetsuLib : TwoArgFunction() {
                 """.trimIndent())
         ).map { e -> Pair(LuaValue.valueOf(e.key), load.call(e.value)) }.toMap()
 
-
         override fun call(_self: LuaValue, k: LuaValue): LuaValue {
             if (!k.isstring()) return LuaValue.NIL
 
             val o = lib.get(k.tostring())
-            if (o != LuaValue.NIL && o != null)
+            if (o != null && o != LuaValue.NIL)
                 return wrap.call(lib, o)
+
+            val f = luaFuncs[k.tostring()]
+            if (f != null) return f
 
             return LuaValue.NIL
         }
