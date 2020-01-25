@@ -28,89 +28,107 @@ import java.io.File
  *
  * @author github.com/doomsdayrs
  */
-internal class Test {
+object Test {
+    // The below is methods robbed from ScrapeFormat class
+    private val builder: okhttp3.Request.Builder = okhttp3.Request.Builder()
+    private val client: okhttp3.OkHttpClient = okhttp3.OkHttpClient()
 
-    companion object {
-        // The below is methods robbed from ScrapeFormat class
-        private val builder: okhttp3.Request.Builder = okhttp3.Request.Builder()
-        private val client: okhttp3.OkHttpClient = okhttp3.OkHttpClient()
-
-        @Throws(java.io.IOException::class)
-        private fun request(url: String?): okhttp3.ResponseBody? {
-            println(url)
-            val u = java.net.URL(url)
-            val request = builder.url(u).build()
-            return client.newCall(request).execute().body
-        }
-
-        @Throws(java.io.IOException::class)
-        private fun docFromURL(URL: String): org.jsoup.nodes.Document {
-            return org.jsoup.Jsoup.parse(request(URL)!!.string())
-        }
-
-
-        private fun loadScript(file: File): LuaValue {
-            val script = JsePlatform.standardGlobals()
-            script.load(ShosetsuLib())
-            val l = try {
-                script.load(file.readText())!!
-            } catch (e: Error) {
-                throw e
-            }
-
-            return l.call()!!
-        }
-
-
-        @Throws(java.io.IOException::class, InterruptedException::class)
-        @JvmStatic
-        fun main(args: Array<String>) {
-            ShosetsuLib.libraryLoaderSync = object : LibraryLoaderSync {
-                override fun getScript(name: String): LuaValue?
-                        = loadScript(File("src/main/resources/lib/$name.lua"))
-            }
-
-            testScripts()
-        }
-
-        private fun testScripts() {
-            for (format in arrayOf(
-                    "src/main/resources/src/ReadNovelForLife.lua"
-            )) {
-                println("========== $format ==========")
-
-                val luaFormatter = LuaFormatter(File(format))
-
-                // Data
-                println(luaFormatter.genres)
-                println(luaFormatter.name)
-                println(luaFormatter.formatterID)
-                println(luaFormatter.imageURL)
-
-                // Latest
-                java.util.concurrent.TimeUnit.SECONDS.sleep(1)
-                val list = luaFormatter.parseLatest(docFromURL(luaFormatter.getLatestURL(1)))
-                println(list)
-                println()
-
-                // Search
-                java.util.concurrent.TimeUnit.SECONDS.sleep(1)
-                println(luaFormatter.parseSearch(docFromURL(luaFormatter.getSearchString("reinca"))))
-                println()
-
-                // Novel
-                java.util.concurrent.TimeUnit.SECONDS.sleep(1)
-                val novel = luaFormatter.parseNovel(docFromURL(luaFormatter.novelPageCombiner(list[0].link, 2)), 2)
-                println(novel)
-
-                // Parse novel passage
-                java.util.concurrent.TimeUnit.SECONDS.sleep(1)
-                println(luaFormatter.getNovelPassage(docFromURL(novel.novelChapters[0].link)))
-                println()
-
-                println("DEBUG")
-            }
-        }
-
+    @Throws(java.io.IOException::class)
+    private fun request(url: String?): okhttp3.ResponseBody? {
+        println(url)
+        val u = java.net.URL(url)
+        val request = builder.url(u).build()
+        return client.newCall(request).execute().body
     }
+
+    /**
+     * Get's file from resources
+     */
+    fun getFile(file: String): File {
+        return File(javaClass.classLoader.getResource(file)!!.file)
+    }
+
+    @Throws(java.io.IOException::class)
+    private fun docFromURL(URL: String): org.jsoup.nodes.Document {
+        return org.jsoup.Jsoup.parse(request(URL)!!.string())
+    }
+
+    private fun loadScript(file: File): LuaValue {
+        val script = JsePlatform.standardGlobals()
+        script.load(ShosetsuLib())
+        val l = try {
+            script.load(file.readText())!!
+        } catch (e: Error) {
+            throw e
+        }
+
+        return l.call()!!
+    }
+
+    @Throws(java.io.IOException::class, InterruptedException::class)
+    @JvmStatic
+    fun main(args: Array<String>) {
+        ShosetsuLib.libraryLoaderSync = object : LibraryLoaderSync {
+            override fun getScript(name: String): LuaValue? = loadScript(File("src/main/resources/lib/$name.lua"))
+        }
+        testScripts()
+    }
+
+
+    private fun testScripts() {
+        for (format in arrayOf(
+                //     "src/main/resources/src/jp/Syosetsu.lua",
+                //     "src/main/resources/src/en/BestLightNovel.lua",
+                //     "src/main/resources/src/en/BoxNovel.lua",
+                //     "src/main/resources/src/en/Foxaholic.lua",
+                //     "src/main/resources/src/en/NovelFull.lua",
+                //     "src/main/resources/src/en/ReadNovelForLife.lua",
+                //     "src/main/resources/src/en/VipNovel.lua",
+                "src/main/resources/src/en/KissLightNovels.lua"
+        )) {
+
+            println("\n========== $format ==========")
+
+            val luaFormatter = LuaFormatter(File(format))
+
+            // Data
+            val ge = luaFormatter.genres
+            for (g in ge)
+                println(g.toString())
+
+            println(luaFormatter.name)
+            println(luaFormatter.formatterID)
+            println(luaFormatter.imageURL)
+
+            // Latest
+            java.util.concurrent.TimeUnit.SECONDS.sleep(1)
+            val list = luaFormatter.parseLatest(docFromURL(luaFormatter.getLatestURL(1)))
+            println(list)
+            println()
+
+            // Search
+            java.util.concurrent.TimeUnit.SECONDS.sleep(1)
+            println(luaFormatter.parseSearch(docFromURL(luaFormatter.getSearchString("reinca"))))
+            println()
+
+            // Novel
+            java.util.concurrent.TimeUnit.SECONDS.sleep(1)
+            val novel = luaFormatter.parseNovel(docFromURL(luaFormatter.novelPageCombiner(list[0].link, 2)), 2)
+            println(novel)
+
+            // Parse novel passage
+            java.util.concurrent.TimeUnit.SECONDS.sleep(1)
+            println(luaFormatter.getNovelPassage(docFromURL(novel.novelChapters[0].link)).takeUnless {
+                if (it.length < 10)
+                    true
+                else {
+                    print("In short: " + it.substring(0, 10));false
+                }
+            })
+            println()
+
+            println("DEBUG COMPLETE")
+        }
+    }
+
 }

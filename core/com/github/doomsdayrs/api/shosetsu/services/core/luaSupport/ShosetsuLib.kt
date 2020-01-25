@@ -106,9 +106,10 @@ class ShosetsuLib : TwoArgFunction() {
 
         // For advanced users who want to do everything themselves.
         fun RequestBuilder() = Request.Builder()
+
         fun HeadersBuilder() = Headers.Builder()
         fun FormBodyBuilder() = FormBody.Builder()
-        fun DefaultCacheControl() = DEFAULT_CACHE_CONTROL
+        fun DefaultCacheControl() = CacheControl.Builder()
     }
 
     /**
