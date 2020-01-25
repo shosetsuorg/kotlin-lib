@@ -1,5 +1,6 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.luaSupport
 
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.LibraryLoaderSync
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelStatus
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
 import okhttp3.*
@@ -40,6 +41,7 @@ class ShosetsuLib : TwoArgFunction() {
          * If contained, it will return a [LuaValue] of the library
          */
         val libraries: MutableMap<String, LuaValue> = mutableMapOf()
+        var libraryLoaderSync: LibraryLoaderSync = throw Exception("Stub!")
     }
 
 
@@ -61,11 +63,14 @@ class ShosetsuLib : TwoArgFunction() {
          * @throws LuaError if library not present
          * @return [LuaValue] of the library if it is available, [LuaValue.NIL] otherwise
          */
-        fun Require(name: String): LuaValue? = libraries[name].takeIf {
-            if (it == LuaValue.NIL || it == null)
-                throw LuaError("MISLIB:$name")
-            true
+        fun Require(name: String): LuaValue? {
+            return libraries.computeIfAbsent(name) {
+                libraryLoaderSync.getScript(it).takeIf { value ->
+                    if (value != LuaValue.NIL || value != null) true else throw LuaError("MISLIB:$it")
+                }!!
+            }
         }
+        //throw LuaError("MISLIB:$name")
 
         /**
          * @param type specified by an ID.[NovelStatus.PUBLISHING]=0,[NovelStatus.COMPLETED]=1,[NovelStatus.PAUSED]=2, else [NovelStatus.UNKNOWN]
