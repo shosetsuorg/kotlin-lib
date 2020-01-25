@@ -52,7 +52,7 @@ internal class Test {
             val script: Globals = JsePlatform.standardGlobals()
             script.load(ShosetsuLib())
             try {
-                script["dofile"].call(LuaValue.valueOf(path))
+                script["dofile"].call(LuaValue.valueOf(path))!!
             } catch (e: LuaError) {
                 throw e
             }
@@ -68,22 +68,27 @@ internal class Test {
 
         fun testLibrary() {
             run {
-                val pathLibrary = "./LibraryWithFunctions.lua"
-                // ShosetsuLib.libraries.putIfAbsent("Test", getScriptFromSystem(pathLibrary))
-                ShosetsuLib.libraries.putIfAbsent("Test", LuaValue.NIL)
-            }
-            run {
-                val path = "./LibraryTest.lua"
-                try {
-                    getScriptFromSystem(path)
+
+                val path = "./VipNovel.lua"
+                val path2 = "./BoxNovel.lua"
+                val path3 = "./DefaultStructure.lua"
+                val path4 = "./MadaraScrapeLibrary.lua"
+                val luaObject: LuaValue? = try {
+                    getScriptFromSystem(path2).get("get").call()
                 } catch (e: LuaError) {
                     if (e.message != null && e.message!!.contains("MISLIB")) {
+                        println(e.message)
                         val error = e.message!!.split(":")
-                        println("Missing library:\t${error[1]}")
+                        println("Missing library at ${error[0]} line ${error[1].substring(0, error[1].indexOf("vm")).trim()}:\t${error[4]}")
+                        null
                     } else {
-                        println("Unknown error")
+                        e.printStackTrace()
+                        null
                     }
                 }
+                println(luaObject!!)
+                println(luaObject["test"])
+                luaObject["test"].call()
             }
         }
 
