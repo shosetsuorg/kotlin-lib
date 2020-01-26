@@ -28,7 +28,7 @@ import java.io.File
  *
  * @author github.com/doomsdayrs
  */
-object Test {
+private object Test {
     // The below is methods robbed from ScrapeFormat class
     private val builder: okhttp3.Request.Builder = okhttp3.Request.Builder()
     private val client: okhttp3.OkHttpClient = okhttp3.OkHttpClient()
