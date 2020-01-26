@@ -22,6 +22,7 @@ package com.github.doomsdayrs.api.shosetsu.services.core.objects
  *
  * @author github.com/doomsdayrs
  */
+@Suppress("MemberVisibilityCanBePrivate")
 enum class NovelStatus(val title: String) {
     PUBLISHING("Publishing"), COMPLETED("Completed"), PAUSED("Paused"), UNKNOWN("Unknown");
 

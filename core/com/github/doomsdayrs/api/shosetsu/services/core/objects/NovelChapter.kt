@@ -21,6 +21,7 @@ package com.github.doomsdayrs.api.shosetsu.services.core.objects
  *
  * @author github.com/doomsdayrs
  */
+@Suppress("MemberVisibilityCanBePrivate")
 class NovelChapter {
     var release = "unknown"
     var title = "unknown"

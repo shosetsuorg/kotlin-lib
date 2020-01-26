@@ -117,6 +117,7 @@ class ShosetsuLib : TwoArgFunction() {
      * Makes use of lua metatables and its "__index" metamethod, which is called when
      * trying to index a table and a key is not present, to inject our library into the script's Globals.
      */
+    @Suppress("ClassName")
     internal class __index(g: Globals) : TwoArgFunction() {
         private val load: LuaFunction = g["load"] as LuaFunction
         private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())

@@ -1,7 +1,10 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.dep
 
-import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.*
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.*
+import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
 import org.jsoup.nodes.Document
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
@@ -78,18 +81,18 @@ class LuaFormatter(val file: File) : Formatter {
     private val source: LuaTable = loadScript(file)
 
     init {
-        val missings: ArrayList<String> = ArrayList()
+        val missingValues: ArrayList<String> = ArrayList()
 
         for (it in keys)
             if (source.get(it.key).type() != it.value)
-                missings.add(it.key)
+                missingValues.add(it.key)
 
         for (it in defaults)
             if (source.get(it.key).isnil())
                 source.set(it.key, it.value)
 
-        if (missings.size > 0)
-            throw NullPointerException("Lua Script is missing methods:$missings")
+        if (missingValues.size > 0)
+            throw NullPointerException("Lua Script is missing methods:$missingValues")
     }
 
     override val formatterID: Int
@@ -97,19 +100,19 @@ class LuaFormatter(val file: File) : Formatter {
 
     override var isIncrementingChapterList: Boolean
         get() = source["isIncrementingChapterList"].toboolean()
-        set(value) {}
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     override var isIncrementingPassagePage: Boolean
         get() = source["isIncrementingPassagePage"].toboolean()
-        set(value) {}
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     override var chapterOrder: Ordering
         get() = CoerceLuaToJava.coerce(source["chapterOrder"], Ordering::class.java) as Ordering
-        set(value) {}
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     override var latestOrder: Ordering
         get() = CoerceLuaToJava.coerce(source["latestOrder"], Ordering::class.java) as Ordering
-        set(value) {}
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     override val hasCloudFlare: Boolean
         get() = source["hasCloudFlare"].toboolean()
@@ -121,6 +124,7 @@ class LuaFormatter(val file: File) : Formatter {
         get() = source["hasGenres"].toboolean()
 
 
+    @Suppress("UNCHECKED_CAST")
     override val genres: Array<NovelGenre>
         get() = CoerceLuaToJava.coerce(source["genres"], Array<NovelGenre>::class.java) as Array<NovelGenre>
 
@@ -150,6 +154,7 @@ class LuaFormatter(val file: File) : Formatter {
 
     override fun parseLatest(document: Document): List<Novel> {
         val out = source["parseLatest"].call(coerce(document))
+        @Suppress("UNCHECKED_CAST")
         return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel>
     }
 
@@ -165,6 +170,7 @@ class LuaFormatter(val file: File) : Formatter {
 
     override fun parseSearch(document: Document): List<Novel> {
         val out = source["parseSearch"].call(coerce(document))
+        @Suppress("UNCHECKED_CAST")
         return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel>
     }
 }

@@ -22,8 +22,9 @@ import java.io.File
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
  */
+
 /**
- * novelreader-extensions
+ * shosetsu-services
  * 03 / June / 2019
  *
  * @author github.com/doomsdayrs
@@ -39,13 +40,6 @@ private object Test {
         val u = java.net.URL(url)
         val request = builder.url(u).build()
         return client.newCall(request).execute().body
-    }
-
-    /**
-     * Get's file from resources
-     */
-    fun getFile(file: String): File {
-        return File(javaClass.classLoader.getResource(file)!!.file)
     }
 
     @Throws(java.io.IOException::class)
@@ -107,6 +101,7 @@ private object Test {
 
             // Search
             java.util.concurrent.TimeUnit.SECONDS.sleep(1)
+            @Suppress("SpellCheckingInspection")
             println(luaFormatter.parseSearch(docFromURL(luaFormatter.getSearchString("reinca"))))
             println()
 
