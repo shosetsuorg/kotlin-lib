@@ -9,17 +9,17 @@ import java.io.File
 
 
 /*
- * This file is part of shosetsu-extensions.
- * shosetsu-extensions is free software: you can redistribute it and/or modify
+ * This file is part of shosetsu-services.
+ * shosetsu-services is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * shosetsu-extensions is distributed in the hope that it will be useful,
+ * shosetsu-services is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with shosetsu-extensions.  If not, see https://www.gnu.org/licenses/.
+ * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
  */
 /**
@@ -39,13 +39,6 @@ object Test {
         val u = java.net.URL(url)
         val request = builder.url(u).build()
         return client.newCall(request).execute().body
-    }
-
-    /**
-     * Get's file from resources
-     */
-    fun getFile(file: String): File {
-        return File(javaClass.classLoader.getResource(file)!!.file)
     }
 
     @Throws(java.io.IOException::class)
@@ -77,16 +70,8 @@ object Test {
 
     private fun testScripts() {
         for (format in arrayOf(
-                //     "src/main/resources/src/jp/Syosetsu.lua",
-                //     "src/main/resources/src/en/BestLightNovel.lua",
-                //     "src/main/resources/src/en/BoxNovel.lua",
-                //     "src/main/resources/src/en/Foxaholic.lua",
-                //     "src/main/resources/src/en/NovelFull.lua",
-                //     "src/main/resources/src/en/ReadNovelForLife.lua",
-                //     "src/main/resources/src/en/VipNovel.lua",
-                "src/main/resources/src/en/KissLightNovels.lua"
+                "src/main/resources/src/vi/247truyen.lua"
         )) {
-
             println("\n========== $format ==========")
 
             val luaFormatter = LuaFormatter(File(format))
@@ -117,10 +102,10 @@ object Test {
 
             // Parse novel passage
             java.util.concurrent.TimeUnit.SECONDS.sleep(1)
-            println({
+            println(run {
                 val it = luaFormatter.getNovelPassage(docFromURL(novel.novelChapters[0].link))
-                if (it.length < 25) it
-                else "${it.length} chars long: ${it.take(10)} [...] ${it.takeLast(10)}"
+                if (it.length < 25) "Result: $it"
+                else "${it.length} chars long result: ${it.take(10)} [...] ${it.takeLast(10)}"
             })
             println()
 
