@@ -5,6 +5,7 @@ import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
+import org.json.JSONObject
 import org.jsoup.nodes.Document
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
@@ -13,7 +14,10 @@ import org.luaj.vm2.LuaValue.*
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import org.luaj.vm2.lib.jse.JsePlatform
+import java.io.BufferedReader
 import java.io.File
+import java.io.FileReader
+import java.io.IOException
 
 /*
  * This file is part of shosetsu-services.
@@ -64,6 +68,19 @@ class LuaFormatter(val file: File) : Formatter {
                 Pair("parseSearch", TFUNCTION),
                 Pair("getSearchString", TFUNCTION)
         )
+    }
+
+    fun getMetaData(): JSONObject? {
+        return try {
+            BufferedReader(FileReader(file)).use { br ->
+                val line: String? = br.readLine()
+                br.close()
+                if (line != null) JSONObject(line.toString().replace("-- ", "")) else null
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
     }
 
     private fun loadScript(file: File): LuaTable {
