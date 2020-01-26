@@ -41,6 +41,13 @@ object Test {
         return client.newCall(request).execute().body
     }
 
+    /**
+     * Get's file from resources
+     */
+    fun getFile(file: String): File {
+        return File(javaClass.classLoader.getResource(file)!!.file)
+    }
+
     @Throws(java.io.IOException::class)
     private fun docFromURL(URL: String): org.jsoup.nodes.Document {
         return org.jsoup.Jsoup.parse(request(URL)!!.string())
@@ -70,6 +77,14 @@ object Test {
 
     private fun testScripts() {
         for (format in arrayOf(
+                //     "src/main/resources/src/jp/Syosetsu.lua",
+                //     "src/main/resources/src/en/BestLightNovel.lua",
+                //     "src/main/resources/src/en/BoxNovel.lua",
+                //     "src/main/resources/src/en/Foxaholic.lua",
+                //     "src/main/resources/src/en/NovelFull.lua",
+                //     "src/main/resources/src/en/ReadNovelForLife.lua",
+                //     "src/main/resources/src/en/VipNovel.lua",
+                "src/main/resources/src/en/KissLightNovels.lua",
                 "src/main/resources/src/vi/247truyen.lua"
         )) {
             println("\n========== $format ==========")

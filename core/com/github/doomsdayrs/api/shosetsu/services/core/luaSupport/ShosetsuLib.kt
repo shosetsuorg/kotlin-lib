@@ -130,6 +130,19 @@ class ShosetsuLib : TwoArgFunction() {
                         end
                         return t
                 """.trimIndent()),
+                Pair("mapNotNil", """
+                        local o, f = ...
+                        local t = {}
+                        local b = 1
+                        for i=1, o:size() do
+                            local v = f(o:get(i-1))
+                            if v ~= nil then
+                                t[b] = v
+                                b = b + 1
+                            end
+                        end
+                        return t
+                """.trimIndent()),
                 Pair("map2flat", """
                         local o1, f1, f2 = ...
                         local t = {}
