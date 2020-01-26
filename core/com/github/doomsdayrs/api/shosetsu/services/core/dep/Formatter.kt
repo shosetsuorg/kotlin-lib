@@ -4,8 +4,6 @@ import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.jsoup.nodes.Document
 
 /*
@@ -45,6 +43,10 @@ interface Formatter {
     // Must be initialized
     val name: String
     val imageURL: String
+
+    // TODO Make an side menu builder
+    val genres: Array<NovelGenre>
+
     /**
      * Parse the novel Chapter
      *
@@ -52,6 +54,46 @@ interface Formatter {
      * @return The Passage of the novel
      */
     fun getNovelPassage(document: Document): String
+
+    /**
+     * Only if isIncrementingChapterList() is true, this can be used
+     *
+     *
+     * Returns a URL that includes the specified increment
+     *
+     * @param url       URL of the novel
+     * @param increment increment to add to the URL
+     * @return combined [String] url
+     */
+    fun novelPageCombiner(url: String, increment: Int): String
+
+    /**
+     * If there is a latest page, use this to return a certain page. Starts at 1 onwards
+     *
+     * @param page page number
+     * @return [String] URL of the next latest page
+     */
+    fun getLatestURL(page: Int): String
+
+    /**
+     * @param document document to parse
+     * @return [List] of novels listed
+     */
+    fun parseLatest(document: Document): List<Novel>
+
+    /**
+     * @param query query string to be searched for
+     * @return [String] url of the query
+     */
+    fun getSearchString(query: String): String
+
+    /**
+     * Parse document to get list
+     *
+     * @param document document to parse
+     * @return [List] of novels
+     */
+    fun parseSearch(document: Document): List<Novel>
 
     /**
      * Parse the novelPage
@@ -66,50 +108,7 @@ interface Formatter {
      *
      * @param document  doc to parse
      * @param increment increment
-     * @return NovelPage
+     * @return [NovelPage]
      */
     fun parseNovel(document: Document, increment: Int): NovelPage
-
-    /**
-     * Only if isIncrementingChapterList() is true, this can be used
-     *
-     *
-     * Returns a URL that includes the specified increment
-     *
-     * @param url       URL of the novel
-     * @param increment increment to add to the URL
-     * @return Combined URL
-     */
-    fun novelPageCombiner(url: String, increment: Int): String
-
-    /**
-     * If there is a latest page, use this to return a certain page. Starts at 1 onwards
-     *
-     * @param page page number
-     * @return string URL of the next latest page
-     */
-    fun getLatestURL(page: Int): String
-
-    /**
-     * @param document document to parse
-     * @return List of novels listed
-     */
-    fun parseLatest(document: Document): List<Novel>
-
-    /**
-     * @param query query string to be searched for
-     * @return String url of the query
-     */
-    fun getSearchString(query: String): String
-
-    /**
-     * Parse document to get list
-     *
-     * @param document document to parse
-     * @return List of novels
-     */
-    fun parseSearch(document: Document): List<Novel>
-
-    // TODO Make an side menu builder
-    val genres: Array<NovelGenre>
 }

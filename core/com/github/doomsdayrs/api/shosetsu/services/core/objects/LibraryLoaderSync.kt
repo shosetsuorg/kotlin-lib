@@ -1,6 +1,7 @@
-@file:Suppress("unused")
-
 package com.github.doomsdayrs.api.shosetsu.services.core.objects
+
+import org.luaj.vm2.LuaValue
+
 
 /*
  * This file is part of shosetsu-services.
@@ -13,20 +14,16 @@ package com.github.doomsdayrs.api.shosetsu.services.core.objects
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
- * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
+ * along with shosetsu-services.  If not, see <https://www.gnu.org/licenses/>.
  * ====================================================================
  */
+
 /**
  * shosetsu-services
- * 30 / May / 2019
+ * 24 / 01 / 2020
  *
  * @author github.com/doomsdayrs
  */
-@Suppress("MemberVisibilityCanBePrivate")
-enum class NovelStatus(val title: String) {
-    PUBLISHING("Publishing"), COMPLETED("Completed"), PAUSED("Paused"), UNKNOWN("Unknown");
-
-    override fun toString(): String {
-        return "NovelStatus(title='$title')"
-    }
+interface LibraryLoaderSync {
+    fun getScript(name: String): LuaValue?
 }

@@ -1,35 +1,32 @@
 package com.github.doomsdayrs.api.shosetsu.services.core.dep
 
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.*
-import org.json.JSONObject
+import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
+import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
 import org.jsoup.nodes.Document
-import org.luaj.vm2.Globals
+import org.luaj.vm2.LuaString.EMPTYSTRING
+import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
+import org.luaj.vm2.LuaValue.*
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import org.luaj.vm2.lib.jse.JsePlatform
-import java.io.BufferedReader
 import java.io.File
-import java.io.FileReader
-import java.io.IOException
 
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * This file is part of shosetsu-services.
+ * shosetsu-services is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * shosetsu-services is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
  */
 /**
@@ -40,136 +37,140 @@ import java.io.IOException
  */
 class LuaFormatter(val file: File) : Formatter {
     companion object {
-        val keys: Array<String> = arrayOf(
-                "isIncrementingChapterList",
-                "isIncrementingPassagePage",
-                "chapterOrder",
-                "latestOrder",
-                "hasCloudFlare",
-                "hasSearch",
-                "hasGenres",
-                "genres",
-                "getImageURL",
-                "getName",
-                "getLatestURL",
-                "getNovelPassage",
-                "getSearchString",
-                "novelPageCombiner",
-                "parseLatest",
-                "parseNovel",
-                "parseSearch",
-                "getID"
+        val defaults: Map<String, LuaValue> = mapOf(
+                Pair("genres", LuaTable()),
+                Pair("imageURL", EMPTYSTRING),
+
+                Pair("hasCloudFlare", FALSE),
+                Pair("isIncrementingChapterList", FALSE),
+                Pair("isIncrementingPassagePage", FALSE),
+                Pair("hasSearch", TRUE),
+                Pair("hasGenres", TRUE),
+
+                Pair("latestOrder", coerce(Ordering.TopBottomLatestOldest)),
+                Pair("chapterOrder", coerce(Ordering.TopBottomLatestOldest))
+        )
+
+        val keys: Map<String, Int> = mapOf(
+                Pair("id", TNUMBER),
+                Pair("name", TSTRING),
+
+                Pair("getLatestURL", TFUNCTION),
+                Pair("getNovelPassage", TFUNCTION),
+                Pair("parseNovel", TFUNCTION),
+                Pair("parseNovelI", TFUNCTION),
+                Pair("novelPageCombiner", TFUNCTION),
+                Pair("parseLatest", TFUNCTION),
+                Pair("parseSearch", TFUNCTION),
+                Pair("getSearchString", TFUNCTION)
         )
     }
 
-    fun getMetaData(): JSONObject? {
-        return try {
-            BufferedReader(FileReader(file)).use { br ->
-                val line: String? = br.readLine()
-                br.close()
-                if (line != null) JSONObject(line.toString().replace("-- ", "")) else null
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    fun getScriptFromSystem(path: String): LuaValue {
-        val script: Globals = JsePlatform.standardGlobals()
+    private fun loadScript(file: File): LuaTable {
+        val script = JsePlatform.standardGlobals()
         script.load(ShosetsuLib())
-        script["dofile"].call(LuaValue.valueOf(path))
-        script.STDOUT = System.out
-        return script
+        val l = try {
+            script.load(file.readText())!!
+        } catch (e: Error) {
+            throw e
+        }
+
+        return l.call() as LuaTable
     }
 
-    val luaObject: LuaValue = getScriptFromSystem(file.absolutePath);
+    private val source: LuaTable = loadScript(file)
 
     init {
-        //TODO Check if script has a function
-        val missings: ArrayList<String> = ArrayList()
-        for (key in keys) {
-            if (!luaObject.get(key).isfunction()) {
-                missings.add(key)
-            }
-        }
-        if (missings.size > 0)
-            throw NullPointerException("Lua Script is missing methods:$missings")
+        val missingValues: ArrayList<String> = ArrayList()
+
+        for (it in keys)
+            if (source.get(it.key).type() != it.value)
+                missingValues.add(it.key)
+
+        for (it in defaults)
+            if (source.get(it.key).isnil())
+                source.set(it.key, it.value)
+
+        if (missingValues.size > 0)
+            throw NullPointerException("Lua Script is missing methods:$missingValues")
     }
 
     override val formatterID: Int
-        get() = luaObject.get("getID").call().toint()
+        get() = source["id"].toint()
 
     override var isIncrementingChapterList: Boolean
-        get() = luaObject.get("isIncrementingChapterList").call().toboolean()
-        set(value) {}
+        get() = source["isIncrementingChapterList"].toboolean()
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     override var isIncrementingPassagePage: Boolean
-        get() = luaObject.get("isIncrementingPassagePage").call().toboolean()
-        set(value) {}
+        get() = source["isIncrementingPassagePage"].toboolean()
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     override var chapterOrder: Ordering
-        get() = CoerceLuaToJava.coerce(luaObject.get("chapterOrder").call(), Ordering::class.java) as Ordering
-        set(value) {}
+        get() = CoerceLuaToJava.coerce(source["chapterOrder"], Ordering::class.java) as Ordering
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     override var latestOrder: Ordering
-        get() = CoerceLuaToJava.coerce(luaObject.get("latestOrder").call(), Ordering::class.java) as Ordering
-        set(value) {}
+        get() = CoerceLuaToJava.coerce(source["latestOrder"], Ordering::class.java) as Ordering
+        set(@Suppress("UNUSED_PARAMETER") value) {}
 
     override val hasCloudFlare: Boolean
-        get() = luaObject.get("hasCloudFlare").call().toboolean()
+        get() = source["hasCloudFlare"].toboolean()
 
     override val hasSearch: Boolean
-        get() = luaObject.get("hasSearch").call().toboolean()
+        get() = source["hasSearch"].toboolean()
 
     override val hasGenres: Boolean
-        get() = luaObject.get("hasGenres").call().toboolean()
+        get() = source["hasGenres"].toboolean()
 
 
+    @Suppress("UNCHECKED_CAST")
     override val genres: Array<NovelGenre>
-        get() = CoerceLuaToJava.coerce(luaObject.get("genres").call(), Array<NovelGenre>::class.java) as Array<NovelGenre>
+        get() = CoerceLuaToJava.coerce(source["genres"], Array<NovelGenre>::class.java) as Array<NovelGenre>
 
     override val imageURL: String
-        get() = luaObject.get("getImageURL").call().toString()
+        get() = source["imageURL"].toString()
 
     override val name: String
-        get() = luaObject.get("getName").call().toString()
+        get() = source["name"].toString()
 
 
     override fun getLatestURL(page: Int): String {
-        return luaObject.get("getLatestURL").call(LuaValue.valueOf(page)).toString()
+        return source["getLatestURL"].call(valueOf(page)).toString()
     }
 
     override fun getNovelPassage(document: Document): String {
-        return luaObject.get("getNovelPassage").call(coerce(document)).toString()
+        return source["getNovelPassage"].call(coerce(document)).toString()
     }
 
     override fun getSearchString(query: String): String {
-        return luaObject.get("getSearchString").call(query).toString()
+        return source["getSearchString"].call(query).toString()
     }
 
     override fun novelPageCombiner(url: String, increment: Int): String {
-        val out = luaObject.get("novelPageCombiner").call(LuaValue.valueOf(url), LuaValue.valueOf(increment))
+        val out = source["novelPageCombiner"].call(valueOf(url), valueOf(increment))
         return out.toString()
     }
 
     override fun parseLatest(document: Document): List<Novel> {
-        val out = luaObject.get("parseLatest").call(coerce(document))
+        val out = source["parseLatest"].call(coerce(document))
+        @Suppress("UNCHECKED_CAST")
         return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel>
     }
 
     override fun parseNovel(document: Document): NovelPage {
-        val out = luaObject.get("parseNovel").call(coerce(document))
+        val out = source["parseNovel"].call(coerce(document))
         return CoerceLuaToJava.coerce(out, NovelPage::class.java) as NovelPage
     }
 
     override fun parseNovel(document: Document, increment: Int): NovelPage {
-        val out = luaObject.get("parseNovelI").call(coerce(document), LuaValue.valueOf(increment))
+        val out = source["parseNovelI"].call(coerce(document), valueOf(increment))
         return CoerceLuaToJava.coerce(out, NovelPage::class.java) as NovelPage
     }
 
     override fun parseSearch(document: Document): List<Novel> {
-        val out = luaObject.get("parseSearch").call(coerce(document))
+        val out = source["parseSearch"].call(coerce(document))
+        @Suppress("UNCHECKED_CAST")
         return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel>
     }
 }
