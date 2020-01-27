@@ -75,11 +75,11 @@ private object Test {
                 //     "src/main/resources/src/en/BestLightNovel.lua",
                 //     "src/main/resources/src/en/BoxNovel.lua",
                 //     "src/main/resources/src/en/Foxaholic.lua",
-                //     "src/main/resources/src/en/NovelFull.lua",
+                "src/main/resources/src/en/NovelFull.lua"
                 //     "src/main/resources/src/en/ReadNovelForLife.lua",
                 //     "src/main/resources/src/en/VipNovel.lua",
-                "src/main/resources/src/en/KissLightNovels.lua",
-                "src/main/resources/src/vi/247truyen.lua"
+                //     "src/main/resources/src/en/KissLightNovels.lua",
+                //     "src/main/resources/src/vi/247truyen.lua"
         )) {
             println("\n========== $format ==========")
 
@@ -107,7 +107,7 @@ private object Test {
 
             // Novel
             java.util.concurrent.TimeUnit.SECONDS.sleep(1)
-            val novel = luaFormatter.parseNovel(docFromURL(luaFormatter.novelPageCombiner(list[0].link, 2)), 2)
+            val novel = luaFormatter.parseNovel(docFromURL("http://novelfull.com/peerless-battle-spirit.html"))
             println(novel)
 
             // Parse novel passage
