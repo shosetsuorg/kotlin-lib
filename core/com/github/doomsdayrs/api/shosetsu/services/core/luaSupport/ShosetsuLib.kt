@@ -129,13 +129,12 @@ class ShosetsuLib : TwoArgFunction() {
                 """.trimIndent()),
                 Pair("mapNotNil", """
                         local o, f = ...
-                        local t = {}
-                        local b = 1
-                        for i=1, o:size() do
-                            local v = f(o:get(i-1))
-                            if v ~= nil then
-                                t[b] = v
-                                b = b + 1
+                        local t, j = {}, 1
+                        for i=0, o:size()-1 do
+                            local v = f(o:get(i))
+                            if v then
+                                t[j] = v
+                                j = j + 1
                             end
                         end
                         return t
