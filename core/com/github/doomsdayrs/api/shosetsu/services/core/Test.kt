@@ -3,6 +3,7 @@ package com.github.doomsdayrs.api.shosetsu.services.core
 import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
 import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.LibraryLoaderSync
+import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
@@ -70,12 +71,15 @@ private object Test {
 
 
     private fun testScripts() {
+        ShosetsuLib.okHttpClient = OkHttpClient()
         for (format in arrayOf(
                 //     "src/main/resources/src/jp/Syosetsu.lua",
                 //     "src/main/resources/src/en/BestLightNovel.lua",
                 //     "src/main/resources/src/en/BoxNovel.lua",
                 //     "src/main/resources/src/en/Foxaholic.lua",
-                "src/main/resources/src/en/NovelFull.lua"
+//                "src/main/resources/src/en/NovelFull.lua"
+                "src/main/resources/src/en/CreativeNovels.lua"
+
                 // "src/main/resources/src/en/FastNovel.lua"
                 //     "src/main/resources/src/en/ReadNovelForLife.lua",
                 //     "src/main/resources/src/en/VipNovel.lua",
@@ -97,15 +101,14 @@ private object Test {
             // Latest
             java.util.concurrent.TimeUnit.SECONDS.sleep(1)
             val list = luaFormatter.parseLatest(docFromURL(luaFormatter.getLatestURL(1)))
-            //           println(list)
+            println(list)
             println()
-
 
             //      println(luaFormatter.getSearchString("I alone"))
             // Search
             java.util.concurrent.TimeUnit.SECONDS.sleep(1)
             @Suppress("SpellCheckingInspection")
-            //    println(luaFormatter.parseSearch(docFromURL(luaFormatter.getSearchString("reinca"))))
+            println(luaFormatter.parseSearch(docFromURL(luaFormatter.getSearchString("reinca"))))
             println()
 
             // Novel
@@ -116,9 +119,9 @@ private object Test {
             // Parse novel passage
             java.util.concurrent.TimeUnit.SECONDS.sleep(1)
             println(run {
-                //           val it = luaFormatter.getNovelPassage(docFromURL(novel.novelChapters[0].link))
-                //             if (it.length < 25) "Result: $it"
-                //            else "${it.length} chars long result: ${it.take(10)} [...] ${it.takeLast(10)}"
+                val it = luaFormatter.getNovelPassage(docFromURL(novel.novelChapters[0].link))
+                if (it.length < 25) "Result: $it"
+                else "${it.length} chars long result: ${it.take(10)} [...] ${it.takeLast(10)}"
             })
             println()
 

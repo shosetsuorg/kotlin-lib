@@ -42,14 +42,15 @@ class ShosetsuLib : TwoArgFunction() {
          */
         val libraries: MutableMap<String, LuaValue> = mutableMapOf()
         lateinit var libraryLoaderSync: LibraryLoaderSync
+        lateinit var okHttpClient: OkHttpClient
     }
 
 
     @Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
     internal class LibFunctions {
-        private val DEFAULT_CACHE_CONTROL = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
-        private val DEFAULT_HEADERS = Headers.Builder().build()
-        private val DEFAULT_BODY: RequestBody = FormBody.Builder().build()
+        fun DEFAULT_CACHE_CONTROL() = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
+        fun DEFAULT_HEADERS() = Headers.Builder().build()
+        fun DEFAULT_BODY(): RequestBody = FormBody.Builder().build()
 
         fun <E> List(): ArrayList<E> = ArrayList()
         fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
@@ -92,18 +93,13 @@ class ShosetsuLib : TwoArgFunction() {
         }
 
         // For normal people, these simple GET and POST are sufficient.
-        fun GET(
-                url: String,
-                headers: Headers = DEFAULT_HEADERS,
-                cacheControl: CacheControl = DEFAULT_CACHE_CONTROL
-        ): Request = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
+        fun GET(url: String, headers: Headers, cacheControl: CacheControl):
+                Request = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
 
-        fun POST(
-                url: String,
-                headers: Headers = DEFAULT_HEADERS,
-                body: RequestBody = DEFAULT_BODY,
-                cacheControl: CacheControl = DEFAULT_CACHE_CONTROL
-        ): Request = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
+        fun POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl):
+                Request = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
+
+        fun getResponse(request: Request) = okHttpClient.newCall(request).execute()
 
         // For advanced users who want to do everything themselves.
         fun RequestBuilder() = Request.Builder()
