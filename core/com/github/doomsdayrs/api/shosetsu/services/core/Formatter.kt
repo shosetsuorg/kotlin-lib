@@ -26,7 +26,7 @@ import org.luaj.vm2.LuaTable
  */
 @Suppress("unused")
 interface Formatter {
-    class Listing(val id: Int, val name: String = "unknown", val isIncrementing: Boolean = false, val getListing: (increment: Int) -> Array<Novel.Listing>)
+    class Listing(val name: String, val isIncrementing: Boolean, val getListing: (increment: Int?) -> Array<Novel.Listing>)
 
     val name: String
     val imageURL: String
@@ -35,8 +35,8 @@ interface Formatter {
     val hasSearch: Boolean
     val listings: Array<Listing>
 
-    fun getPassage(chapterURL: String): String
     fun search(data: LuaTable): Array<Novel.Listing>
+    fun getPassage(chapterURL: String): String
     fun parseNovel(novelURL: String): Novel.Info
     fun parseNovel(novelURL: String, increment: Int): Novel.Info
 }

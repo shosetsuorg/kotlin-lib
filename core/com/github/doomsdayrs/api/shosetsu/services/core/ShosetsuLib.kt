@@ -6,6 +6,7 @@ import org.jsoup.Jsoup
 import org.luaj.vm2.*
 import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
+import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import java.util.concurrent.TimeUnit
 
 /*
@@ -52,21 +53,28 @@ class ShosetsuLib : TwoArgFunction() {
         fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
         fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
+        @Suppress("UNCHECKED_CAST") // very ugly hack
+        fun Listing(name: String, increments: Boolean, func: LuaFunction)
+                = Formatter.Listing(name, increments) { CoerceLuaToJava.coerce(
+                func.call(if (it == null) LuaValue.NIL else LuaValue.valueOf(it)),
+                Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+            }
+
         fun Novel() = Novel.Listing()
         fun NovelChapter() = Novel.Chapter()
         fun NovelPage() = Novel.Info()
-
-        fun Require(name: String): LuaValue? = libraries.computeIfAbsent(name) {
-            libLoader(it).takeIf { value ->
-                if (value != LuaValue.NIL || value != null) true else throw LuaError("Missing Library:\n\t\t$it")
-            }!!
-        }
 
         fun NovelStatus(type: Int): Status = when (type) {
             0 -> Status.PUBLISHING
             1 -> Status.COMPLETED
             2 -> Status.PAUSED
             else -> Status.UNKNOWN
+        }
+
+        fun Require(name: String): LuaValue? = libraries.computeIfAbsent(name) {
+            libLoader(it).takeIf { value ->
+                if (value != LuaValue.NIL || value != null) true else throw LuaError("Missing Library:\n\t\t$it")
+            }!!
         }
 
 
