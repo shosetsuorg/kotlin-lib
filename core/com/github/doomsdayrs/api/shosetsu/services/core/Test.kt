@@ -25,6 +25,8 @@ import java.io.File
  * 03 / June / 2019
  *
  * @author github.com/doomsdayrs
+ *
+ * In IDEA, The Classpath should be shosetsu-services BUT the Working directory should be shosetsu-extensions.
  */
 private object Test {
     private fun loadScript(file: File): LuaValue {
@@ -45,7 +47,7 @@ private object Test {
         ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
         ShosetsuLib.httpClient = OkHttpClient()
 
-
+        // TODO: Reimplement when 1.0 services AND extensions are complete.
         for (format in arrayOf(
                 "src/main/resources/src/en/NovelFull.lua"
         )) {
