@@ -30,12 +30,13 @@ import java.util.concurrent.TimeUnit
  */
 class ShosetsuLib : TwoArgFunction() {
     companion object {
-        /**
-         * Libraries loaded in via shosetsu.
-         * Mapping from library name to their returned value.
-         */
+        /** Libraries loaded in via shosetsu. Mapping from library name to their returned value. */
         val libraries: MutableMap<String, LuaValue> = mutableMapOf()
+
+        /** Loads libraries from their names. */
         lateinit var libLoader: (name: String) -> LuaValue?
+
+        /** okhttp HTTP Client used by lib functions. */
         lateinit var httpClient: OkHttpClient
     }
 
@@ -78,6 +79,7 @@ class ShosetsuLib : TwoArgFunction() {
         fun Request(req: Request) = httpClient.newCall(req).execute()
 
         // For advanced users who want to (or need to) do everything themselves.
+        fun HttpClient() = httpClient
         fun RequestBuilder() = Request.Builder()
         fun HeadersBuilder() = Headers.Builder()
         fun FormBodyBuilder() = FormBody.Builder()
@@ -108,6 +110,18 @@ class ShosetsuLib : TwoArgFunction() {
                         for i=0, o:size()-1 do
                             local v = f(o:get(i))
                             if v then
+                                t[j] = v
+                                j = j + 1
+                            end
+                        end
+                        return t
+                """.trimIndent()),
+                Pair("filter", """
+                        local o, f = ...
+                        local t, j = {}, 1
+                        for i=0, o:size()-1 do
+                            local v = o:get(i)
+                            if f(v) then
                                 t[j] = v
                                 j = j + 1
                             end
