@@ -30,12 +30,13 @@ import java.util.concurrent.TimeUnit.SECONDS
  */
 private object Test {
     // CONFIG
-    private const val PRINT_LISTINGS = false
+    private const val PRINT_LISTINGS = true
     private const val PRINT_LIST_STATS = true
-    private const val PRINT_NOVELS = false
+    private const val PRINT_NOVELS = true
     private const val PRINT_NOVEL_STATS = true
+
     private val SOURCES = arrayOf(
-            "en/..."
+            "en/FastNovel"
     ).map { "src/main/resources/src/$it.lua" }
 
 
