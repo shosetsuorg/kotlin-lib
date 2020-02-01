@@ -37,7 +37,9 @@ class LuaFormatter(private val file: File) : Formatter {
         val defaults: Map<String, LuaValue> = mapOf(
                 Pair("imageURL", EMPTYSTRING),
                 Pair("hasCloudFlare", FALSE),
-                Pair("hasSearch", TRUE)
+                Pair("hasSearch", TRUE),
+                Pair("filters", LuaTable()),
+                Pair("settings", LuaTable())
         )
 
         val keys: Map<String, Int> = mapOf(
@@ -68,12 +70,14 @@ class LuaFormatter(private val file: File) : Formatter {
         script.load(ShosetsuLib())
         val l = try {
             script.load(file.readText())!!
-        } catch (e: Error) { throw e }
+        } catch (e: Error) {
+            throw e
+        }
         source = l.call() as LuaTable
 
         // Checks table
         defaults.filter { source[it.key].isnil() }.forEach { source[it.key] = it.value }
-        with (keys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
+        with(keys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
             if (isNotEmpty())
                 throw NullPointerException("Lua Script has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" }))
         }
@@ -86,15 +90,17 @@ class LuaFormatter(private val file: File) : Formatter {
     override val hasSearch: Boolean = source["hasSearch"].toboolean()
 
     @Suppress("UNCHECKED_CAST")
-    override val listings: Array<Formatter.Listing>
-            = CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
+    override val listings: Array<Formatter.Listing> = CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
 
-    override fun getPassage(chapterURL: String): String
-            = source["getPassage"].call(chapterURL).tojstring()
-    override fun parseNovel(novelURL: String): Novel.Info
-            = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL)), Novel.Info::class.java) as Novel.Info
+    override val filters: LuaTable
+        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+    override val settings: LuaTable
+        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+
+    override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
+    override fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters)), Novel.Info::class.java) as Novel.Info
+    override fun setSettings(settings: LuaTable) = TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 
     @Suppress("UNCHECKED_CAST")
-    override fun search(data: LuaTable): Array<Novel.Listing>
-            = CoerceLuaToJava.coerce(source["search"].call(data), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+    override fun search(data: LuaTable): Array<Novel.Listing> = CoerceLuaToJava.coerce(source["search"].call(data), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 }

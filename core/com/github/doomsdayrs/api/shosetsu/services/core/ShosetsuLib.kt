@@ -52,11 +52,11 @@ class ShosetsuLib : TwoArgFunction() {
         fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
         @Suppress("UNCHECKED_CAST") // very ugly hack
-        fun Listing(name: String, increments: Boolean, func: LuaFunction)
-                = Formatter.Listing(name, increments) { CoerceLuaToJava.coerce(
-                func.call(if (it == null) LuaValue.NIL else LuaValue.valueOf(it)),
-                Array<Novel.Listing>::class.java) as Array<Novel.Listing>
-            }
+        fun Listing(name: String, increments: Boolean, func: LuaFunction) = Formatter.Listing(name, increments) {
+            CoerceLuaToJava.coerce(
+                    func.call(if (it == null) LuaValue.NIL else LuaValue.valueOf(it)),
+                    Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+        }
 
         fun Novel() = Novel.Listing()
         fun NovelInfo() = Novel.Info()
@@ -77,11 +77,9 @@ class ShosetsuLib : TwoArgFunction() {
 
 
         // For normal extensions, these simple functions are sufficient.
-        fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request
-                = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
+        fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
 
-        fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request
-                = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
+        fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
 
         fun Document(str: String) = Jsoup.parse(str)!!
         fun Request(req: Request) = httpClient.newCall(req).execute()
@@ -90,6 +88,7 @@ class ShosetsuLib : TwoArgFunction() {
 
         // For advanced users who want to (or need to) do everything themselves.
         fun HttpClient() = httpClient
+
         fun RequestBuilder() = Request.Builder()
         fun HeadersBuilder() = Headers.Builder()
         fun FormBodyBuilder() = FormBody.Builder()

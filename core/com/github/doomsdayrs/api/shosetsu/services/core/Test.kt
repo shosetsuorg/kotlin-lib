@@ -1,4 +1,5 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
+
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
@@ -65,28 +66,30 @@ private object Test {
             println("Image : ${formatter.imageURL}")
 
             @Suppress("ConstantConditionIf")
-            formatter.listings.forEach { l -> with (l) {
-                println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-                val novels = getListing(if (isIncrementing) 1 else null)
-                if (PRINT_LISTINGS) println(novels)
+            formatter.listings.forEach { l ->
+                with(l) {
+                    println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
+                    val novels = getListing(if (isIncrementing) 1 else null)
+                    if (PRINT_LISTINGS) println(novels)
 
-                println("${novels.size} novels.")
-                if (PRINT_LIST_STATS)
-                    println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
+                    println("${novels.size} novels.")
+                    if (PRINT_LIST_STATS)
+                        println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
 
-                println()
+                    println()
 
-                val novel = formatter.parseNovel(novels[0].link)
-                if (PRINT_NOVELS) println(novel)
-                if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
+                    val novel = formatter.parseNovel(novels[0].link, true)
+                    if (PRINT_NOVELS) println(novel)
+                    if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
 
-                println(run {
-                    val it = formatter.getPassage(novel.chapters[0].link)
-                    if (it.length < 25) "Result: $it"
-                    else "${it.length} chars long result: ${it.take(10)} [...] ${it.takeLast(10)}"
-                })
-                SECONDS.sleep(1)
-            } }
+                    println(run {
+                        val it = formatter.getPassage(novel.chapters[0].link)
+                        if (it.length < 25) "Result: $it"
+                        else "${it.length} chars long result: ${it.take(10)} [...] ${it.takeLast(10)}"
+                    })
+                    SECONDS.sleep(1)
+                }
+            }
 
             SECONDS.sleep(1)
         }
