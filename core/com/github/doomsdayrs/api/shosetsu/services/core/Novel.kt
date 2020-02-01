@@ -30,6 +30,7 @@ class Novel {
         }
     }
 
+    @Suppress("ArrayInDataClass")
     data class Info(var title: String = "unknown",
                     var imageURL: String = "",
                     var description: String = "unknown",
@@ -39,45 +40,6 @@ class Novel {
                     var tags: Array<String> = arrayOf(),
                     var artists: Array<String> = arrayOf(),
                     var language: String = "unknown",
-                    /**
-                     * If chapter list is incrementing, then this is used to prevent the loader from going past it
-                     */
                     var maxChapterPage: Int = 0,
-                    var novelChapters: List<Chapter> = arrayListOf()) {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as Info
-
-            if (title != other.title) return false
-            if (imageURL != other.imageURL) return false
-            if (description != other.description) return false
-            if (!genres.contentEquals(other.genres)) return false
-            if (!authors.contentEquals(other.authors)) return false
-            if (status != other.status) return false
-            if (!tags.contentEquals(other.tags)) return false
-            if (!artists.contentEquals(other.artists)) return false
-            if (language != other.language) return false
-            if (maxChapterPage != other.maxChapterPage) return false
-            if (novelChapters != other.novelChapters) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = title.hashCode()
-            result = 31 * result + imageURL.hashCode()
-            result = 31 * result + description.hashCode()
-            result = 31 * result + genres.contentHashCode()
-            result = 31 * result + authors.contentHashCode()
-            result = 31 * result + status.hashCode()
-            result = 31 * result + tags.contentHashCode()
-            result = 31 * result + artists.contentHashCode()
-            result = 31 * result + language.hashCode()
-            result = 31 * result + maxChapterPage
-            result = 31 * result + novelChapters.hashCode()
-            return result
-        }
-    }
+                    var chapters: List<Chapter> = arrayListOf())
 }

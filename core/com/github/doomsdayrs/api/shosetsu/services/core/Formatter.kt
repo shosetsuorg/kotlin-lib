@@ -31,12 +31,11 @@ interface Formatter {
     val name: String
     val imageURL: String
     val formatterID: Int
-    val hasCloudFlare: Boolean
     val hasSearch: Boolean
+    val hasCloudFlare: Boolean
     val listings: Array<Listing>
 
     fun search(data: LuaTable): Array<Novel.Listing>
     fun getPassage(chapterURL: String): String
     fun parseNovel(novelURL: String): Novel.Info
-    fun parseNovel(novelURL: String, increment: Int): Novel.Info
 }

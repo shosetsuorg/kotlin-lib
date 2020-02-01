@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
  */
-
 /**
  * com.github.doomsdayrs.api.shosetsu.extensions.lang.en
  * 20 / January / 2020
@@ -41,7 +40,6 @@ class ShosetsuLib : TwoArgFunction() {
         /** okhttp HTTP Client used by lib functions. */
         lateinit var httpClient: OkHttpClient
     }
-
 
     @Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
     internal class LibFunctions {
@@ -61,8 +59,8 @@ class ShosetsuLib : TwoArgFunction() {
             }
 
         fun Novel() = Novel.Listing()
+        fun NovelInfo() = Novel.Info()
         fun NovelChapter() = Novel.Chapter()
-        fun NovelPage() = Novel.Info()
 
         fun NovelStatus(type: Int): Status = when (type) {
             0 -> Status.PUBLISHING

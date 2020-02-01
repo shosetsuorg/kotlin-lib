@@ -49,7 +49,6 @@ class LuaFormatter(private val file: File) : Formatter {
 
                 Pair("getPassage", TFUNCTION),
                 Pair("parseNovel", TFUNCTION),
-                Pair("parseNovelI", TFUNCTION),
                 Pair("search", TFUNCTION)
         )
     }
@@ -94,8 +93,6 @@ class LuaFormatter(private val file: File) : Formatter {
             = source["getPassage"].call(chapterURL).tojstring()
     override fun parseNovel(novelURL: String): Novel.Info
             = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL)), Novel.Info::class.java) as Novel.Info
-    override fun parseNovel(novelURL: String, increment: Int): Novel.Info
-            = CoerceLuaToJava.coerce(source["parseNovelI"].call(valueOf(novelURL), valueOf(increment)), Novel.Info::class.java) as Novel.Info
 
     @Suppress("UNCHECKED_CAST")
     override fun search(data: LuaTable): Array<Novel.Listing>

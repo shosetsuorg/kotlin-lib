@@ -1,5 +1,4 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
-import okhttp3.*
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
@@ -19,16 +18,23 @@ import java.io.File
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
  */
-
 /**
  * shosetsu-services
  * 03 / June / 2019
  *
  * @author github.com/doomsdayrs
  *
- * In IDEA, The Classpath should be shosetsu-services BUT the Working directory should be shosetsu-extensions.
+ * In IDEA, The Classpath should be shosetsu-services but the Working directory should be shosetsu-extensions.
  */
 private object Test {
+    // CONFIG
+    private const val PRINT_LISTINGS = false
+    private const val PRINT_LIST_STATS = true
+    private const val PRINT_NOVELS = false
+    private const val PRINT_NOVEL_STATS = true
+
+
+
     private fun loadScript(file: File): LuaValue {
         val script = JsePlatform.standardGlobals()
         script.load(ShosetsuLib())
@@ -47,30 +53,43 @@ private object Test {
         ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
         ShosetsuLib.httpClient = OkHttpClient()
 
-        // TODO: Reimplement when 1.0 services AND extensions are complete.
         for (format in arrayOf(
-                "src/main/resources/src/en/NovelFull.lua"
+                "src/main/resources/src/vi/247Truyen.lua"
         )) {
-            println("\n========== $format ==========")
+            println("\n\n========== $format ==========")
 
-            val luaFormatter = LuaFormatter(File(format))
+            val formatter = LuaFormatter(File(format))
+            println("ID    : ${formatter.formatterID}")
+            println("Name  : ${formatter.name}")
+            println("Image : ${formatter.imageURL}")
 
-            // Data
-            println(luaFormatter.name)
-            println(luaFormatter.formatterID)
-            println(luaFormatter.imageURL)
+            @Suppress("ConstantConditionIf")
+            formatter.listings.forEach { l -> with (l) {
+                println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
+                val novels = getListing(if (isIncrementing) 1 else null)
+                if (PRINT_LISTINGS) println(novels)
 
-            // Parse novel passage
+                println("${novels.size} novels.")
+                if (PRINT_LIST_STATS)
+                    println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
+
+                println()
+
+                val novel = formatter.parseNovel(novels[0].link)
+                if (PRINT_NOVELS) println(novel)
+                if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
+
+                println(run {
+                    val it = formatter.getPassage(novel.chapters[0].link)
+                    if (it.length < 25) "Result: $it"
+                    else "${it.length} chars long result: ${it.take(10)} [...] ${it.takeLast(10)}"
+                })
+                java.util.concurrent.TimeUnit.SECONDS.sleep(1)
+            } }
+
             java.util.concurrent.TimeUnit.SECONDS.sleep(1)
-            //println(run {
-            //    val it = luaFormatter.getPassage(novel.novelChapters[0].link)
-            //    if (it.length < 25) "Result: $it"
-            //    else "${it.length} chars long result: ${it.take(10)} [...] ${it.takeLast(10)}"
-            //})
-            println()
-
-            println("DEBUG COMPLETE")
         }
+        println("\n\tTESTS COMPLETE")
     }
 
 }
