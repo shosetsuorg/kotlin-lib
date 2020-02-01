@@ -1,12 +1,10 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
 import org.json.JSONObject
-import org.jsoup.nodes.Document
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.LuaValue.*
-import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.BufferedReader
@@ -37,45 +35,34 @@ import java.io.IOException
 class LuaFormatter(val file: File) : Formatter {
     companion object {
         val defaults: Map<String, LuaValue> = mapOf(
-                Pair("genres", LuaTable()),
                 Pair("imageURL", EMPTYSTRING),
-
                 Pair("hasCloudFlare", FALSE),
-                Pair("isIncrementingChapterList", FALSE),
-                Pair("isIncrementingPassagePage", FALSE),
-                Pair("hasSearch", TRUE),
-                Pair("hasGenres", TRUE)
+                Pair("hasSearch", TRUE)
         )
 
         val keys: Map<String, Int> = mapOf(
                 Pair("id", TNUMBER),
                 Pair("name", TSTRING),
+                Pair("listings", TTABLE),
 
-                Pair("getLatestURL", TFUNCTION),
-                Pair("getNovelPassage", TFUNCTION),
+                Pair("getPassage", TFUNCTION),
                 Pair("parseNovel", TFUNCTION),
                 Pair("parseNovelI", TFUNCTION),
-                Pair("novelPageCombiner", TFUNCTION),
-                Pair("parseLatest", TFUNCTION),
-                Pair("parseSearch", TFUNCTION),
-                Pair("getSearchString", TFUNCTION)
+                Pair("search", TFUNCTION)
         )
     }
 
-    fun getMetaData(): JSONObject? {
-        return try {
-            BufferedReader(FileReader(file)).use { br ->
-                val line: String? = br.readLine()
-                br.close()
-                if (line != null) JSONObject(line.toString().replace("-- ", "")) else null
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            null
-        }
+    fun getMetaData(): JSONObject? = try {
+        JSONObject(BufferedReader(FileReader(file)).use { br ->
+            val line: String? = br.readLine(); br.close(); line
+        }?.dropWhile { it != '{' })
+    } catch (e: IOException) {
+        e.printStackTrace(); null
     }
 
-    private fun loadScript(file: File): LuaTable {
+    private val source: LuaTable
+
+    init {
         val script = JsePlatform.standardGlobals()
         script.load(ShosetsuLib())
         val l = try {
@@ -83,91 +70,35 @@ class LuaFormatter(val file: File) : Formatter {
         } catch (e: Error) {
             throw e
         }
+        source = l.call() as LuaTable
 
-        return l.call() as LuaTable
-    }
-
-    private val source: LuaTable = loadScript(file)
-
-    init {
+        // Checks table
         val missingValues: ArrayList<String> = ArrayList()
-
-        for (it in keys)
-            if (source.get(it.key).type() != it.value)
-                missingValues.add(it.key)
-
-        for (it in defaults)
-            if (source.get(it.key).isnil())
-                source.set(it.key, it.value)
-
-        if (missingValues.size > 0)
-            throw NullPointerException("Lua Script is missing methods:$missingValues")
+        for (it in keys) if (source.get(it.key).type() != it.value) missingValues.add(it.key)
+        for (it in defaults) if (source.get(it.key).isnil()) source.set(it.key, it.value)
+        if (missingValues.size > 0) throw NullPointerException("Lua Script is missing methods:$missingValues")
     }
 
-    override val formatterID: Int
-        get() = source["id"].toint()
+    override var name: String = source["name"].toString()
 
-    override var isIncrementingChapterList: Boolean
-        get() = source["isIncrementingChapterList"].toboolean()
-        set(@Suppress("UNUSED_PARAMETER") value) {}
+    override var formatterID: Int = source["id"].toint()
 
-    override var isIncrementingPassagePage: Boolean
-        get() = source["isIncrementingPassagePage"].toboolean()
-        set(@Suppress("UNUSED_PARAMETER") value) {}
+    override var imageURL: String = source["imageURL"].toString()
 
-    override val hasCloudFlare: Boolean
-        get() = source["hasCloudFlare"].toboolean()
+    override var hasCloudFlare: Boolean = source["hasCloudFlare"].toboolean()
 
-    override val hasSearch: Boolean
-        get() = source["hasSearch"].toboolean()
+    override var hasSearch: Boolean = source["hasSearch"].toboolean()
 
-    override val hasGenres: Boolean
-        get() = source["hasGenres"].toboolean()
+    @Suppress("UNCHECKED_CAST")
+    override var listings: Array<Formatter.Listing> = CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
 
+    override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
 
-    override val imageURL: String
-        get() = source["imageURL"].toString()
+    override fun parseNovel(novelURL: String): Novel.Info = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL)), Novel.Info::class.java) as Novel.Info
 
-    override val name: String
-        get() = source["name"].toString()
+    override fun parseNovel(novelURL: String, increment: Int): Novel.Info = CoerceLuaToJava.coerce(source["parseNovelI"].call(valueOf(novelURL), valueOf(increment)), Novel.Info::class.java) as Novel.Info
 
+    @Suppress("UNCHECKED_CAST")
+    override fun search(data: LuaTable): Array<Novel.Listing> = CoerceLuaToJava.coerce(source["search"].call(data), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 
-    override fun getLatestURL(page: Int): String {
-        return source["getLatestURL"].call(valueOf(page)).toString()
-    }
-
-    override fun getNovelPassage(document: Document): String {
-        return source["getNovelPassage"].call(coerce(document)).toString()
-    }
-
-    override fun getSearchString(query: String): String {
-        return source["getSearchString"].call(query).toString()
-    }
-
-    override fun novelPageCombiner(url: String, increment: Int): String {
-        val out = source["novelPageCombiner"].call(valueOf(url), valueOf(increment))
-        return out.toString()
-    }
-
-    override fun parseLatest(document: Document): List<Novel.Listing> {
-        val out = source["parseLatest"].call(coerce(document))
-        @Suppress("UNCHECKED_CAST")
-        return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel.Listing>
-    }
-
-    override fun parseNovel(document: Document): Novel.Info {
-        val out = source["parseNovel"].call(coerce(document))
-        return CoerceLuaToJava.coerce(out, Novel.Info::class.java) as Novel.Info
-    }
-
-    override fun parseNovel(document: Document, increment: Int): Novel.Info {
-        val out = source["parseNovelI"].call(coerce(document), valueOf(increment))
-        return CoerceLuaToJava.coerce(out, Novel.Info::class.java) as Novel.Info
-    }
-
-    override fun parseSearch(document: Document): List<Novel.Listing> {
-        val out = source["parseSearch"].call(coerce(document))
-        @Suppress("UNCHECKED_CAST")
-        return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel.Listing>
-    }
 }

@@ -1,6 +1,6 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
-import org.jsoup.nodes.Document
+import org.luaj.vm2.LuaTable
 
 /*
  * This file is part of shosetsu-services.
@@ -26,82 +26,17 @@ import org.jsoup.nodes.Document
  */
 @Suppress("unused")
 interface Formatter {
-    val formatterID: Int
+    class Listing(val id: Int, val name: String = "unknown", val isIncrementing: Boolean = false, val getListing: (increment: Int) -> Array<Novel.Listing>)
 
-    val isIncrementingChapterList: Boolean
-    val isIncrementingPassagePage: Boolean
-    val hasCloudFlare: Boolean
-    val hasSearch: Boolean
-    val hasGenres: Boolean
+    var name: String
+    var imageURL: String
+    var formatterID: Int
+    var hasCloudFlare: Boolean
+    var hasSearch: Boolean
+    var listings: Array<Listing>
 
-
-    // Must be initialized
-    val name: String
-    val imageURL: String
-
-
-    /**
-     * Parse the novel Chapter
-     *
-     * @param document incoming page to parse
-     * @return The Passage of the novel
-     */
-    fun getNovelPassage(document: Document): String
-
-    /**
-     * Only if isIncrementingChapterList() is true, this can be used
-     *
-     *
-     * Returns a URL that includes the specified increment
-     *
-     * @param url       URL of the novel
-     * @param increment increment to add to the URL
-     * @return combined [String] url
-     */
-    fun novelPageCombiner(url: String, increment: Int): String
-
-    /**
-     * If there is a latest page, use this to return a certain page. Starts at 1 onwards
-     *
-     * @param page page number
-     * @return [String] URL of the next latest page
-     */
-    fun getLatestURL(page: Int): String
-
-    /**
-     * @param document document to parse
-     * @return [List] of novels listed
-     */
-    fun parseLatest(document: Document): List<Novel.Listing>
-
-    /**
-     * @param query query string to be searched for
-     * @return [String] url of the query
-     */
-    fun getSearchString(query: String): String
-
-    /**
-     * Parse document to get list
-     *
-     * @param document document to parse
-     * @return [List] of novels
-     */
-    fun parseSearch(document: Document): List<Novel.Listing>
-
-    /**
-     * Parse the novelPage
-     *
-     * @param document incoming document to parse
-     * @return NovelPage object with as many parameters filled as possible;
-     */
-    fun parseNovel(document: Document): Novel.Info
-
-    /**
-     * Above but with increment
-     *
-     * @param document  doc to parse
-     * @param increment increment
-     * @return [NovelPage]
-     */
-    fun parseNovel(document: Document, increment: Int): Novel.Info
+    fun getPassage(chapterURL: String): String
+    fun search(data: LuaTable): Array<Novel.Listing>
+    fun parseNovel(novelURL: String): Novel.Info
+    fun parseNovel(novelURL: String, increment: Int): Novel.Info
 }
