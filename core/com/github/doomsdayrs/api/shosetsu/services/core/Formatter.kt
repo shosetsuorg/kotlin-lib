@@ -26,7 +26,7 @@ import org.luaj.vm2.LuaTable
  */
 @Suppress("unused")
 interface Formatter {
-    class Listing(val name: String, val isIncrementing: Boolean, val getListing: (increment: Int?) -> Array<Novel.Listing>)
+    class Listing(val id: Int, val name: String, val isIncrementing: Boolean, val getListing: (increment: Int?) -> Array<Novel.Listing>)
 
     val name: String
     val imageURL: String
