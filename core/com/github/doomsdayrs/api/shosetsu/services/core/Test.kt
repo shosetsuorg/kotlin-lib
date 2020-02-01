@@ -1,13 +1,9 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
-import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
-import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.LibraryLoaderSync
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
-
 
 /*
  * This file is part of shosetsu-services.
@@ -63,9 +59,7 @@ private object Test {
     @Throws(java.io.IOException::class, InterruptedException::class)
     @JvmStatic
     fun main(args: Array<String>) {
-        ShosetsuLib.libraryLoaderSync = object : LibraryLoaderSync {
-            override fun getScript(name: String): LuaValue? = loadScript(File("src/main/resources/lib/$name.lua"))
-        }
+        ShosetsuLib.libraryLoaderSync = { loadScript(File("src/main/resources/lib/$it.lua")) }
         testScripts()
     }
 
@@ -77,8 +71,8 @@ private object Test {
                 //     "src/main/resources/src/en/BestLightNovel.lua",
                 //     "src/main/resources/src/en/BoxNovel.lua",
                 //     "src/main/resources/src/en/Foxaholic.lua",
-//                "src/main/resources/src/en/NovelFull.lua"
-                "src/main/resources/src/en/CreativeNovels.lua"
+                "src/main/resources/src/en/NovelFull.lua"
+                //      "src/main/resources/src/en/CreativeNovels.lua"
 
                 // "src/main/resources/src/en/FastNovel.lua"
                 //     "src/main/resources/src/en/ReadNovelForLife.lua",
@@ -91,9 +85,6 @@ private object Test {
             val luaFormatter = LuaFormatter(File(format))
 
             // Data
-            val ge = luaFormatter.genres
-            for (g in ge) println(g.toString())
-
             println(luaFormatter.name)
             println(luaFormatter.formatterID)
             println(luaFormatter.imageURL)

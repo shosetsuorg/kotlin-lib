@@ -1,9 +1,5 @@
-package com.github.doomsdayrs.api.shosetsu.services.core.dep
+package com.github.doomsdayrs.api.shosetsu.services.core
 
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
 import org.jsoup.nodes.Document
 
 /*
@@ -37,15 +33,12 @@ interface Formatter {
     val hasCloudFlare: Boolean
     val hasSearch: Boolean
     val hasGenres: Boolean
-    val chapterOrder: Ordering
-    val latestOrder: Ordering
+
 
     // Must be initialized
     val name: String
     val imageURL: String
 
-    // TODO Make an side menu builder
-    val genres: Array<NovelGenre>
 
     /**
      * Parse the novel Chapter
@@ -79,7 +72,7 @@ interface Formatter {
      * @param document document to parse
      * @return [List] of novels listed
      */
-    fun parseLatest(document: Document): List<Novel>
+    fun parseLatest(document: Document): List<Novel.Listing>
 
     /**
      * @param query query string to be searched for
@@ -93,7 +86,7 @@ interface Formatter {
      * @param document document to parse
      * @return [List] of novels
      */
-    fun parseSearch(document: Document): List<Novel>
+    fun parseSearch(document: Document): List<Novel.Listing>
 
     /**
      * Parse the novelPage
@@ -101,7 +94,7 @@ interface Formatter {
      * @param document incoming document to parse
      * @return NovelPage object with as many parameters filled as possible;
      */
-    fun parseNovel(document: Document): NovelPage
+    fun parseNovel(document: Document): Novel.Info
 
     /**
      * Above but with increment
@@ -110,5 +103,5 @@ interface Formatter {
      * @param increment increment
      * @return [NovelPage]
      */
-    fun parseNovel(document: Document, increment: Int): NovelPage
+    fun parseNovel(document: Document, increment: Int): Novel.Info
 }

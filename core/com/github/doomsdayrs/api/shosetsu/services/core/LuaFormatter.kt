@@ -1,10 +1,5 @@
-package com.github.doomsdayrs.api.shosetsu.services.core.dep
+package com.github.doomsdayrs.api.shosetsu.services.core
 
-import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelGenre
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
 import org.json.JSONObject
 import org.jsoup.nodes.Document
 import org.luaj.vm2.LuaString.EMPTYSTRING
@@ -49,10 +44,7 @@ class LuaFormatter(val file: File) : Formatter {
                 Pair("isIncrementingChapterList", FALSE),
                 Pair("isIncrementingPassagePage", FALSE),
                 Pair("hasSearch", TRUE),
-                Pair("hasGenres", TRUE),
-
-                Pair("latestOrder", coerce(Ordering.TopBottomLatestOldest)),
-                Pair("chapterOrder", coerce(Ordering.TopBottomLatestOldest))
+                Pair("hasGenres", TRUE)
         )
 
         val keys: Map<String, Int> = mapOf(
@@ -123,14 +115,6 @@ class LuaFormatter(val file: File) : Formatter {
         get() = source["isIncrementingPassagePage"].toboolean()
         set(@Suppress("UNUSED_PARAMETER") value) {}
 
-    override var chapterOrder: Ordering
-        get() = CoerceLuaToJava.coerce(source["chapterOrder"], Ordering::class.java) as Ordering
-        set(@Suppress("UNUSED_PARAMETER") value) {}
-
-    override var latestOrder: Ordering
-        get() = CoerceLuaToJava.coerce(source["latestOrder"], Ordering::class.java) as Ordering
-        set(@Suppress("UNUSED_PARAMETER") value) {}
-
     override val hasCloudFlare: Boolean
         get() = source["hasCloudFlare"].toboolean()
 
@@ -140,10 +124,6 @@ class LuaFormatter(val file: File) : Formatter {
     override val hasGenres: Boolean
         get() = source["hasGenres"].toboolean()
 
-
-    @Suppress("UNCHECKED_CAST")
-    override val genres: Array<NovelGenre>
-        get() = CoerceLuaToJava.coerce(source["genres"], Array<NovelGenre>::class.java) as Array<NovelGenre>
 
     override val imageURL: String
         get() = source["imageURL"].toString()
@@ -169,25 +149,25 @@ class LuaFormatter(val file: File) : Formatter {
         return out.toString()
     }
 
-    override fun parseLatest(document: Document): List<Novel> {
+    override fun parseLatest(document: Document): List<Novel.Listing> {
         val out = source["parseLatest"].call(coerce(document))
         @Suppress("UNCHECKED_CAST")
-        return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel>
+        return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel.Listing>
     }
 
-    override fun parseNovel(document: Document): NovelPage {
+    override fun parseNovel(document: Document): Novel.Info {
         val out = source["parseNovel"].call(coerce(document))
-        return CoerceLuaToJava.coerce(out, NovelPage::class.java) as NovelPage
+        return CoerceLuaToJava.coerce(out, Novel.Info::class.java) as Novel.Info
     }
 
-    override fun parseNovel(document: Document, increment: Int): NovelPage {
+    override fun parseNovel(document: Document, increment: Int): Novel.Info {
         val out = source["parseNovelI"].call(coerce(document), valueOf(increment))
-        return CoerceLuaToJava.coerce(out, NovelPage::class.java) as NovelPage
+        return CoerceLuaToJava.coerce(out, Novel.Info::class.java) as Novel.Info
     }
 
-    override fun parseSearch(document: Document): List<Novel> {
+    override fun parseSearch(document: Document): List<Novel.Listing> {
         val out = source["parseSearch"].call(coerce(document))
         @Suppress("UNCHECKED_CAST")
-        return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel>
+        return CoerceLuaToJava.coerce(out, ArrayList::class.java) as ArrayList<Novel.Listing>
     }
 }

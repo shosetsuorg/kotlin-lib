@@ -1,8 +1,6 @@
-package com.github.doomsdayrs.api.shosetsu.services.core.luaSupport
+package com.github.doomsdayrs.api.shosetsu.services.core
 
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.LibraryLoaderSync
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelStatus
-import com.github.doomsdayrs.api.shosetsu.services.core.objects.Ordering
+import com.github.doomsdayrs.api.shosetsu.services.core.Novel.Status
 import okhttp3.*
 import org.luaj.vm2.*
 import org.luaj.vm2.lib.TwoArgFunction
@@ -41,7 +39,7 @@ class ShosetsuLib : TwoArgFunction() {
          * If contained, it will return a [LuaValue] of the library
          */
         val libraries: MutableMap<String, LuaValue> = mutableMapOf()
-        lateinit var libraryLoaderSync: LibraryLoaderSync
+        lateinit var libraryLoaderSync: (name: String) -> LuaValue?
         lateinit var okHttpClient: OkHttpClient
     }
 
@@ -56,9 +54,9 @@ class ShosetsuLib : TwoArgFunction() {
         fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
         fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
-        fun Novel() = com.github.doomsdayrs.api.shosetsu.services.core.objects.Novel()
-        fun NovelChapter() = com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelChapter()
-        fun NovelPage() = com.github.doomsdayrs.api.shosetsu.services.core.objects.NovelPage()
+        fun Novel() = Novel.Listing()
+        fun NovelChapter() = Novel.Chapter()
+        fun NovelPage() = Novel.Info()
 
         /**
          * @param name Name of the library to request
@@ -66,31 +64,22 @@ class ShosetsuLib : TwoArgFunction() {
          * @return [LuaValue] of the library if it is available, [LuaValue.NIL] otherwise
          */
         fun Require(name: String): LuaValue? = libraries.computeIfAbsent(name) {
-            libraryLoaderSync.getScript(it).takeIf { value ->
+            libraryLoaderSync(it).takeIf { value ->
                 if (value != LuaValue.NIL || value != null) true else throw LuaError("MISLIB:$it")
             }!!
         }
 
         /**
-         * @param type specified by an ID.[NovelStatus.PUBLISHING]=0,[NovelStatus.COMPLETED]=1,[NovelStatus.PAUSED]=2, else [NovelStatus.UNKNOWN]
-         * @return [NovelStatus]
+         * @param type specified by an ID.[Status.PUBLISHING]=0,[Status.COMPLETED]=1,[Status.PAUSED]=2, else [Status.UNKNOWN]
+         * @return [Status]
          */
-        fun NovelStatus(type: Int): NovelStatus = when (type) {
-            0 -> NovelStatus.PUBLISHING
-            1 -> NovelStatus.COMPLETED
-            2 -> NovelStatus.PAUSED
-            else -> NovelStatus.UNKNOWN
+        fun NovelStatus(type: Int): Status = when (type) {
+            0 -> Status.PUBLISHING
+            1 -> Status.COMPLETED
+            2 -> Status.PAUSED
+            else -> Status.UNKNOWN
         }
 
-        /**
-         * @param type specified by an ID.[Ordering.TopBottomLatestOldest]=0|default,[Ordering.BottomTopLatestOldest]=1
-         * @return [Ordering]
-         */
-        fun Ordering(type: Int): Ordering = when (type) {
-            0 -> Ordering.TopBottomLatestOldest
-            1 -> Ordering.BottomTopLatestOldest
-            else -> Ordering.TopBottomLatestOldest
-        }
 
         // For normal people, these simple GET and POST are sufficient.
         fun GET(url: String, headers: Headers, cacheControl: CacheControl):
