@@ -141,14 +141,13 @@ class ShosetsuLib : TwoArgFunction() {
                 """.trimIndent()),
                 Pair("map2flat", """
                         local o1, f1, f2 = ...
-                        local t = {}
-                        local i = 1
-                        for j = 1, o1:size() do
-                            local o2 = f1(o1:get(j - 1))
+                        local t, j = {}, 1
+                        for i=0, o1:size()-1 do
+                            local o2 = f1(o1:get(i))
                             if o2 then
-                                for k = 1, o2:size() do
-                                    t[i] = f2(o2:get(k - 1))
-                                    i = i + 1
+                                for k=0, o2:size()-1 do
+                                    t[j] = f2(o2:get(k))
+                                    j = j + 1
                                 end
                             end
                         end

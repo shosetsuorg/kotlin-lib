@@ -3,7 +3,7 @@ package com.github.doomsdayrs.api.shosetsu.services.core
 import com.github.doomsdayrs.api.shosetsu.services.core.dep.LuaFormatter
 import com.github.doomsdayrs.api.shosetsu.services.core.luaSupport.ShosetsuLib
 import com.github.doomsdayrs.api.shosetsu.services.core.objects.LibraryLoaderSync
-import okhttp3.OkHttpClient
+import okhttp3.*
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
@@ -32,11 +32,11 @@ import java.io.File
  */
 private object Test {
     // The below is methods robbed from ScrapeFormat class
-    private val builder: okhttp3.Request.Builder = okhttp3.Request.Builder()
-    private val client: okhttp3.OkHttpClient = okhttp3.OkHttpClient()
+    private val builder = Request.Builder()
+    private val client: OkHttpClient = OkHttpClient()
 
     @Throws(java.io.IOException::class)
-    private fun request(url: String?): okhttp3.ResponseBody? {
+    private fun request(url: String?): ResponseBody? {
         println(url)
         val u = java.net.URL(url)
         val request = builder.url(u).build()
@@ -73,18 +73,7 @@ private object Test {
     private fun testScripts() {
         ShosetsuLib.okHttpClient = OkHttpClient()
         for (format in arrayOf(
-                //     "src/main/resources/src/jp/Syosetsu.lua",
-                //     "src/main/resources/src/en/BestLightNovel.lua",
-                //     "src/main/resources/src/en/BoxNovel.lua",
-                //     "src/main/resources/src/en/Foxaholic.lua",
-//                "src/main/resources/src/en/NovelFull.lua"
-                "src/main/resources/src/en/CreativeNovels.lua"
-
-                // "src/main/resources/src/en/FastNovel.lua"
-                //     "src/main/resources/src/en/ReadNovelForLife.lua",
-                //     "src/main/resources/src/en/VipNovel.lua",
-                //     "src/main/resources/src/en/KissLightNovels.lua",
-                //     "src/main/resources/src/vi/247truyen.lua"
+                "src/main/resources/src/en/.lua"
         )) {
             println("\n========== $format ==========")
 
