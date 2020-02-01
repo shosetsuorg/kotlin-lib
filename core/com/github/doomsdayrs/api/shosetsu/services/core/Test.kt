@@ -3,6 +3,7 @@ import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
+import java.util.concurrent.TimeUnit.SECONDS
 
 /*
  * This file is part of shosetsu-services.
@@ -32,7 +33,9 @@ private object Test {
     private const val PRINT_LIST_STATS = true
     private const val PRINT_NOVELS = false
     private const val PRINT_NOVEL_STATS = true
-
+    private val SOURCES = arrayOf(
+            "en/BestLightNovel", "vi/247Truyen"
+    ).map { "src/main/resources/src/$it.lua" }
 
 
     private fun loadScript(file: File): LuaValue {
@@ -53,9 +56,7 @@ private object Test {
         ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
         ShosetsuLib.httpClient = OkHttpClient()
 
-        for (format in arrayOf(
-                "src/main/resources/src/vi/247Truyen.lua"
-        )) {
+        for (format in SOURCES) {
             println("\n\n========== $format ==========")
 
             val formatter = LuaFormatter(File(format))
@@ -84,10 +85,10 @@ private object Test {
                     if (it.length < 25) "Result: $it"
                     else "${it.length} chars long result: ${it.take(10)} [...] ${it.takeLast(10)}"
                 })
-                java.util.concurrent.TimeUnit.SECONDS.sleep(1)
+                SECONDS.sleep(1)
             } }
 
-            java.util.concurrent.TimeUnit.SECONDS.sleep(1)
+            SECONDS.sleep(1)
         }
         println("\n\tTESTS COMPLETE")
     }
