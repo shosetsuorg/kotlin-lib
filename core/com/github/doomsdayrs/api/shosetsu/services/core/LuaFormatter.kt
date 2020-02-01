@@ -32,7 +32,7 @@ import java.io.IOException
  *
  * @author github.com/doomsdayrs
  */
-class LuaFormatter(val file: File) : Formatter {
+class LuaFormatter(private val file: File) : Formatter {
     companion object {
         val defaults: Map<String, LuaValue> = mapOf(
                 Pair("imageURL", EMPTYSTRING),
@@ -43,6 +43,8 @@ class LuaFormatter(val file: File) : Formatter {
         val keys: Map<String, Int> = mapOf(
                 Pair("id", TNUMBER),
                 Pair("name", TSTRING),
+                Pair("imageURL", TSTRING),
+
                 Pair("listings", TTABLE),
 
                 Pair("getPassage", TFUNCTION),
@@ -67,38 +69,35 @@ class LuaFormatter(val file: File) : Formatter {
         script.load(ShosetsuLib())
         val l = try {
             script.load(file.readText())!!
-        } catch (e: Error) {
-            throw e
-        }
+        } catch (e: Error) { throw e }
         source = l.call() as LuaTable
 
         // Checks table
-        val missingValues: ArrayList<String> = ArrayList()
-        for (it in keys) if (source.get(it.key).type() != it.value) missingValues.add(it.key)
-        for (it in defaults) if (source.get(it.key).isnil()) source.set(it.key, it.value)
-        if (missingValues.size > 0) throw NullPointerException("Lua Script is missing methods:$missingValues")
+        defaults.filter { source[it.key].isnil() }.forEach { source[it.key] = it.value }
+        with (keys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
+            if (isNotEmpty())
+                throw NullPointerException("Lua Script is missing methods:" + fold("", { a, s -> "$a\n\t\t$s;" }))
+        }
     }
 
-    override var name: String = source["name"].toString()
-
-    override var formatterID: Int = source["id"].toint()
-
-    override var imageURL: String = source["imageURL"].toString()
-
-    override var hasCloudFlare: Boolean = source["hasCloudFlare"].toboolean()
-
-    override var hasSearch: Boolean = source["hasSearch"].toboolean()
+    override val name: String = source["name"].toString()
+    override val formatterID: Int = source["id"].toint()
+    override val imageURL: String = source["imageURL"].toString()
+    override val hasCloudFlare: Boolean = source["hasCloudFlare"].toboolean()
+    override val hasSearch: Boolean = source["hasSearch"].toboolean()
 
     @Suppress("UNCHECKED_CAST")
-    override var listings: Array<Formatter.Listing> = CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
+    override val listings: Array<Formatter.Listing>
+            = CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
 
-    override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
-
-    override fun parseNovel(novelURL: String): Novel.Info = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL)), Novel.Info::class.java) as Novel.Info
-
-    override fun parseNovel(novelURL: String, increment: Int): Novel.Info = CoerceLuaToJava.coerce(source["parseNovelI"].call(valueOf(novelURL), valueOf(increment)), Novel.Info::class.java) as Novel.Info
+    override fun getPassage(chapterURL: String): String
+            = source["getPassage"].call(chapterURL).tojstring()
+    override fun parseNovel(novelURL: String): Novel.Info
+            = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL)), Novel.Info::class.java) as Novel.Info
+    override fun parseNovel(novelURL: String, increment: Int): Novel.Info
+            = CoerceLuaToJava.coerce(source["parseNovelI"].call(valueOf(novelURL), valueOf(increment)), Novel.Info::class.java) as Novel.Info
 
     @Suppress("UNCHECKED_CAST")
-    override fun search(data: LuaTable): Array<Novel.Listing> = CoerceLuaToJava.coerce(source["search"].call(data), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
-
+    override fun search(data: LuaTable): Array<Novel.Listing>
+            = CoerceLuaToJava.coerce(source["search"].call(data), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 }
