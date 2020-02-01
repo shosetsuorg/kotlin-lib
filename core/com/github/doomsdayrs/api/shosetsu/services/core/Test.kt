@@ -27,23 +27,6 @@ import java.io.File
  * @author github.com/doomsdayrs
  */
 private object Test {
-    // The below is methods robbed from ScrapeFormat class
-    private val builder = Request.Builder()
-    private val client: OkHttpClient = OkHttpClient()
-
-    @Throws(java.io.IOException::class)
-    private fun request(url: String?): ResponseBody? {
-        println(url)
-        val u = java.net.URL(url)
-        val request = builder.url(u).build()
-        return client.newCall(request).execute().body
-    }
-
-    @Throws(java.io.IOException::class)
-    private fun docFromURL(URL: String): org.jsoup.nodes.Document {
-        return org.jsoup.Jsoup.parse(request(URL)!!.string())
-    }
-
     private fun loadScript(file: File): LuaValue {
         val script = JsePlatform.standardGlobals()
         script.load(ShosetsuLib())
@@ -60,12 +43,9 @@ private object Test {
     @JvmStatic
     fun main(args: Array<String>) {
         ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
-        testScripts()
-    }
+        ShosetsuLib.httpClient = OkHttpClient()
 
 
-    private fun testScripts() {
-        ShosetsuLib.okHttpClient = OkHttpClient()
         for (format in arrayOf(
                 "src/main/resources/src/en/NovelFull.lua"
         )) {
