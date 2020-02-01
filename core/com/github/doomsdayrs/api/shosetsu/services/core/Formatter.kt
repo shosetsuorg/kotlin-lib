@@ -28,12 +28,12 @@ import org.luaj.vm2.LuaTable
 interface Formatter {
     class Listing(val id: Int, val name: String = "unknown", val isIncrementing: Boolean = false, val getListing: (increment: Int) -> Array<Novel.Listing>)
 
-    var name: String
-    var imageURL: String
-    var formatterID: Int
-    var hasCloudFlare: Boolean
-    var hasSearch: Boolean
-    var listings: Array<Listing>
+    val name: String
+    val imageURL: String
+    val formatterID: Int
+    val hasCloudFlare: Boolean
+    val hasSearch: Boolean
+    val listings: Array<Listing>
 
     fun getPassage(chapterURL: String): String
     fun search(data: LuaTable): Array<Novel.Listing>
