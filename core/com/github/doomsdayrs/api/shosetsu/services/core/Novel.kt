@@ -33,13 +33,12 @@ class Novel {
     @Suppress("ArrayInDataClass")
     data class Info(var title: String = "unknown",
                     var imageURL: String = "",
+                    var language: String = "unknown",
                     var description: String = "unknown",
-                    var genres: Array<String> = arrayOf(),
-                    var authors: Array<String> = arrayOf(),
                     var status: Status = Status.UNKNOWN,
                     var tags: Array<String> = arrayOf(),
+                    var genres: Array<String> = arrayOf(),
+                    var authors: Array<String> = arrayOf(),
                     var artists: Array<String> = arrayOf(),
-                    var language: String = "unknown",
-                    var maxChapterPage: Int = 0,
                     var chapters: List<Chapter> = arrayListOf())
 }
