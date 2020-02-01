@@ -1,5 +1,5 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
-
+import okhttp3.*
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
@@ -28,11 +28,11 @@ import java.io.File
  */
 private object Test {
     // The below is methods robbed from ScrapeFormat class
-    private val builder: okhttp3.Request.Builder = okhttp3.Request.Builder()
-    private val client: okhttp3.OkHttpClient = okhttp3.OkHttpClient()
+    private val builder = Request.Builder()
+    private val client: OkHttpClient = OkHttpClient()
 
     @Throws(java.io.IOException::class)
-    private fun request(url: String?): okhttp3.ResponseBody? {
+    private fun request(url: String?): ResponseBody? {
         println(url)
         val u = java.net.URL(url)
         val request = builder.url(u).build()

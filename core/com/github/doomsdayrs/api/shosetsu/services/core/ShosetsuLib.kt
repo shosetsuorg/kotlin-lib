@@ -118,27 +118,25 @@ class ShosetsuLib : TwoArgFunction() {
                 """.trimIndent()),
                 Pair("mapNotNil", """
                         local o, f = ...
-                        local t = {}
-                        local b = 1
-                        for i=1, o:size() do
-                            local v = f(o:get(i-1))
-                            if v ~= nil then
-                                t[b] = v
-                                b = b + 1
+                        local t, j = {}, 1
+                        for i=0, o:size()-1 do
+                            local v = f(o:get(i))
+                            if v then
+                                t[j] = v
+                                j = j + 1
                             end
                         end
                         return t
                 """.trimIndent()),
                 Pair("map2flat", """
                         local o1, f1, f2 = ...
-                        local t = {}
-                        local i = 1
-                        for j = 1, o1:size() do
-                            local o2 = f1(o1:get(j - 1))
+                        local t, j = {}, 1
+                        for i=0, o1:size()-1 do
+                            local o2 = f1(o1:get(i))
                             if o2 then
-                                for k = 1, o2:size() do
-                                    t[i] = f2(o2:get(k - 1))
-                                    i = i + 1
+                                for k=0, o2:size()-1 do
+                                    t[j] = f2(o2:get(k))
+                                    j = j + 1
                                 end
                             end
                         end
