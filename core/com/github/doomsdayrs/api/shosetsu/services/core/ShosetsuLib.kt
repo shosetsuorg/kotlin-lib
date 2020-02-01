@@ -30,17 +30,13 @@ import java.util.concurrent.TimeUnit
  */
 class ShosetsuLib : TwoArgFunction() {
     companion object {
-        // TODO Set libraries for this in shosetsu
-        // TODO > Request libraries via meta
-        // TODO > Retrieve libraries with names
         /**
          * Libraries loaded in via shosetsu.
-         * The [String] key is the name of the library
-         * If contained, it will return a [LuaValue] of the library
+         * Mapping from library name to their returned value.
          */
         val libraries: MutableMap<String, LuaValue> = mutableMapOf()
-        lateinit var libraryLoaderSync: (name: String) -> LuaValue?
-        lateinit var okHttpClient: OkHttpClient
+        lateinit var libLoader: (name: String) -> LuaValue?
+        lateinit var httpClient: OkHttpClient
     }
 
 
@@ -58,21 +54,12 @@ class ShosetsuLib : TwoArgFunction() {
         fun NovelChapter() = Novel.Chapter()
         fun NovelPage() = Novel.Info()
 
-        /**
-         * @param name Name of the library to request
-         * @throws LuaError if library not present
-         * @return [LuaValue] of the library if it is available, [LuaValue.NIL] otherwise
-         */
         fun Require(name: String): LuaValue? = libraries.computeIfAbsent(name) {
-            libraryLoaderSync(it).takeIf { value ->
-                if (value != LuaValue.NIL || value != null) true else throw LuaError("MISLIB:$it")
+            libLoader(it).takeIf { value ->
+                if (value != LuaValue.NIL || value != null) true else throw LuaError("Missing Library:\n\t\t$it")
             }!!
         }
 
-        /**
-         * @param type specified by an ID.[Status.PUBLISHING]=0,[Status.COMPLETED]=1,[Status.PAUSED]=2, else [Status.UNKNOWN]
-         * @return [Status]
-         */
         fun NovelStatus(type: Int): Status = when (type) {
             0 -> Status.PUBLISHING
             1 -> Status.COMPLETED
@@ -81,18 +68,17 @@ class ShosetsuLib : TwoArgFunction() {
         }
 
 
-        // For normal people, these simple GET and POST are sufficient.
-        fun GET(url: String, headers: Headers, cacheControl: CacheControl):
-                Request = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
+        // For normal extensions, these simple GET, POST and Request are sufficient.
+        fun GET(url: String, headers: Headers, cacheControl: CacheControl): Request
+                = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
 
-        fun POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl):
-                Request = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
+        fun POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request
+                = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
 
-        fun getResponse(request: Request) = okHttpClient.newCall(request).execute()
+        fun Request(req: Request) = httpClient.newCall(req).execute()
 
-        // For advanced users who want to do everything themselves.
+        // For advanced users who want to (or need to) do everything themselves.
         fun RequestBuilder() = Request.Builder()
-
         fun HeadersBuilder() = Headers.Builder()
         fun FormBodyBuilder() = FormBody.Builder()
         fun DefaultCacheControl() = CacheControl.Builder()
