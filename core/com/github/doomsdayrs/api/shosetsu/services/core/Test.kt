@@ -35,7 +35,7 @@ private object Test {
     private const val PRINT_NOVELS = false
     private const val PRINT_NOVEL_STATS = true
     private val SOURCES = arrayOf(
-            "en/BestLightNovel", "vi/247Truyen"
+            "en/..."
     ).map { "src/main/resources/src/$it.lua" }
 
 
@@ -70,7 +70,8 @@ private object Test {
                 with(l) {
                     println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
                     val novels = getListing(if (isIncrementing) 1 else null)
-                    if (PRINT_LISTINGS) println(novels)
+                    if (PRINT_LISTINGS)
+                        println("[" + novels.joinToString(", ") { it.toString() } + "]")
 
                     println("${novels.size} novels.")
                     if (PRINT_LIST_STATS)

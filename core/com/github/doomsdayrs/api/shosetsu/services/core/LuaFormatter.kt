@@ -83,9 +83,9 @@ class LuaFormatter(private val file: File) : Formatter {
         }
     }
 
-    override val name: String = source["name"].toString()
+    override val name: String = source["name"].tojstring()
     override val formatterID: Int = source["id"].toint()
-    override val imageURL: String = source["imageURL"].toString()
+    override val imageURL: String = source["imageURL"].tojstring()
     override val hasCloudFlare: Boolean = source["hasCloudFlare"].toboolean()
     override val hasSearch: Boolean = source["hasSearch"].toboolean()
 

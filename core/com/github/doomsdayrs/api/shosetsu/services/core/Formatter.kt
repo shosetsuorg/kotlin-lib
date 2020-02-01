@@ -28,7 +28,6 @@ import org.luaj.vm2.LuaTable
 interface Formatter {
     class Listing(val name: String, val isIncrementing: Boolean, val getListing: (increment: Int?) -> Array<Novel.Listing>)
 
-    // VALUES
     val name: String
     val imageURL: String
     val formatterID: Int
@@ -36,23 +35,11 @@ interface Formatter {
     val hasCloudFlare: Boolean
     val listings: Array<Listing>
 
-    // DEFINITIONS
-    // TODO DEFINE
-    val filters: LuaTable
-
-    // TODO DEFINE
-    // >DEFINITIONS: {}
-    val settings: LuaTable
-
-    // FUNCTIONS
-    fun search(data: LuaTable): Array<Novel.Listing>
+    val filters: LuaTable // Array<Filter>
+    val settings: LuaTable // Array<Setting>
 
     fun getPassage(chapterURL: String): String
-
     fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info
-
-    /**
-     * Set's settings to volatile script
-     */
-    fun setSettings(settings: LuaTable)
+    fun search(data: LuaTable): Array<Novel.Listing> // data: Map<Filter, Any>
+    fun setSettings(settings: LuaTable) // settings: Map<Setting, Any>
 }
