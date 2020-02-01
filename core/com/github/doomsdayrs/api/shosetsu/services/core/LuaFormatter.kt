@@ -76,7 +76,7 @@ class LuaFormatter(private val file: File) : Formatter {
         defaults.filter { source[it.key].isnil() }.forEach { source[it.key] = it.value }
         with (keys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
             if (isNotEmpty())
-                throw NullPointerException("Lua Script is missing methods:" + fold("", { a, s -> "$a\n\t\t$s;" }))
+                throw NullPointerException("Lua Script has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" }))
         }
     }
 

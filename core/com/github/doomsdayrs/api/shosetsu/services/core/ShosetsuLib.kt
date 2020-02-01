@@ -2,6 +2,7 @@ package com.github.doomsdayrs.api.shosetsu.services.core
 
 import com.github.doomsdayrs.api.shosetsu.services.core.Novel.Status
 import okhttp3.*
+import org.jsoup.Jsoup
 import org.luaj.vm2.*
 import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
@@ -69,14 +70,17 @@ class ShosetsuLib : TwoArgFunction() {
         }
 
 
-        // For normal extensions, these simple GET, POST and Request are sufficient.
-        fun GET(url: String, headers: Headers, cacheControl: CacheControl): Request
+        // For normal extensions, these simple functions are sufficient.
+        fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request
                 = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
 
-        fun POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request
+        fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request
                 = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
 
+        fun Document(str: String) = Jsoup.parse(str)!!
         fun Request(req: Request) = httpClient.newCall(req).execute()
+        fun RequestDocument(req: Request) = Document(httpClient.newCall(req).execute().body!!.string())
+        fun GETDocument(url: String) = RequestDocument(_GET(url, DEFAULT_HEADERS(), DEFAULT_CACHE_CONTROL()))
 
         // For advanced users who want to (or need to) do everything themselves.
         fun HttpClient() = httpClient
@@ -96,6 +100,37 @@ class ShosetsuLib : TwoArgFunction() {
         private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
 
         private val luaFuncs: Map<String, LuaValue> = mapOf(
+                Pair("GET", """
+                        local url, headers, cctl = ...
+                        headers = headers or DEFAULT_HEADERS()
+                        cctl = cctl or DEFAULT_CACHE_CONTROL()
+
+                        if type(headers) == "table" do
+                            local builder = HeadersBuilder()
+                            for k, v in pairs(headers) do
+                                builder.add(k, v)
+                            end
+                            headers = builder.build()
+                        end
+
+                        return _GET(url, headers, cctl)
+                """.trimIndent()),
+                Pair("POST", """
+                        local url, headers, cctl, body = ...
+                        headers = headers or DEFAULT_HEADERS()
+                        cctl = cctl or DEFAULT_CACHE_CONTROL()
+                        body = body or DEFAULT_BODY()
+
+                        if type(headers) == "table" do
+                            local builder = HeadersBuilder()
+                            for k, v in pairs(headers) do
+                                builder.add(k, v)
+                            end
+                            headers = builder.build()
+                        end
+
+                        return _POST(url, headers, body, cctl)
+                """.trimIndent()),
                 Pair("map", """
                         local o, f = ...
                         local t = {}
