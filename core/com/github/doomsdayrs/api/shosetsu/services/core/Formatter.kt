@@ -27,6 +27,9 @@ import org.luaj.vm2.LuaTable
 @Suppress("unused")
 interface Formatter {
     class Listing(val name: String, val isIncrementing: Boolean, val getListing: (increment: Int?) -> Array<Novel.Listing>)
+    interface ProgressUpdate {
+        fun update(message: String)
+    }
 
     val name: String
     val imageURL: String
