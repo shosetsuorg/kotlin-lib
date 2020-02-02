@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit.SECONDS
  * shosetsu-services
  * 03 / June / 2019
  *
- * @author github.com/doomsdayrs
+ * @author github.com/doomsdayrs;github.com/TechnoJo4
  *
  * In IDEA, The Classpath should be shosetsu-services but the Working directory should be shosetsu-extensions.
  */
