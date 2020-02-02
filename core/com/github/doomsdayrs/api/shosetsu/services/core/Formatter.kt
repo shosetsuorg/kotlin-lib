@@ -28,6 +28,7 @@ interface Formatter {
     class Listing(val name: String, val isIncrementing: Boolean, val getListing: (increment: Int?) -> Array<Novel.Listing>)
 
     val name: String
+    val baseURL: String
     val imageURL: String
     val formatterID: Int
     val hasSearch: Boolean
