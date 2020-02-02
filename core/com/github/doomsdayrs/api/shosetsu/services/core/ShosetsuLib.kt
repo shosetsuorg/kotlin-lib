@@ -51,7 +51,7 @@ class ShosetsuLib : TwoArgFunction() {
         fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
         fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
-        @Suppress("UNCHECKED_CAST") // very ugly hack
+        @Suppress("UNCHECKED_CAST")
         fun Listing(name: String, increments: Boolean, func: LuaFunction)
                 = Formatter.Listing(name, increments) {
                     CoerceLuaToJava.coerce(
@@ -116,29 +116,13 @@ class ShosetsuLib : TwoArgFunction() {
                         headers = headers or DEFAULT_HEADERS()
                         cctl = cctl or DEFAULT_CACHE_CONTROL()
 
-                        if type(headers) == "table" do
-                            local builder = HeadersBuilder()
-                            for k, v in pairs(headers) do
-                                builder.add(k, v)
-                            end
-                            headers = builder.build()
-                        end
-
                         return _GET(url, headers, cctl)
                 """.trimIndent()),
                 Pair("POST", """
-                        local url, headers, cctl, body = ...
+                        local url, headers, body, cctl = ...
                         headers = headers or DEFAULT_HEADERS()
                         cctl = cctl or DEFAULT_CACHE_CONTROL()
                         body = body or DEFAULT_BODY()
-
-                        if type(headers) == "table" do
-                            local builder = HeadersBuilder()
-                            for k, v in pairs(headers) do
-                                builder.add(k, v)
-                            end
-                            headers = builder.build()
-                        end
 
                         return _POST(url, headers, body, cctl)
                 """.trimIndent()),
