@@ -39,6 +39,9 @@ private object Test {
             "en/FastNovel"
     ).map { "src/main/resources/src/$it.lua" }
 
+    private val REPORTER: (String) -> Unit = { status: String -> println("Progress: $status") }
+    // END CONFIG
+
 
     private fun loadScript(file: File): LuaValue {
         val script = JsePlatform.standardGlobals()
@@ -62,36 +65,34 @@ private object Test {
             println("\n\n========== $format ==========")
 
             val formatter = LuaFormatter(File(format))
+
             println("ID    : ${formatter.formatterID}")
             println("Name  : ${formatter.name}")
             println("Image : ${formatter.imageURL}")
 
             @Suppress("ConstantConditionIf")
-            formatter.listings.forEach { l ->
-                with(l) {
-                    println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-                    val novels = getListing(if (isIncrementing) 1 else null)
-                    if (PRINT_LISTINGS)
-                        println("[" + novels.joinToString(", ") { it.toString() } + "]")
+            formatter.listings.forEach { l -> with(l) {
+                println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
+                val novels = getListing(if (isIncrementing) 1 else null)
+                if (PRINT_LISTINGS)
+                    println("[" + novels.joinToString(", ") { it.toString() } + "]")
 
-                    println("${novels.size} novels.")
-                    if (PRINT_LIST_STATS)
-                        println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
+                println("${novels.size} novels.")
+                if (PRINT_LIST_STATS)
+                    println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
 
-                    println()
+                println()
 
-                    val novel = formatter.parseNovel(novels[0].link, true)
-                    if (PRINT_NOVELS) println(novel)
-                    if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
+                val novel = formatter.parseNovel(novels[0].link, true, REPORTER)
+                if (PRINT_NOVELS) println(novel)
+                if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
 
-                    println(run {
-                        val it = formatter.getPassage(novel.chapters[0].link)
-                        if (it.length < 25) "Result: $it"
-                        else "${it.length} chars long result: ${it.take(10)} [...] ${it.takeLast(10)}"
-                    })
-                    SECONDS.sleep(1)
-                }
-            }
+                println(with (formatter.getPassage(novel.chapters[0].link)) {
+                    if (length < 25) "Result: $this"
+                    else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
+                })
+                SECONDS.sleep(1)
+            } }
 
             SECONDS.sleep(1)
         }

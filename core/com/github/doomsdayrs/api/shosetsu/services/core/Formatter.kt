@@ -16,7 +16,6 @@ import org.luaj.vm2.LuaTable
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
  */
-
 /**
  * shosetsu-services
  * 30 / May / 2019
@@ -27,9 +26,6 @@ import org.luaj.vm2.LuaTable
 @Suppress("unused")
 interface Formatter {
     class Listing(val name: String, val isIncrementing: Boolean, val getListing: (increment: Int?) -> Array<Novel.Listing>)
-    interface ProgressUpdate {
-        fun update(message: String)
-    }
 
     val name: String
     val imageURL: String
@@ -42,7 +38,7 @@ interface Formatter {
     val settings: LuaTable // Array<Setting>
 
     fun getPassage(chapterURL: String): String
-    fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info
-    fun search(data: LuaTable): Array<Novel.Listing> // data: Map<Filter, Any>
+    fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
+    fun search(data: LuaTable, reporter: (status: String) -> Unit): Array<Novel.Listing> // data: Map<Filter, Any>
     fun setSettings(settings: LuaTable) // settings: Map<Setting, Any>
 }

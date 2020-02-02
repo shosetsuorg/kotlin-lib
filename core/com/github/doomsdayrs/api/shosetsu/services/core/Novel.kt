@@ -25,9 +25,7 @@ class Novel {
     enum class Status(val title: String) {
         PUBLISHING("Publishing"), COMPLETED("Completed"), PAUSED("Paused"), UNKNOWN("Unknown");
 
-        override fun toString(): String {
-            return "NovelStatus(title='$title')"
-        }
+        override fun toString() = "NovelStatus(title='$title')"
     }
 
     @Suppress("ArrayInDataClass")
