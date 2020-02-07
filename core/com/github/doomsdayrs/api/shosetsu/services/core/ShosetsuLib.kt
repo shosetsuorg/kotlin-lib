@@ -8,6 +8,9 @@ import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import java.util.concurrent.TimeUnit
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+
 
 /*
  * This file is part of shosetsu-services.
@@ -99,6 +102,9 @@ class ShosetsuLib : TwoArgFunction() {
         fun HeadersBuilder() = Headers.Builder()
         fun FormBodyBuilder() = FormBody.Builder()
         fun DefaultCacheControl() = CacheControl.Builder()
+
+        fun MediaType(str: String) = str.toMediaType()
+        fun RequestBody(data: String, type: MediaType) = data.toRequestBody(type)
     }
 
     /**
