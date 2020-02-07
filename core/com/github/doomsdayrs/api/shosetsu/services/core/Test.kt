@@ -1,6 +1,7 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
 import okhttp3.OkHttpClient
+import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
@@ -30,13 +31,14 @@ import java.util.concurrent.TimeUnit.SECONDS
  */
 private object Test {
     // CONFIG
+    private const val SEARCH_VALUE = "world"
     private const val PRINT_LISTINGS = false
     private const val PRINT_LIST_STATS = true
     private const val PRINT_NOVELS = false
     private const val PRINT_NOVEL_STATS = true
 
     private val SOURCES = arrayOf(
-            "en/CreativeNovels"
+            "en/NovelFull", "en/ReadNovelFull"
     ).map { "src/main/resources/src/$it.lua" }
 
     private val REPORTER: (String) -> Unit = { status: String -> println("Progress: $status") }
@@ -60,7 +62,9 @@ private object Test {
     fun main(args: Array<String>) {
         ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
         ShosetsuLib.httpClient = OkHttpClient()
+        ShosetsuLib.libraries["NovelFull"] = ShosetsuLib.libLoader("NovelFull")!!
 
+        @Suppress("DuplicatedCode")
         for (format in SOURCES) {
             println("\n\n========== $format ==========")
 
@@ -96,6 +100,33 @@ private object Test {
                 })
                 SECONDS.sleep(1)
             } }
+
+            @Suppress("ConstantConditionIf")
+            if (formatter.hasSearch) {
+                println("\n-------- Search --------")
+                val data = LuaTable()
+                data["query"] = SEARCH_VALUE
+                val novels = formatter.search(data, REPORTER)
+
+                if (PRINT_LISTINGS)
+                    println("[" + novels.joinToString(", ") { it.toString() } + "]")
+
+                println("${novels.size} novels.")
+                if (PRINT_LIST_STATS)
+                    println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
+
+                println()
+
+                val novel = formatter.parseNovel(novels[0].link, true, REPORTER)
+                if (PRINT_NOVELS) println(novel)
+                if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters, ${novel.chapters.count { it.link == "" }} with no link.")
+
+                println()
+                println(with (formatter.getPassage(novel.chapters[0].link)) {
+                    if (length < 25) "Result: $this"
+                    else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
+                })
+            }
 
             SECONDS.sleep(1)
         }
