@@ -72,10 +72,14 @@ class ShosetsuLib : TwoArgFunction() {
             else -> Status.UNKNOWN
         }
 
-        fun Require(name: String): LuaValue? = libraries.computeIfAbsent(name) {
-            libLoader(it).takeIf { value ->
-                if (value != LuaValue.NIL || value != null) true else throw LuaError("Missing Library:\n\t\t$it")
-            }!!
+        fun Require(name: String): LuaValue? {
+            val v = libraries[name]
+            if (v != null) return v
+            return try {
+                libLoader(name)!!
+            } catch (e: Error) {
+                throw LuaError("Missing Library:\n\t\t$name")
+            }
         }
 
 

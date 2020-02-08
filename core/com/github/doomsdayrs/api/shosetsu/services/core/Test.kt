@@ -5,7 +5,7 @@ import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
-import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.TimeUnit.MILLISECONDS
 
 /*
  * This file is part of shosetsu-services.
@@ -57,6 +57,28 @@ private object Test {
         return l.call()!!
     }
 
+    @Suppress("ConstantConditionIf")
+    private fun showListing(fmt: Formatter, novels: Array<Novel.Listing>) {
+        if (PRINT_LISTINGS)
+            println("[" + novels.joinToString(", ") { it.toString() } + "]")
+
+        println("${novels.size} novels.")
+        if (PRINT_LIST_STATS)
+            println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
+
+        println()
+
+        val novel = fmt.parseNovel(novels[0].link, true, REPORTER)
+        if (PRINT_NOVELS) println(novel)
+        if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
+
+        println()
+        println(with (fmt.getPassage(novel.chapters[0].link)) {
+            if (length < 25) "Result: $this"
+            else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
+        })
+    }
+
     @Throws(java.io.IOException::class, InterruptedException::class)
     @JvmStatic
     fun main(args: Array<String>) {
@@ -64,7 +86,6 @@ private object Test {
         ShosetsuLib.httpClient = OkHttpClient()
         ShosetsuLib.libraries["NovelFull"] = ShosetsuLib.libLoader("NovelFull")!!
 
-        @Suppress("DuplicatedCode")
         for (format in SOURCES) {
             println("\n\n========== $format ==========")
 
@@ -74,61 +95,22 @@ private object Test {
             println("Name  : ${formatter.name}")
             println("Image : ${formatter.imageURL}")
 
-            @Suppress("ConstantConditionIf")
             formatter.listings.forEach { l -> with(l) {
                 println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
                 var novels = getListing(if (isIncrementing) 1 else null)
                 if (isIncrementing) novels += getListing(2)
-
-                if (PRINT_LISTINGS)
-                    println("[" + novels.joinToString(", ") { it.toString() } + "]")
-
-                println("${novels.size} novels.")
-                if (PRINT_LIST_STATS)
-                    println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
-
-                println()
-
-                val novel = formatter.parseNovel(novels[0].link, true, REPORTER)
-                if (PRINT_NOVELS) println(novel)
-                if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
-
-                println()
-                println(with (formatter.getPassage(novel.chapters[0].link)) {
-                    if (length < 25) "Result: $this"
-                    else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
-                })
-                SECONDS.sleep(1)
+                showListing(formatter, novels)
+                MILLISECONDS.sleep(500)
             } }
 
-            @Suppress("ConstantConditionIf")
             if (formatter.hasSearch) {
                 println("\n-------- Search --------")
                 val data = LuaTable()
                 data["query"] = SEARCH_VALUE
-                val novels = formatter.search(data, REPORTER)
-
-                if (PRINT_LISTINGS)
-                    println("[" + novels.joinToString(", ") { it.toString() } + "]")
-
-                println("${novels.size} novels.")
-                if (PRINT_LIST_STATS)
-                    println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
-
-                println()
-
-                val novel = formatter.parseNovel(novels[0].link, true, REPORTER)
-                if (PRINT_NOVELS) println(novel)
-                if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters, ${novel.chapters.count { it.link == "" }} with no link.")
-
-                println()
-                println(with (formatter.getPassage(novel.chapters[0].link)) {
-                    if (length < 25) "Result: $this"
-                    else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
-                })
+                showListing(formatter, formatter.search(data, REPORTER))
             }
 
-            SECONDS.sleep(1)
+            MILLISECONDS.sleep(500)
         }
         println("\n\tTESTS COMPLETE")
     }
