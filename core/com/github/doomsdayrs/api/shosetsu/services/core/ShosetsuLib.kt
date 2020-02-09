@@ -27,8 +27,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * ====================================================================
  */
 /**
- * com.github.doomsdayrs.api.shosetsu.extensions.lang.en
- * 20 / January / 2020
+ * shosetsu-services
+ * 2020-01-20
  *
  * @author github.com/technojo4
  */
@@ -73,10 +73,9 @@ class ShosetsuLib : TwoArgFunction() {
         }
 
         fun Require(name: String): LuaValue?
-                = libraries[name] ?: run {
-                    val v = libLoader(name)!!
-                    libraries[name] = v; v
-                } ?: throw LuaError("Missing Library:\n\t\t$name")
+                = libraries[name] ?: with (libLoader(name)) {
+                    libraries[name] = this ?: throw LuaError("Missing Library:\n\t\t$name"); this
+                }
 
 
         // For normal extensions, these simple functions are sufficient.
