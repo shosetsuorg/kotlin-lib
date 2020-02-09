@@ -72,15 +72,11 @@ class ShosetsuLib : TwoArgFunction() {
             else -> Status.UNKNOWN
         }
 
-        fun Require(name: String): LuaValue? {
-            val v = libraries[name]
-            if (v != null) return v
-            return try {
-                libLoader(name)!!
-            } catch (e: Error) {
-                throw LuaError("Missing Library:\n\t\t$name")
-            }
-        }
+        fun Require(name: String): LuaValue?
+                = libraries[name] ?: run {
+                    val v = libLoader(name)!!
+                    libraries[name] = v; v
+                } ?: throw LuaError("Missing Library:\n\t\t$name")
 
 
         // For normal extensions, these simple functions are sufficient.
