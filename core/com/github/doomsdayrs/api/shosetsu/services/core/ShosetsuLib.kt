@@ -2,14 +2,15 @@ package com.github.doomsdayrs.api.shosetsu.services.core
 
 import com.github.doomsdayrs.api.shosetsu.services.core.Novel.Status
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.luaj.vm2.*
 import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import java.util.concurrent.TimeUnit
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
 
 
 /*
@@ -55,11 +56,11 @@ class ShosetsuLib : TwoArgFunction() {
         fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
         @Suppress("UNCHECKED_CAST")
-        fun Listing(name: String, increments: Boolean, func: LuaFunction)
-                = Formatter.Listing(name, increments) {
-                    CoerceLuaToJava.coerce(
+        fun Listing(name: String, increments: Boolean, func: LuaFunction) = Formatter.Listing(name, increments) {
+            CoerceLuaToJava.coerce(
                     func.call(if (it == null) LuaValue.NIL else LuaValue.valueOf(it)),
-                    Array<Novel.Listing>::class.java) as Array<Novel.Listing> }
+                    Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+        }
 
         fun Novel() = Novel.Listing()
         fun NovelInfo() = Novel.Info()
@@ -72,22 +73,29 @@ class ShosetsuLib : TwoArgFunction() {
             else -> Status.UNKNOWN
         }
 
-        fun Require(name: String): LuaValue?
-                = libraries[name] ?: with (libLoader(name)) {
-                    libraries[name] = this ?: throw LuaError("Missing Library:\n\t\t$name"); this
-                }
+        fun Require(name: String): LuaValue? = libraries[name] ?: with(libLoader(name)) {
+            libraries[name] = this ?: throw LuaError("Missing Library:\n\t\t$name"); this
+        }
 
 
         // For normal extensions, these simple functions are sufficient.
-        fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request
-                = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
-        fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request
-                = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
+        fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request {
+            println("SHOSETSULIB:GET:\t$url")
+            return Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
+        }
+
+        fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request {
+            println("SHOSETSULIB:POST:\t$url")
+            return Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
+        }
 
         fun Document(str: String) = Jsoup.parse(str)!!
         fun Request(req: Request) = httpClient.newCall(req).execute()
         fun RequestDocument(req: Request) = Document(Request(req).body!!.string())
-        fun GETDocument(url: String) = RequestDocument(_GET(url, DEFAULT_HEADERS(), DEFAULT_CACHE_CONTROL()))
+        fun GETDocument(url: String): Document {
+            println("SHOSETSULIB:GET:\t$url")
+            return RequestDocument(_GET(url, DEFAULT_HEADERS(), DEFAULT_CACHE_CONTROL()))
+        }
 
         // For advanced users who want to (or need to) do everything themselves.
         fun HttpClient() = httpClient
