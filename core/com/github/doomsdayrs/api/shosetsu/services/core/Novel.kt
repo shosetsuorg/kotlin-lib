@@ -30,6 +30,7 @@ class Novel {
 
     @Suppress("ArrayInDataClass")
     data class Info(var title: String = "unknown",
+                    var alternativeTitles: Array<String> = arrayOf(),
                     var imageURL: String = "",
                     var language: String = "unknown",
                     var description: String = "unknown",
