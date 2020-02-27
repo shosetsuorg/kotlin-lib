@@ -79,23 +79,14 @@ class ShosetsuLib : TwoArgFunction() {
 
 
         // For normal extensions, these simple functions are sufficient.
-        fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request {
-            println("SHOSETSULIB:GET:\t$url")
-            return Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
-        }
+        fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request = Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
 
-        fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request {
-            println("SHOSETSULIB:POST:\t$url")
-            return Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
-        }
+        fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request = Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
 
         fun Document(str: String) = Jsoup.parse(str)!!
         fun Request(req: Request) = httpClient.newCall(req).execute()
         fun RequestDocument(req: Request) = Document(Request(req).body!!.string())
-        fun GETDocument(url: String): Document {
-            println("SHOSETSULIB:GET:\t$url")
-            return RequestDocument(_GET(url, DEFAULT_HEADERS(), DEFAULT_CACHE_CONTROL()))
-        }
+        fun GETDocument(url: String): Document = RequestDocument(_GET(url, DEFAULT_HEADERS(), DEFAULT_CACHE_CONTROL()))
 
         // For advanced users who want to (or need to) do everything themselves.
         fun HttpClient() = httpClient

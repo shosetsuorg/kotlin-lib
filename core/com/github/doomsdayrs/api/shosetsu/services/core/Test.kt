@@ -32,9 +32,9 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
 private object Test {
     // CONFIG
     private const val SEARCH_VALUE = "world"
-    private const val PRINT_LISTINGS = false
+    private const val PRINT_LISTINGS = true
     private const val PRINT_LIST_STATS = true
-    private const val PRINT_NOVELS = false
+    private const val PRINT_NOVELS = true
     private const val PRINT_NOVEL_STATS = true
 
     private val SOURCES = arrayOf(
@@ -73,7 +73,7 @@ private object Test {
         if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
 
         println()
-        println(with (fmt.getPassage(novel.chapters[0].link)) {
+        println(with(fmt.getPassage(novel.chapters[0].link)) {
             if (length < 25) "Result: $this"
             else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
         })
@@ -82,37 +82,45 @@ private object Test {
     @Throws(java.io.IOException::class, InterruptedException::class)
     @JvmStatic
     fun main(args: Array<String>) {
-        ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
-        ShosetsuLib.httpClient = OkHttpClient()
-        ShosetsuLib.libraries["NovelFull"] = ShosetsuLib.libLoader("NovelFull")!!
+        try {
+            ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
+            ShosetsuLib.httpClient = OkHttpClient()
+            ShosetsuLib.libraries["NovelFull"] = ShosetsuLib.libLoader("NovelFull")!!
+            for (format in SOURCES) {
+                println("\n\n========== $format ==========")
 
-        for (format in SOURCES) {
-            println("\n\n========== $format ==========")
+                val formatter = LuaFormatter(File(format))
 
-            val formatter = LuaFormatter(File(format))
+                println("ID    : ${formatter.formatterID}")
+                println("Name  : ${formatter.name}")
+                println("Image : ${formatter.imageURL}")
 
-            println("ID    : ${formatter.formatterID}")
-            println("Name  : ${formatter.name}")
-            println("Image : ${formatter.imageURL}")
+                formatter.listings.forEach { l ->
+                    with(l) {
+                        println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
+                        var novels = getListing(if (isIncrementing) 1 else null)
+                        if (isIncrementing) novels += getListing(2)
+                        showListing(formatter, novels)
+                        MILLISECONDS.sleep(500)
+                    }
+                }
 
-            formatter.listings.forEach { l -> with(l) {
-                println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-                var novels = getListing(if (isIncrementing) 1 else null)
-                if (isIncrementing) novels += getListing(2)
-                showListing(formatter, novels)
+                if (formatter.hasSearch) {
+                    println("\n-------- Search --------")
+                    val data = LuaTable()
+                    data["query"] = SEARCH_VALUE
+                    showListing(formatter, formatter.search(data, REPORTER))
+                }
+
                 MILLISECONDS.sleep(500)
-            } }
-
-            if (formatter.hasSearch) {
-                println("\n-------- Search --------")
-                val data = LuaTable()
-                data["query"] = SEARCH_VALUE
-                showListing(formatter, formatter.search(data, REPORTER))
             }
-
-            MILLISECONDS.sleep(500)
+            println("\n\tTESTS COMPLETE")
+        } catch (e: Exception) {
+            e.message?.let {
+                print("\n\u001B[31m${it.substring(it.lastIndexOf("}") + 1)}\n")
+            }
         }
-        println("\n\tTESTS COMPLETE")
+
     }
 
 }
