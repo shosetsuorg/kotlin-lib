@@ -85,6 +85,7 @@ class ShosetsuLib : TwoArgFunction() {
         fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request =
                 Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
 
+
         fun Document(str: String) = Jsoup.parse(str)!!
         fun Request(req: Request) = httpClient.newCall(req).execute()
         fun RequestDocument(req: Request) = Document(Request(req).body!!.string())
