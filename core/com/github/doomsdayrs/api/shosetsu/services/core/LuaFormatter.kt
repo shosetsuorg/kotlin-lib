@@ -56,6 +56,7 @@ class LuaFormatter(private val file: File) : Formatter {
         )
     }
 
+    @Suppress("unused")
     fun getMetaData(): JSONObject? = try {
         JSONObject(BufferedReader(FileReader(file)).use { it.readLine() }?.dropWhile { it != '{' })
     } catch (e: IOException) {
@@ -84,8 +85,7 @@ class LuaFormatter(private val file: File) : Formatter {
         // Checks table
         defaults.filter { source[it.key].isnil() }.forEach { source[it.key] = it.value }
         with(keys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
-            if (isNotEmpty())
-                throw NullPointerException("Lua Script has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" }))
+            if (isNotEmpty()) throw NullPointerException("Lua Script has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" }))
         }
     }
 
@@ -107,12 +107,12 @@ class LuaFormatter(private val file: File) : Formatter {
 
     override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
 
-    override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit):
-            Novel.Info =
-            CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters), makeLuaReporter(reporter)), Novel.Info::class.java) as Novel.Info
+    override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
+            = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters), makeLuaReporter(reporter)), Novel.Info::class.java) as Novel.Info
 
     @Suppress("UNCHECKED_CAST")
-    override fun search(data: LuaTable, reporter: (status: String) -> Unit): Array<Novel.Listing> = CoerceLuaToJava.coerce(source["search"].call(data, makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+    override fun search(data: LuaTable, reporter: (status: String) -> Unit): Array<Novel.Listing>
+            = CoerceLuaToJava.coerce(source["search"].call(data, makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 
     override fun setSettings(settings: LuaTable) = TODO("not implemented")
 }
