@@ -57,9 +57,7 @@ class LuaFormatter(private val file: File) : Formatter {
     }
 
     fun getMetaData(): JSONObject? = try {
-        JSONObject(BufferedReader(FileReader(file)).use { br ->
-            val line: String? = br.readLine(); br.close(); line
-        }?.dropWhile { it != '{' })
+        JSONObject(BufferedReader(FileReader(file)).use { it.readLine() }?.dropWhile { it != '{' })
     } catch (e: IOException) {
         e.printStackTrace(); null
     }
