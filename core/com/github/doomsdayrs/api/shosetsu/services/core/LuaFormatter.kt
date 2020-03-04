@@ -36,23 +36,23 @@ import java.io.IOException
 class LuaFormatter(private val file: File) : Formatter {
     companion object {
         val defaults: Map<String, LuaValue> = mapOf(
-                Pair("imageURL", EMPTYSTRING),
-                Pair("hasCloudFlare", FALSE),
-                Pair("hasSearch", TRUE),
-                Pair("filters", LuaTable()),
-                Pair("settings", LuaTable())
+                "imageURL" to EMPTYSTRING,
+                "hasCloudFlare" to FALSE,
+                "hasSearch" to TRUE,
+                "filters" to LuaTable(),
+                "settings" to LuaTable()
         )
 
         val keys: Map<String, Int> = mapOf(
-                Pair("id", TNUMBER),
-                Pair("name", TSTRING),
-                Pair("imageURL", TSTRING),
+                "id" to TNUMBER,
+                "name" to TSTRING,
+                "imageURL" to TSTRING,
 
-                Pair("listings", TTABLE),
+                "listings" to TTABLE,
 
-                Pair("getPassage", TFUNCTION),
-                Pair("parseNovel", TFUNCTION),
-                Pair("search", TFUNCTION)
+                "getPassage" to TFUNCTION,
+                "parseNovel" to TFUNCTION,
+                "search" to TFUNCTION
         )
     }
 
