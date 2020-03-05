@@ -32,9 +32,9 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
 private object Test {
     // CONFIG
     private const val SEARCH_VALUE = "world"
-    private const val PRINT_LISTINGS = true
+    private const val PRINT_LISTINGS = false
     private const val PRINT_LIST_STATS = true
-    private const val PRINT_NOVELS = true
+    private const val PRINT_NOVELS = false
     private const val PRINT_NOVEL_STATS = true
 
     private val SOURCES = arrayOf(
@@ -85,7 +85,7 @@ private object Test {
         try {
             ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
             ShosetsuLib.httpClient = OkHttpClient()
-            ShosetsuLib.libraries["NovelFull"] = ShosetsuLib.libLoader("NovelFull")!!
+
             for (format in SOURCES) {
                 println("\n\n========== $format ==========")
 
@@ -120,7 +120,6 @@ private object Test {
                 print("\n\u001B[31m${it.substring(it.lastIndexOf("}") + 1)}\n")
             }
         }
-
     }
 
 }
