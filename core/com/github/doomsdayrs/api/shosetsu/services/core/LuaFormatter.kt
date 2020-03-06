@@ -89,16 +89,15 @@ class LuaFormatter(private val file: File) : Formatter {
         }
     }
 
-    override val name: String = source["name"].tojstring()
-    override val baseURL: String = source["baseURL"].tojstring()
-    override val formatterID: Int = source["id"].toint()
-    override val imageURL: String = source["imageURL"].tojstring()
-    override val hasCloudFlare: Boolean = source["hasCloudFlare"].toboolean()
-    override val hasSearch: Boolean = source["hasSearch"].toboolean()
+    override val name by lazy { source["name"].tojstring() }
+    override val baseURL by lazy { source["baseURL"].tojstring() }
+    override val formatterID by lazy { source["id"].toint() }
+    override val imageURL by lazy { source["imageURL"].tojstring() }
+    override val hasCloudFlare by lazy { source["hasCloudFlare"].toboolean() }
+    override val hasSearch by lazy { source["hasSearch"].toboolean() }
 
     @Suppress("UNCHECKED_CAST")
-    override val listings: Array<Formatter.Listing>
-            = CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
+    override val listings by lazy { CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing> }
 
     override val filters: LuaTable
         get() = TODO("not implemented")
@@ -108,12 +107,10 @@ class LuaFormatter(private val file: File) : Formatter {
 
     override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
 
-    override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
-            = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters), makeLuaReporter(reporter)), Novel.Info::class.java) as Novel.Info
+    override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters), makeLuaReporter(reporter)), Novel.Info::class.java) as Novel.Info
 
     @Suppress("UNCHECKED_CAST")
-    override fun search(data: LuaTable, reporter: (status: String) -> Unit): Array<Novel.Listing>
-            = CoerceLuaToJava.coerce(source["search"].call(data, makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+    override fun search(data: LuaTable, reporter: (status: String) -> Unit): Array<Novel.Listing> = CoerceLuaToJava.coerce(source["search"].call(data, makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 
     override fun setSettings(settings: LuaTable) = TODO("not implemented")
 }
