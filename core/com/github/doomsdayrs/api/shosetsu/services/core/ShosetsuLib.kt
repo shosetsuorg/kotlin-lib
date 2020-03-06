@@ -113,30 +113,30 @@ class ShosetsuLib : TwoArgFunction() {
         private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
 
         private val luaFuncs: Map<String, LuaValue> = mapOf(
-                Pair("GET", """
+                "GET" to """
                         local url, headers, cctl = ...
                         headers = headers or DEFAULT_HEADERS()
                         cctl = cctl or DEFAULT_CACHE_CONTROL()
 
                         return _GET(url, headers, cctl)
-                """.trimIndent()),
-                Pair("POST", """
+                 """.trimIndent(),
+                "POST" to """
                         local url, headers, body, cctl = ...
                         headers = headers or DEFAULT_HEADERS()
                         cctl = cctl or DEFAULT_CACHE_CONTROL()
                         body = body or DEFAULT_BODY()
 
                         return _POST(url, headers, body, cctl)
-                """.trimIndent()),
-                Pair("map", """
+                """.trimIndent(),
+                "map" to """
                         local o, f = ...
                         local t = {}
                         for i=1, o:size() do
                             t[i] = f(o:get(i-1))
                         end
                         return t
-                """.trimIndent()),
-                Pair("mapNotNil", """
+                """.trimIndent(),
+                "mapNotNil" to """
                         local o, f = ...
                         local t, j = {}, 1
                         for i=0, o:size()-1 do
@@ -147,8 +147,8 @@ class ShosetsuLib : TwoArgFunction() {
                             end
                         end
                         return t
-                """.trimIndent()),
-                Pair("filter", """
+                """.trimIndent(),
+                "filter" to """
                         local o, f = ...
                         local t, j = {}, 1
                         for i=0, o:size()-1 do
@@ -159,8 +159,8 @@ class ShosetsuLib : TwoArgFunction() {
                             end
                         end
                         return t
-                """.trimIndent()),
-                Pair("map2flat", """
+                """.trimIndent(),
+                "map2flat" to """
                         local o1, f1, f2 = ...
                         local t, j = {}, 1
                         for i=0, o1:size()-1 do
@@ -173,22 +173,22 @@ class ShosetsuLib : TwoArgFunction() {
                             end
                         end
                         return t
-                """.trimIndent()),
-                Pair("first", """
+                """.trimIndent(),
+                "first" to """
                         local o, f = ...
                         for i=1, o:size() do
                             local v = o:get(i-1)
                             if f(v) then return v end
                         end
                         return nil
-                """.trimIndent()),
-                Pair("wrap", """
+                """.trimIndent(),
+                "wrap" to """
                         local o, f = ...
                         return function(...)
                             return f(o, ...)
                         end
-                """.trimIndent()),
-                Pair("flatten", """
+                """.trimIndent(),
+                "flatten" to """
                         local t = ...
                         local n = {}
                         local i = 1
@@ -201,8 +201,8 @@ class ShosetsuLib : TwoArgFunction() {
                         end
 
                         return n
-                """.trimIndent())
-        ).map { e -> Pair(e.key, load.call(e.value)) }.toMap()
+                """.trimIndent()
+        ).map { e -> e.key to load.call(e.value) }.toMap()
 
         /**
          * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(o, ...),
