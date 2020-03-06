@@ -97,7 +97,8 @@ class LuaFormatter(private val file: File) : Formatter {
     override val hasSearch: Boolean = source["hasSearch"].toboolean()
 
     @Suppress("UNCHECKED_CAST")
-    override val listings: Array<Formatter.Listing> = CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
+    override val listings: Array<Formatter.Listing>
+            = CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
 
     override val filters: LuaTable
         get() = TODO("not implemented")

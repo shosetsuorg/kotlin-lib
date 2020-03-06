@@ -41,7 +41,7 @@ private object Test {
             "en/MTLNovel"
     ).map { "src/main/resources/src/$it.lua" }
 
-    private val REPORTER: (String) -> Unit = { status: String -> println("Progress: $status") }
+    private val REPORTER: (String) -> Unit = { println("Progress: $it") }
     // END CONFIG
 
 
