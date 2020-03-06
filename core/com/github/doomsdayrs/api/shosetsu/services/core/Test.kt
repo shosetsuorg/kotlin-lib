@@ -36,9 +36,10 @@ private object Test {
     private const val PRINT_LIST_STATS = true
     private const val PRINT_NOVELS = false
     private const val PRINT_NOVEL_STATS = true
+    private const val PRINT_PASSAGES = false
 
     private val SOURCES = arrayOf(
-            "en/MTLNovel"
+            "en/WuxiaWorld"
     ).map { "src/main/resources/src/$it.lua" }
 
     private val REPORTER: (String) -> Unit = { println("Progress: $it") }
@@ -73,10 +74,15 @@ private object Test {
         if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
 
         println()
-        println(with(fmt.getPassage(novel.chapters[0].link)) {
-            if (length < 25) "Result: $this"
-            else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
-        })
+
+        val passage = fmt.getPassage(novel.chapters[0].link)
+        if (PRINT_PASSAGES)
+            println(passage)
+        else
+            println(with(passage) {
+                if (length < 25) "Result: $this"
+                else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
+            })
     }
 
     @Throws(java.io.IOException::class, InterruptedException::class)
