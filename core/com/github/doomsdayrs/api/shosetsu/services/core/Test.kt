@@ -104,8 +104,8 @@ private object Test {
                 formatter.listings.forEach { l ->
                     with(l) {
                         println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-                        var novels = getListing(if (isIncrementing) 1 else null)
-                        if (isIncrementing) novels += getListing(2)
+                        var novels = getListing(if (isIncrementing) 1 else null, mapOf())
+                        if (isIncrementing) novels += getListing(2, mapOf())
                         showListing(formatter, novels)
                         MILLISECONDS.sleep(500)
                     }
@@ -113,9 +113,7 @@ private object Test {
 
                 if (formatter.hasSearch) {
                     println("\n-------- Search --------")
-                    val data = LuaTable()
-                    data["query"] = SEARCH_VALUE
-                    showListing(formatter, formatter.search(data, REPORTER))
+                    showListing(formatter, formatter.search(mapOf(0 to SEARCH_VALUE), REPORTER))
                 }
 
                 MILLISECONDS.sleep(500)
