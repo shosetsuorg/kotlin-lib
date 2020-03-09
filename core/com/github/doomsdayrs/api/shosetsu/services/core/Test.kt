@@ -39,7 +39,7 @@ private object Test {
     private const val PRINT_PASSAGES = false
 
     private val SOURCES = arrayOf(
-            "en/WuxiaWorld"
+            "en/sql_injection_poc"
     ).map { "src/main/resources/src/$it.lua" }
 
     private val REPORTER: (String) -> Unit = { println("Progress: $it") }

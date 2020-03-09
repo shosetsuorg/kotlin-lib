@@ -1,7 +1,5 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
-import org.luaj.vm2.LuaTable
-
 /*
  * This file is part of shosetsu-services.
  * shosetsu-services is free software: you can redistribute it and/or modify
@@ -25,7 +23,8 @@ import org.luaj.vm2.LuaTable
  */
 @Suppress("unused")
 interface Formatter {
-    class Listing(val name: String, val isIncrementing: Boolean, val getListing: (increment: Int?) -> Array<Novel.Listing>)
+    class Listing(val name: String, val isIncrementing: Boolean, val filters: Array<Filter<*>>,
+                  val getListing: (increment: Int?, data: Map<Int, Any?>) -> Array<Novel.Listing>)
 
     val name: String
     val baseURL: String
@@ -35,11 +34,12 @@ interface Formatter {
     val hasCloudFlare: Boolean
     val listings: Array<Listing>
 
-    val filters: LuaTable // Array<Filter>
-    val settings: LuaTable // Array<Setting>
+    val settings: Array<Filter<*>>
+    fun updateSetting(id: Int, value: Any?)
+
+    val filters: Array<Filter<*>>
+    fun search(data: Map<Int, Any?>, reporter: (status: String) -> Unit): Array<Novel.Listing>
 
     fun getPassage(chapterURL: String): String
     fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
-    fun search(data: LuaTable, reporter: (status: String) -> Unit): Array<Novel.Listing> // data: Map<Filter, Any>
-    fun setSettings(settings: LuaTable) // settings: Map<Setting, Any>
 }

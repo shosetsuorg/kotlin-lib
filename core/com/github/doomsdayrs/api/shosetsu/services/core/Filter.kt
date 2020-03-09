@@ -19,8 +19,15 @@ package com.github.doomsdayrs.api.shosetsu.services.core
  *
  * @author github.com/doomsdayrs
  */
-class SettingsSearch {
-    class SettingsText(val id: String, val name: String)
-    class SettingsSpinner(val id: String, val name: String, val array: Array<String>)
-    class SettingsDropDown(val id: String, val name: String)
-}
+
+abstract class Filter<T>(val id: Int) {}
+
+sealed class TextFilter(id: Int, name: String) : Filter<String>(id)
+
+sealed class RadioFilter(id: Int, name: String, choices: Array<String>) : Filter<Int>(id)
+sealed class DropdownFilter(id: Int, name: String, choices: Array<String>) : Filter<Int>(id)
+
+sealed class CheckboxFilter(id: Int, name: String) : Filter<Boolean>(id)
+sealed class TriStateFilter(id: Int, name: String) : Filter<Array<Int>>(id)
+
+sealed class FilterGroup<T>(id: Int, name: String, filters: Array<Filter<T>>) : Filter<Array<T>>(id)

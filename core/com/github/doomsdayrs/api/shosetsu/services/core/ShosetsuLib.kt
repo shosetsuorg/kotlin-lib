@@ -43,6 +43,12 @@ class ShosetsuLib : TwoArgFunction() {
 
         /** okhttp HTTP Client used by lib functions. */
         lateinit var httpClient: OkHttpClient
+
+        fun Map<Int, Any?>.toLua(): LuaTable {
+            val table = LuaTable()
+            this.forEach { table[it.key] = CoerceJavaToLua.coerce(it.value) }
+            return table
+        }
     }
 
     @Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
@@ -56,9 +62,13 @@ class ShosetsuLib : TwoArgFunction() {
         fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
         @Suppress("UNCHECKED_CAST")
-        fun Listing(name: String, increments: Boolean, func: LuaFunction) = Formatter.Listing(name, increments) {
+        fun Listing(name: String, increments: Boolean, func: LuaFunction)
+                = Listing(name, increments, func, arrayOf())
+
+        @Suppress("UNCHECKED_CAST")
+        fun Listing(name: String, increments: Boolean, func: LuaFunction, filters: Array<Filter<*>>) = Formatter.Listing(name, increments, filters) { it, data ->
             CoerceLuaToJava.coerce(
-                    func.call(if (it == null) LuaValue.NIL else LuaValue.valueOf(it)),
+                    func.call(if (it == null) LuaValue.NIL else LuaValue.valueOf(it), data.toLua()),
                     Array<Novel.Listing>::class.java) as Array<Novel.Listing>
         }
 

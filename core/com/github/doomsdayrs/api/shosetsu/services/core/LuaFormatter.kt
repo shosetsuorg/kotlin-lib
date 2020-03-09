@@ -1,5 +1,6 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
+import com.github.doomsdayrs.api.shosetsu.services.core.ShosetsuLib.Companion.toLua
 import org.json.JSONObject
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
@@ -100,11 +101,13 @@ class LuaFormatter(private val file: File) : Formatter {
     override val listings: Array<Formatter.Listing>
             = CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
 
-    override val filters: LuaTable
+    override val filters: Array<Filter<*>>
         get() = TODO("not implemented")
 
-    override val settings: LuaTable
+    override val settings: Array<Filter<*>>
         get() = TODO("not implemented")
+
+    override fun updateSetting(id: Int, value: Any?): Unit = TODO("Not yet implemented")
 
     override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
 
@@ -112,8 +115,7 @@ class LuaFormatter(private val file: File) : Formatter {
             = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters), makeLuaReporter(reporter)), Novel.Info::class.java) as Novel.Info
 
     @Suppress("UNCHECKED_CAST")
-    override fun search(data: LuaTable, reporter: (status: String) -> Unit): Array<Novel.Listing>
-            = CoerceLuaToJava.coerce(source["search"].call(data, makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+    override fun search(data: Map<Int, Any?>, reporter: (status: String) -> Unit): Array<Novel.Listing>
+            = CoerceLuaToJava.coerce(source["search"].call(data.toLua(), makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 
-    override fun setSettings(settings: LuaTable) = TODO("not implemented")
 }
