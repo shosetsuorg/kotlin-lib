@@ -35,6 +35,8 @@ import java.util.concurrent.TimeUnit
  */
 class ShosetsuLib : TwoArgFunction() {
     companion object {
+        const val FILTER_ID_QUERY = 0
+
         /** Libraries loaded in via shosetsu. Mapping from library name to their returned value. */
         val libraries: MutableMap<String, LuaValue> = mutableMapOf()
 
@@ -62,8 +64,7 @@ class ShosetsuLib : TwoArgFunction() {
         fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
         @Suppress("UNCHECKED_CAST")
-        fun Listing(name: String, increments: Boolean, func: LuaFunction)
-                = Listing(name, increments, func, arrayOf())
+        fun Listing(name: String, increments: Boolean, func: LuaFunction) = Listing(name, increments, func, arrayOf())
 
         @Suppress("UNCHECKED_CAST")
         fun Listing(name: String, increments: Boolean, func: LuaFunction, filters: Array<Filter<*>>) = Formatter.Listing(name, increments, filters) { it, data ->
