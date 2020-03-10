@@ -1,7 +1,6 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
 import okhttp3.OkHttpClient
-import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
@@ -39,7 +38,7 @@ private object Test {
     private const val PRINT_PASSAGES = false
 
     private val SOURCES = arrayOf(
-            "en/sql_injection_poc"
+            "en/MTLNovel"
     ).map { "src/main/resources/src/$it.lua" }
 
     private val REPORTER: (String) -> Unit = { println("Progress: $it") }
@@ -85,6 +84,20 @@ private object Test {
             })
     }
 
+    fun defaultMapFromFilters(filters: Array<Filter<*>>): Map<Int, Any?> {
+        val m = mutableMapOf<Int, Any?>()
+        filters.forEach {
+            m[it.id] = when (it) {
+                is TextFilter -> ""
+                is SwitchFilter -> true
+                is DropdownFilter -> 0
+                is RadioGroupFilter -> 0
+                else -> null
+            }
+        }
+        return m
+    }
+
     @Throws(java.io.IOException::class, InterruptedException::class)
     @JvmStatic
     fun main(args: Array<String>) {
@@ -103,8 +116,9 @@ private object Test {
 
                 formatter.listings.forEach { l ->
                     with(l) {
+
                         println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-                        var novels = getListing(if (isIncrementing) 1 else null, mapOf())
+                        var novels = getListing(if (isIncrementing) 1 else null, defaultMapFromFilters(l.filters))
                         if (isIncrementing) novels += getListing(2, mapOf())
                         showListing(formatter, novels)
                         MILLISECONDS.sleep(500)
