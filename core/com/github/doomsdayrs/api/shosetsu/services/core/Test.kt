@@ -119,7 +119,7 @@ private object Test {
 
                         println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
                         var novels = getListing(if (isIncrementing) 1 else null, defaultMapFromFilters(l.filters))
-                        if (isIncrementing) novels += getListing(2, mapOf())
+                        if (isIncrementing) novels += getListing(2, defaultMapFromFilters(l.filters))
                         showListing(formatter, novels)
                         MILLISECONDS.sleep(500)
                     }
