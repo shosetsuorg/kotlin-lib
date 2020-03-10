@@ -110,9 +110,11 @@ private object Test {
 
                 val formatter = LuaFormatter(File(format))
 
-                println("ID    : ${formatter.formatterID}")
-                println("Name  : ${formatter.name}")
-                println("Image : ${formatter.imageURL}")
+                println("ID       : ${formatter.formatterID}")
+                println("Name     : ${formatter.name}")
+                println("Image    : ${formatter.imageURL}")
+                println("Filters  : ${formatter.filters}")
+                println("Settings : ${formatter.settings}")
 
                 formatter.listings.forEach { l ->
                     with(l) {
@@ -134,6 +136,7 @@ private object Test {
             }
             println("\n\tTESTS COMPLETE")
         } catch (e: Exception) {
+            e.printStackTrace()
             e.message?.let {
                 print("\n\u001B[31m${it.substring(it.lastIndexOf("}") + 1)}\n")
             }

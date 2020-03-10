@@ -8,7 +8,6 @@ import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.LuaValue.*
 import org.luaj.vm2.lib.OneArgFunction
-import org.luaj.vm2.lib.jse.CoerceJavaToLua
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import org.luaj.vm2.lib.jse.JsePlatform
@@ -53,10 +52,12 @@ class LuaFormatter(private val file: File) : Formatter {
                 "imageURL" to TSTRING,
 
                 "listings" to TTABLE,
+                "filters" to TTABLE,
 
                 "getPassage" to TFUNCTION,
                 "parseNovel" to TFUNCTION,
-                "search" to TFUNCTION
+                "search" to TFUNCTION,
+                "updateSetting" to TFUNCTION
         )
     }
 
@@ -102,13 +103,22 @@ class LuaFormatter(private val file: File) : Formatter {
     override val hasSearch by lazy { source["hasSearch"].toboolean() }
 
     @Suppress("UNCHECKED_CAST")
-    override val listings by lazy { CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing> }
+    override val listings by lazy {
+        CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
+    }
 
     @Suppress("UNCHECKED_CAST")
-    override val filters by lazy { CoerceLuaToJava.coerce(source["filters"], Array<Filter<*>>::javaClass::class.java) as Array<Filter<*>> }
+    override val filters by lazy {
+        val c = CoerceLuaToJava.coerce(source["filters"], Array<Filter<*>>::javaClass::class.java) as LuaTable
+        for (i in c.keys())
+            println(c[i])
+        return@lazy c as Array<Filter<*>>
+    }
 
     @Suppress("UNCHECKED_CAST")
-    override val settings by lazy { CoerceLuaToJava.coerce(source["settings"], Array<Filter<*>>::javaClass::class.java) as Array<Filter<*>> }
+    override val settings by lazy {
+        CoerceLuaToJava.coerce(source["settings"], Array<Filter<*>>::javaClass::class.java) as Array<Filter<*>>
+    }
 
     override fun updateSetting(id: Int, value: Any?) {
         source["updateSetting"].call(valueOf(id), coerce(value))
