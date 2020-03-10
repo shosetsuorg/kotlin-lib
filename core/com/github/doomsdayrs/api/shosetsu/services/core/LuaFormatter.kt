@@ -8,6 +8,8 @@ import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.LuaValue.*
 import org.luaj.vm2.lib.OneArgFunction
+import org.luaj.vm2.lib.jse.CoerceJavaToLua
+import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.BufferedReader
@@ -102,13 +104,15 @@ class LuaFormatter(private val file: File) : Formatter {
     @Suppress("UNCHECKED_CAST")
     override val listings by lazy { CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing> }
 
-    override val filters: Array<Filter<*>>
-        get() = TODO("not implemented")
+    @Suppress("UNCHECKED_CAST")
+    override val filters by lazy { CoerceLuaToJava.coerce(source["filters"], Array<Filter<*>>::javaClass::class.java) as Array<Filter<*>> }
 
-    override val settings: Array<Filter<*>>
-        get() = TODO("not implemented")
+    @Suppress("UNCHECKED_CAST")
+    override val settings by lazy { CoerceLuaToJava.coerce(source["settings"], Array<Filter<*>>::javaClass::class.java) as Array<Filter<*>> }
 
-    override fun updateSetting(id: Int, value: Any?): Unit = TODO("Not yet implemented")
+    override fun updateSetting(id: Int, value: Any?) {
+        source["updateSetting"].call(valueOf(id), coerce(value))
+    }
 
     override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
 
