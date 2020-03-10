@@ -22,12 +22,12 @@ package com.github.doomsdayrs.api.shosetsu.services.core
 
 abstract class Filter<T>(val id: Int)
 
-sealed class TextFilter(id: Int, val name: String) : Filter<String>(id)
-sealed class SwitchFilter(id: Int, val name: String) : Filter<Boolean>(id)
-sealed class RadioGroupFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
+class TextFilter(id: Int, val name: String) : Filter<String>(id)
+class SwitchFilter(id: Int, val name: String) : Filter<Boolean>(id)
+class RadioGroupFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
 
 /** Android's Spinner */
-sealed class DropdownFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
+class DropdownFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
 
 sealed class CheckboxFilter(id: Int, name: String) : Filter<Boolean>(id)
 sealed class TriStateFilter(id: Int, name: String) : Filter<Array<Int>>(id)

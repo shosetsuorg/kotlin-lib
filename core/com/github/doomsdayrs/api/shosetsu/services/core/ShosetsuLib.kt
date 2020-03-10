@@ -89,6 +89,15 @@ class ShosetsuLib : TwoArgFunction() {
             libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name"); it
         }
 
+        // For filters
+
+        fun TextFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.TextFilter(id, name)
+
+        fun SwitchFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.SwitchFilter(id, name)
+
+        fun DropdownFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.DropdownFilter(id, name, choices)
+
+        fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.RadioGroupFilter(id, name, choices)
 
         // For normal extensions, these simple functions are sufficient.
         fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =
