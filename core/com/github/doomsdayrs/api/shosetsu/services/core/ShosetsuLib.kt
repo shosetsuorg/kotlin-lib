@@ -46,6 +46,7 @@ class ShosetsuLib : TwoArgFunction() {
         /** okhttp HTTP Client used by lib functions. */
         lateinit var httpClient: OkHttpClient
 
+        /** @return [LuaTable] of map */
         fun Map<Int, Any?>.toLua(): LuaTable {
             val table = LuaTable()
             this.forEach { table[it.key] = CoerceJavaToLua.coerce(it.value) }
