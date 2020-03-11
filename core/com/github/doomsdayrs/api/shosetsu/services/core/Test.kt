@@ -113,8 +113,8 @@ private object Test {
                 println("ID       : ${formatter.formatterID}")
                 println("Name     : ${formatter.name}")
                 println("Image    : ${formatter.imageURL}")
-                println("Filters  : ${formatter.filters}")
                 println("Settings : ${formatter.settings}")
+                println("Filters  : ${formatter.filters}")
 
                 formatter.listings.forEach { l ->
                     with(l) {

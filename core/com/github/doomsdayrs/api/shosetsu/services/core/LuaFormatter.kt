@@ -59,6 +59,22 @@ class LuaFormatter(private val file: File) : Formatter {
                 "search" to TFUNCTION,
                 "updateSetting" to TFUNCTION
         )
+
+        private fun makeLuaReporter(f: (status: String) -> Unit) = object : OneArgFunction() {
+            override fun call(p0: LuaValue?): LuaValue {
+                f(p0!!.tojstring())
+                return LuaValue.NIL
+            }
+        }
+
+        private fun tableToFilters(table: LuaTable): Array<Filter<*>> {
+            val a = ArrayList<Filter<*>>()
+            for (i in 0 until table.length()) {
+                val v = table[i]
+                if (!v.isnil()) a.add(CoerceLuaToJava.coerce(v, Filter<*>::javaClass::class.java) as Filter<*>)
+            }
+            return a.toTypedArray()
+        }
     }
 
     @Suppress("unused")
@@ -69,13 +85,6 @@ class LuaFormatter(private val file: File) : Formatter {
     }
 
     private val source: LuaTable
-
-    private fun makeLuaReporter(f: (status: String) -> Unit) = object : OneArgFunction() {
-        override fun call(p0: LuaValue?): LuaValue {
-            f(p0!!.tojstring())
-            return LuaValue.NIL
-        }
-    }
 
     init {
         val script = JsePlatform.standardGlobals()
@@ -107,17 +116,15 @@ class LuaFormatter(private val file: File) : Formatter {
         CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
     }
 
+
     @Suppress("UNCHECKED_CAST")
     override val filters by lazy {
-        val c = CoerceLuaToJava.coerce(source["filters"], Array<Filter<*>>::javaClass::class.java) as LuaTable
-        for (i in c.keys())
-            println(c[i])
-        return@lazy c as Array<Filter<*>>
+        tableToFilters(source["filters"] as LuaTable)
     }
 
     @Suppress("UNCHECKED_CAST")
     override val settings by lazy {
-        CoerceLuaToJava.coerce(source["settings"], Array<Filter<*>>::javaClass::class.java) as Array<Filter<*>>
+        tableToFilters(source["settings"] as LuaTable)
     }
 
     override fun updateSetting(id: Int, value: Any?) {
