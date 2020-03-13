@@ -26,10 +26,10 @@ class TextFilter(id: Int, val name: String) : Filter<String>(id)
 class SwitchFilter(id: Int, val name: String) : Filter<Boolean>(id)
 class RadioGroupFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
 class FilterGroup<T>(id: Int, name: String, filters: Array<Filter<T>>) : Filter<Array<T>>(id)
+class CheckboxFilter(id: Int, name: String) : Filter<Boolean>(id)
 
 /** Android's Spinner */
 class DropdownFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
 
-sealed class CheckboxFilter(id: Int, name: String) : Filter<Boolean>(id)
 sealed class TriStateFilter(id: Int, name: String) : Filter<Array<Int>>(id)
 
