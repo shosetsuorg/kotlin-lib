@@ -92,12 +92,12 @@ class ShosetsuLib : TwoArgFunction() {
         // For filters
 
         fun TextFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.TextFilter(id, name)
-
         fun SwitchFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.SwitchFilter(id, name)
+        fun CheckBoxFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.CheckboxFilter(id, name)
 
         fun DropdownFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.DropdownFilter(id, name, choices)
-
         fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.RadioGroupFilter(id, name, choices)
+        fun FilterGroup(id: Int, name: String, filters: Array<Filter<Any>>) = com.github.doomsdayrs.api.shosetsu.services.core.FilterGroup(id, name, filters)
 
         // For normal extensions, these simple functions are sufficient.
         fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =

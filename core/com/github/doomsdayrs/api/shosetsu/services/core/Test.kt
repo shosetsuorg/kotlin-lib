@@ -38,7 +38,7 @@ private object Test {
     private const val PRINT_PASSAGES = false
 
     private val SOURCES = arrayOf(
-            "en/MTLNovel"
+            "en/BoxNovel"
     ).map { "src/main/resources/src/$it.lua" }
 
     private val REPORTER: (String) -> Unit = { println("Progress: $it") }
@@ -87,12 +87,14 @@ private object Test {
     fun defaultMapFromFilters(filters: Array<Filter<*>>): Map<Int, Any?> {
         val m = mutableMapOf<Int, Any?>()
         filters.forEach {
-            m[it.id] = when (it) {
-                is TextFilter -> ""
-                is SwitchFilter -> true
-                is DropdownFilter -> 0
-                is RadioGroupFilter -> 0
-                else -> null
+            when (it) {
+                is TextFilter -> m[it.id] = ""
+                is SwitchFilter -> m[it.id] = false
+                is CheckboxFilter -> m[it.id] = false
+                is DropdownFilter -> m[it.id] = 0
+                is RadioGroupFilter -> m[it.id] = 0
+                is FilterGroup<*> -> m.putAll(defaultMapFromFilters(it.filters as Array<Filter<*>>))
+                else -> m[it.id] = null
             }
         }
         return m
@@ -109,6 +111,7 @@ private object Test {
                 println("\n\n========== $format ==========")
 
                 val formatter = LuaFormatter(File(format))
+                val map: MutableMap<Int, Any?> = mutableMapOf()
 
                 println("ID       : ${formatter.formatterID}")
                 println("Name     : ${formatter.name}")
@@ -118,10 +121,10 @@ private object Test {
 
                 formatter.listings.forEach { l ->
                     with(l) {
-
                         println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
                         var novels = getListing(if (isIncrementing) 1 else null, defaultMapFromFilters(l.filters))
-                        if (isIncrementing) novels += getListing(2, defaultMapFromFilters(l.filters))
+                        map.putAll(defaultMapFromFilters(l.filters))
+                        if (isIncrementing) novels += getListing(2, map)
                         showListing(formatter, novels)
                         MILLISECONDS.sleep(500)
                     }
@@ -129,7 +132,9 @@ private object Test {
 
                 if (formatter.hasSearch) {
                     println("\n-------- Search --------")
-                    showListing(formatter, formatter.search(mapOf(0 to SEARCH_VALUE), REPORTER))
+                    map.putAll(defaultMapFromFilters(formatter.filters))
+                    map[0] = SEARCH_VALUE
+                    showListing(formatter, formatter.search(map, REPORTER))
                 }
 
                 MILLISECONDS.sleep(500)
