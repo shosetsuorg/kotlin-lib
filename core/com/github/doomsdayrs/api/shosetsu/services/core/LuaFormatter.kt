@@ -116,7 +116,6 @@ class LuaFormatter(private val file: File) : Formatter {
         CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
     }
 
-
     @Suppress("UNCHECKED_CAST")
     override val filters by lazy {
         tableToFilters(source["filters"] as LuaTable)
