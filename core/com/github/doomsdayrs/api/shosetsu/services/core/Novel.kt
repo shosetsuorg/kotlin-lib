@@ -20,24 +20,24 @@ package com.github.doomsdayrs.api.shosetsu.services.core
  * @author github.com/doomsdayrs
  */
 class Novel {
-    data class Listing(var title: String = "unknown", var link: String = "", var imageURL: String = "")
-    data class Chapter(var release: String = "unknown", var title: String = "unknown", var link: String = "", var order: Double = 0.0)
-    enum class Status(val title: String) {
-        PUBLISHING("Publishing"), COMPLETED("Completed"), PAUSED("Paused"), UNKNOWN("Unknown");
+	data class Listing(var title: String = "unknown", var link: String = "", var imageURL: String = "")
+	data class Chapter(var release: String = "unknown", var title: String = "unknown", var link: String = "", var order: Double = 0.0)
+	enum class Status(val title: String) {
+		PUBLISHING("Publishing"), COMPLETED("Completed"), PAUSED("Paused"), UNKNOWN("Unknown");
 
-        override fun toString() = "NovelStatus(title='$title')"
-    }
+		override fun toString() = "NovelStatus(title='$title')"
+	}
 
-    @Suppress("ArrayInDataClass")
-    data class Info(var title: String = "unknown",
-                    var alternativeTitles: Array<String> = arrayOf(),
-                    var imageURL: String = "",
-                    var language: String = "unknown",
-                    var description: String = "unknown",
-                    var status: Status = Status.UNKNOWN,
-                    var tags: Array<String> = arrayOf(),
-                    var genres: Array<String> = arrayOf(),
-                    var authors: Array<String> = arrayOf(),
-                    var artists: Array<String> = arrayOf(),
-                    var chapters: List<Chapter> = arrayListOf())
+	@Suppress("ArrayInDataClass")
+	data class Info(var title: String = "unknown",
+	                var alternativeTitles: Array<String> = arrayOf(),
+	                var imageURL: String = "",
+	                var language: String = "unknown",
+	                var description: String = "unknown",
+	                var status: Status = Status.UNKNOWN,
+	                var tags: Array<String> = arrayOf(),
+	                var genres: Array<String> = arrayOf(),
+	                var authors: Array<String> = arrayOf(),
+	                var artists: Array<String> = arrayOf(),
+	                var chapters: List<Chapter> = arrayListOf())
 }

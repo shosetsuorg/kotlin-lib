@@ -29,123 +29,123 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
  * In IDEA, The Classpath should be shosetsu-services but the Working directory should be shosetsu-extensions.
  */
 private object Test {
-    // CONFIG
-    private const val SEARCH_VALUE = "world"
-    private const val PRINT_LISTINGS = false
-    private const val PRINT_LIST_STATS = true
-    private const val PRINT_NOVELS = false
-    private const val PRINT_NOVEL_STATS = true
-    private const val PRINT_PASSAGES = false
+	// CONFIG
+	private const val SEARCH_VALUE = "world"
+	private const val PRINT_LISTINGS = false
+	private const val PRINT_LIST_STATS = true
+	private const val PRINT_NOVELS = false
+	private const val PRINT_NOVEL_STATS = true
+	private const val PRINT_PASSAGES = false
 
-    private val SOURCES = arrayOf(
-            "en/BoxNovel"
-    ).map { "src/main/resources/src/$it.lua" }
+	private val SOURCES = arrayOf(
+			"en/BoxNovel"
+	).map { "src/main/resources/src/$it.lua" }
 
-    private val REPORTER: (String) -> Unit = { println("Progress: $it") }
-    // END CONFIG
+	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
+	// END CONFIG
 
 
-    private fun loadScript(file: File): LuaValue {
-        val script = JsePlatform.standardGlobals()
-        script.load(ShosetsuLib())
-        val l = try {
-            script.load(file.readText())!!
-        } catch (e: Error) {
-            throw e
-        }
+	private fun loadScript(file: File): LuaValue {
+		val script = JsePlatform.standardGlobals()
+		script.load(ShosetsuLib())
+		val l = try {
+			script.load(file.readText())!!
+		} catch (e: Error) {
+			throw e
+		}
 
-        return l.call()!!
-    }
+		return l.call()!!
+	}
 
-    @Suppress("ConstantConditionIf")
-    private fun showListing(fmt: Formatter, novels: Array<Novel.Listing>) {
-        if (PRINT_LISTINGS)
-            println("[" + novels.joinToString(", ") { it.toString() } + "]")
+	@Suppress("ConstantConditionIf")
+	private fun showListing(fmt: Formatter, novels: Array<Novel.Listing>) {
+		if (PRINT_LISTINGS)
+			println("[" + novels.joinToString(", ") { it.toString() } + "]")
 
-        println("${novels.size} novels.")
-        if (PRINT_LIST_STATS)
-            println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
+		println("${novels.size} novels.")
+		if (PRINT_LIST_STATS)
+			println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
 
-        println()
+		println()
 
-        val novel = fmt.parseNovel(novels[0].link, true, REPORTER)
-        if (PRINT_NOVELS) println(novel)
-        if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
+		val novel = fmt.parseNovel(novels[0].link, true, REPORTER)
+		if (PRINT_NOVELS) println(novel)
+		if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
 
-        println()
+		println()
 
-        val passage = fmt.getPassage(novel.chapters[0].link)
-        if (PRINT_PASSAGES)
-            println(passage)
-        else
-            println(with(passage) {
-                if (length < 25) "Result: $this"
-                else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
-            })
-    }
+		val passage = fmt.getPassage(novel.chapters[0].link)
+		if (PRINT_PASSAGES)
+			println(passage)
+		else
+			println(with(passage) {
+				if (length < 25) "Result: $this"
+				else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
+			})
+	}
 
-    fun defaultMapFromFilters(filters: Array<Filter<*>>): Map<Int, Any?> {
-        val m = mutableMapOf<Int, Any?>()
-        filters.forEach {
-            when (it) {
-                is TextFilter -> m[it.id] = ""
-                is SwitchFilter -> m[it.id] = false
-                is CheckboxFilter -> m[it.id] = false
-                is DropdownFilter -> m[it.id] = 0
-                is RadioGroupFilter -> m[it.id] = 0
-                is FilterGroup<*> -> m.putAll(defaultMapFromFilters(it.filters as Array<Filter<*>>))
-                else -> m[it.id] = null
-            }
-        }
-        return m
-    }
+	fun defaultMapFromFilters(filters: Array<Filter<*>>): Map<Int, Any?> {
+		val m = mutableMapOf<Int, Any?>()
+		filters.forEach {
+			when (it) {
+				is TextFilter -> m[it.id] = ""
+				is SwitchFilter -> m[it.id] = false
+				is CheckboxFilter -> m[it.id] = false
+				is DropdownFilter -> m[it.id] = 0
+				is RadioGroupFilter -> m[it.id] = 0
+				is FilterGroup<*> -> m.putAll(defaultMapFromFilters(it.filters as Array<Filter<*>>))
+				else -> m[it.id] = null
+			}
+		}
+		return m
+	}
 
-    @Throws(java.io.IOException::class, InterruptedException::class)
-    @JvmStatic
-    fun main(args: Array<String>) {
-        try {
-            ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
-            ShosetsuLib.httpClient = OkHttpClient()
+	@Throws(java.io.IOException::class, InterruptedException::class)
+	@JvmStatic
+	fun main(args: Array<String>) {
+		try {
+			ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
+			ShosetsuLib.httpClient = OkHttpClient()
 
-            for (format in SOURCES) {
-                println("\n\n========== $format ==========")
+			for (format in SOURCES) {
+				println("\n\n========== $format ==========")
 
-                val formatter = LuaFormatter(File(format))
-                val map: MutableMap<Int, Any?> = mutableMapOf()
+				val formatter = LuaFormatter(File(format))
+				val map: MutableMap<Int, Any?> = mutableMapOf()
 
-                println("ID       : ${formatter.formatterID}")
-                println("Name     : ${formatter.name}")
-                println("Image    : ${formatter.imageURL}")
-                println("Settings : ${formatter.settings}")
-                println("Filters  : ${formatter.filters}")
+				println("ID       : ${formatter.formatterID}")
+				println("Name     : ${formatter.name}")
+				println("Image    : ${formatter.imageURL}")
+				println("Settings : ${formatter.settings}")
+				println("Filters  : ${formatter.filters}")
+				map.putAll(defaultMapFromFilters(formatter.filters))
 
-                formatter.listings.forEach { l ->
-                    with(l) {
-                        println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-                        var novels = getListing(if (isIncrementing) 1 else null, defaultMapFromFilters(l.filters))
-                        map.putAll(defaultMapFromFilters(l.filters))
-                        if (isIncrementing) novels += getListing(2, map)
-                        showListing(formatter, novels)
-                        MILLISECONDS.sleep(500)
-                    }
-                }
+				formatter.listings.forEach { l ->
+					with(l) {
+						println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
+						var novels = getListing(map, if (isIncrementing) 1 else null)
+						if (isIncrementing) novels += getListing(map, 2)
+						showListing(formatter, novels)
+						MILLISECONDS.sleep(500)
+					}
+				}
 
-                if (formatter.hasSearch) {
-                    println("\n-------- Search --------")
-                    map.putAll(defaultMapFromFilters(formatter.filters))
-                    map[0] = SEARCH_VALUE
-                    showListing(formatter, formatter.search(map, REPORTER))
-                }
+				if (formatter.hasSearch) {
+					println("\n-------- Search --------")
+					map.putAll(defaultMapFromFilters(formatter.filters))
+					map[0] = SEARCH_VALUE
+					showListing(formatter, formatter.search(map, REPORTER))
+				}
 
-                MILLISECONDS.sleep(500)
-            }
-            println("\n\tTESTS COMPLETE")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            e.message?.let {
-                print("\n\u001B[31m${it.substring(it.lastIndexOf("}") + 1)}\n")
-            }
-        }
-    }
+				MILLISECONDS.sleep(500)
+			}
+			println("\n\tTESTS COMPLETE")
+		} catch (e: Exception) {
+			e.printStackTrace()
+			e.message?.let {
+				print("\n\u001B[31m${it.substring(it.lastIndexOf("}") + 1)}\n")
+			}
+		}
+	}
 
 }

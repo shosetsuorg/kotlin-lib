@@ -23,22 +23,22 @@ package com.github.doomsdayrs.api.shosetsu.services.core
  */
 @Suppress("unused")
 interface Formatter {
-    class Listing(val name: String, val isIncrementing: Boolean, val getListing: (increment: Int?, data: Map<Int, Any?>) -> Array<Novel.Listing>)
+	class Listing(val name: String, val isIncrementing: Boolean, val getListing: (data: Map<Int, Any?>, increment: Int?) -> Array<Novel.Listing>)
 
-    val name: String
-    val baseURL: String
-    val imageURL: String
-    val formatterID: Int
-    val hasSearch: Boolean
-    val hasCloudFlare: Boolean
-    val listings: Array<Listing>
+	val name: String
+	val baseURL: String
+	val imageURL: String
+	val formatterID: Int
+	val hasSearch: Boolean
+	val hasCloudFlare: Boolean
+	val listings: Array<Listing>
 
-    val settings: Array<Filter<*>>
-    fun updateSetting(id: Int, value: Any?)
+	val settings: Array<Filter<*>>
+	fun updateSetting(id: Int, value: Any?)
 
-    val filters: Array<Filter<*>>
-    fun search(data: Map<Int, Any?>, reporter: (status: String) -> Unit): Array<Novel.Listing>
+	val filters: Array<Filter<*>>
+	fun search(data: Map<Int, Any?>, reporter: (status: String) -> Unit): Array<Novel.Listing>
 
-    fun getPassage(chapterURL: String): String
-    fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
+	fun getPassage(chapterURL: String): String
+	fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
 }

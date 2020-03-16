@@ -37,104 +37,104 @@ import java.io.IOException
  * @author github.com/doomsdayrs
  */
 class LuaFormatter(private val file: File) : Formatter {
-    companion object {
-        val defaults: Map<String, LuaValue> = mapOf(
-                "imageURL" to EMPTYSTRING,
-                "hasCloudFlare" to FALSE,
-                "hasSearch" to TRUE,
-                "filters" to LuaTable(),
-                "settings" to LuaTable()
-        )
+	companion object {
+		val defaults: Map<String, LuaValue> = mapOf(
+				"imageURL" to EMPTYSTRING,
+				"hasCloudFlare" to FALSE,
+				"hasSearch" to TRUE,
+				"filters" to LuaTable(),
+				"settings" to LuaTable()
+		)
 
-        val keys: Map<String, Int> = mapOf(
-                "id" to TNUMBER,
-                "name" to TSTRING,
-                "imageURL" to TSTRING,
+		val keys: Map<String, Int> = mapOf(
+				"id" to TNUMBER,
+				"name" to TSTRING,
+				"imageURL" to TSTRING,
 
-                "listings" to TTABLE,
-                "filters" to TTABLE,
+				"listings" to TTABLE,
+				"filters" to TTABLE,
 
-                "getPassage" to TFUNCTION,
-                "parseNovel" to TFUNCTION,
-                "search" to TFUNCTION,
-                "updateSetting" to TFUNCTION
-        )
+				"getPassage" to TFUNCTION,
+				"parseNovel" to TFUNCTION,
+				"search" to TFUNCTION,
+				"updateSetting" to TFUNCTION
+		)
 
-        private fun makeLuaReporter(f: (status: String) -> Unit) = object : OneArgFunction() {
-            override fun call(p0: LuaValue?): LuaValue {
-                f(p0!!.tojstring())
-                return LuaValue.NIL
-            }
-        }
+		private fun makeLuaReporter(f: (status: String) -> Unit) = object : OneArgFunction() {
+			override fun call(p0: LuaValue?): LuaValue {
+				f(p0!!.tojstring())
+				return LuaValue.NIL
+			}
+		}
 
-        private fun tableToFilters(table: LuaTable): Array<Filter<*>> {
-            val a = ArrayList<Filter<*>>()
-            for (i in 0 until table.length()) {
-                val v = table[i]
-                if (!v.isnil()) a.add(CoerceLuaToJava.coerce(v, Filter<*>::javaClass::class.java) as Filter<*>)
-            }
-            return a.toTypedArray()
-        }
-    }
+		private fun tableToFilters(table: LuaTable): Array<Filter<*>> {
+			val a = ArrayList<Filter<*>>()
+			for (i in 0 until table.length()) {
+				val v = table[i]
+				if (!v.isnil()) a.add(CoerceLuaToJava.coerce(v, Filter<*>::javaClass::class.java) as Filter<*>)
+			}
+			return a.toTypedArray()
+		}
+	}
 
-    @Suppress("unused")
-    fun getMetaData(): JSONObject? = try {
-        JSONObject(BufferedReader(FileReader(file)).use { it.readLine() }?.dropWhile { it != '{' })
-    } catch (e: IOException) {
-        e.printStackTrace(); null
-    }
+	@Suppress("unused")
+	fun getMetaData(): JSONObject? = try {
+		JSONObject(BufferedReader(FileReader(file)).use { it.readLine() }?.dropWhile { it != '{' })
+	} catch (e: IOException) {
+		e.printStackTrace(); null
+	}
 
-    private val source: LuaTable
+	private val source: LuaTable
 
-    init {
-        val script = JsePlatform.standardGlobals()
-        script.load(ShosetsuLib())
-        script.set("QUERY", FILTER_ID_QUERY)
-        val l = try {
-            script.load(file.readText())!!
-        } catch (e: Error) {
-            throw e
-        }
-        source = l.call() as LuaTable
+	init {
+		val script = JsePlatform.standardGlobals()
+		script.load(ShosetsuLib())
+		script.set("QUERY", FILTER_ID_QUERY)
+		val l = try {
+			script.load(file.readText())!!
+		} catch (e: Error) {
+			throw e
+		}
+		source = l.call() as LuaTable
 
-        // Checks table
-        defaults.filter { source[it.key].isnil() }.forEach { source[it.key] = it.value }
-        with(keys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
-            if (isNotEmpty()) throw NullPointerException("Lua Script has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" }))
-        }
-    }
+		// Checks table
+		defaults.filter { source[it.key].isnil() }.forEach { source[it.key] = it.value }
+		with(keys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
+			if (isNotEmpty()) throw NullPointerException("Lua Script has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" }))
+		}
+	}
 
-    override val name by lazy { source["name"].tojstring() }
-    override val baseURL by lazy { source["baseURL"].tojstring() }
-    override val formatterID by lazy { source["id"].toint() }
-    override val imageURL by lazy { source["imageURL"].tojstring() }
-    override val hasCloudFlare by lazy { source["hasCloudFlare"].toboolean() }
-    override val hasSearch by lazy { source["hasSearch"].toboolean() }
+	override val name by lazy { source["name"].tojstring() }
+	override val baseURL by lazy { source["baseURL"].tojstring() }
+	override val formatterID by lazy { source["id"].toint() }
+	override val imageURL by lazy { source["imageURL"].tojstring() }
+	override val hasCloudFlare by lazy { source["hasCloudFlare"].toboolean() }
+	override val hasSearch by lazy { source["hasSearch"].toboolean() }
 
-    @Suppress("UNCHECKED_CAST")
-    override val listings by lazy {
-        CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
-    }
+	@Suppress("UNCHECKED_CAST")
+	override val listings by lazy {
+		CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
+	}
 
-    @Suppress("UNCHECKED_CAST")
-    override val filters by lazy {
-        tableToFilters(source["filters"] as LuaTable)
-    }
+	@Suppress("UNCHECKED_CAST")
+	override val filters by lazy {
+		tableToFilters(source["filters"] as LuaTable)
+	}
 
-    @Suppress("UNCHECKED_CAST")
-    override val settings by lazy {
-        tableToFilters(source["settings"] as LuaTable)
-    }
+	@Suppress("UNCHECKED_CAST")
+	override val settings by lazy {
+		tableToFilters(source["settings"] as LuaTable)
+	}
 
-    override fun updateSetting(id: Int, value: Any?) {
-        source["updateSetting"].call(valueOf(id), coerce(value))
-    }
+	override fun updateSetting(id: Int, value: Any?) {
+		source["updateSetting"].call(valueOf(id), coerce(value))
+	}
 
-    override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
+	override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
 
-    override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters), makeLuaReporter(reporter)), Novel.Info::class.java) as Novel.Info
+	override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters), makeLuaReporter(reporter)), Novel.Info::class.java) as Novel.Info
 
-    @Suppress("UNCHECKED_CAST")
-    override fun search(data: Map<Int, Any?>, reporter: (status: String) -> Unit): Array<Novel.Listing> = CoerceLuaToJava.coerce(source["search"].call(data.toLua(), makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+	@Suppress("UNCHECKED_CAST")
+	override fun search(data: Map<Int, Any?>, reporter: (status: String) -> Unit): Array<Novel.Listing> = CoerceLuaToJava.coerce(source["search"].call(data.toLua(), makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 
 }

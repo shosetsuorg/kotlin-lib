@@ -34,111 +34,111 @@ import java.util.concurrent.TimeUnit
  * @author github.com/technojo4
  */
 class ShosetsuLib : TwoArgFunction() {
-    companion object {
-        const val FILTER_ID_QUERY = 0
+	companion object {
+		const val FILTER_ID_QUERY = 0
 
-        /** Libraries loaded in via shosetsu. Mapping from library name to their returned value. */
-        val libraries: MutableMap<String, LuaValue> = mutableMapOf()
+		/** Libraries loaded in via shosetsu. Mapping from library name to their returned value. */
+		val libraries: MutableMap<String, LuaValue> = mutableMapOf()
 
-        /** Loads libraries from their names. */
-        lateinit var libLoader: (name: String) -> LuaValue?
+		/** Loads libraries from their names. */
+		lateinit var libLoader: (name: String) -> LuaValue?
 
-        /** okhttp HTTP Client used by lib functions. */
-        lateinit var httpClient: OkHttpClient
+		/** okhttp HTTP Client used by lib functions. */
+		lateinit var httpClient: OkHttpClient
 
-        /** @return [LuaTable] of map */
-        fun Map<Int, Any?>.toLua(): LuaTable {
-            val table = LuaTable()
-            this.forEach { table[it.key] = CoerceJavaToLua.coerce(it.value) }
-            return table
-        }
-    }
+		/** @return [LuaTable] of map */
+		fun Map<Int, Any?>.toLua(): LuaTable {
+			val table = LuaTable()
+			this.forEach { table[it.key] = CoerceJavaToLua.coerce(it.value) }
+			return table
+		}
+	}
 
-    @Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
-    internal class LibFunctions {
-        fun DEFAULT_CACHE_CONTROL() = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
-        fun DEFAULT_HEADERS() = Headers.Builder().build()
-        fun DEFAULT_BODY(): RequestBody = FormBody.Builder().build()
+	@Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
+	internal class LibFunctions {
+		fun DEFAULT_CACHE_CONTROL() = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
+		fun DEFAULT_HEADERS() = Headers.Builder().build()
+		fun DEFAULT_BODY(): RequestBody = FormBody.Builder().build()
 
-        fun <E> List(): ArrayList<E> = ArrayList()
-        fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
-        fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
+		fun <E> List(): ArrayList<E> = ArrayList()
+		fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
+		fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
-        @Suppress("UNCHECKED_CAST")
-        fun Listing(name: String, increments: Boolean, func: LuaFunction) = Formatter.Listing(name, increments) { it, data ->
-            CoerceLuaToJava.coerce(
-                    func.call(if (it == null) LuaValue.NIL else LuaValue.valueOf(it), data.toLua()),
-                    Array<Novel.Listing>::class.java) as Array<Novel.Listing>
-        }
+		@Suppress("UNCHECKED_CAST")
+		fun Listing(name: String, increments: Boolean, func: LuaFunction) = Formatter.Listing(name, increments) { it, data ->
+			CoerceLuaToJava.coerce(
+					func.call(if (it == null) LuaValue.NIL else LuaValue.valueOf(it), data.toLua()),
+					Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+		}
 
-        fun Novel() = Novel.Listing()
-        fun NovelInfo() = Novel.Info()
-        fun NovelChapter() = Novel.Chapter()
+		fun Novel() = Novel.Listing()
+		fun NovelInfo() = Novel.Info()
+		fun NovelChapter() = Novel.Chapter()
 
-        fun NovelStatus(type: Int): Status = when (type) {
-            0 -> Status.PUBLISHING
-            1 -> Status.COMPLETED
-            2 -> Status.PAUSED
-            else -> Status.UNKNOWN
-        }
+		fun NovelStatus(type: Int): Status = when (type) {
+			0 -> Status.PUBLISHING
+			1 -> Status.COMPLETED
+			2 -> Status.PAUSED
+			else -> Status.UNKNOWN
+		}
 
-        fun Require(name: String): LuaValue? = libraries[name] ?: libLoader(name).let {
-            libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name"); it
-        }
+		fun Require(name: String): LuaValue? = libraries[name] ?: libLoader(name).let {
+			libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name"); it
+		}
 
-        // For filters
+		// For filters
 
-        fun TextFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.TextFilter(id, name)
-        fun SwitchFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.SwitchFilter(id, name)
-        fun CheckBoxFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.CheckboxFilter(id, name)
+		fun TextFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.TextFilter(id, name)
+		fun SwitchFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.SwitchFilter(id, name)
+		fun CheckBoxFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.CheckboxFilter(id, name)
 
-        fun DropdownFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.DropdownFilter(id, name, choices)
-        fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.RadioGroupFilter(id, name, choices)
-        fun FilterGroup(id: Int, name: String, filters: Array<Filter<Any>>) = com.github.doomsdayrs.api.shosetsu.services.core.FilterGroup(id, name, filters)
+		fun DropdownFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.DropdownFilter(id, name, choices)
+		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.RadioGroupFilter(id, name, choices)
+		fun FilterGroup(id: Int, name: String, filters: Array<Filter<Any>>) = com.github.doomsdayrs.api.shosetsu.services.core.FilterGroup(id, name, filters)
 
-        // For normal extensions, these simple functions are sufficient.
-        fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =
-                Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
+		// For normal extensions, these simple functions are sufficient.
+		fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =
+				Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
 
-        fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request =
-                Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
+		fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request =
+				Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
 
 
-        fun Document(str: String) = Jsoup.parse(str)!!
-        fun Request(req: Request) = httpClient.newCall(req).execute()
-        fun RequestDocument(req: Request) = Document(Request(req).body!!.string())
-        fun GETDocument(url: String): Document = RequestDocument(_GET(url, DEFAULT_HEADERS(), DEFAULT_CACHE_CONTROL()))
+		fun Document(str: String) = Jsoup.parse(str)!!
+		fun Request(req: Request) = httpClient.newCall(req).execute()
+		fun RequestDocument(req: Request) = Document(Request(req).body!!.string())
+		fun GETDocument(url: String): Document = RequestDocument(_GET(url, DEFAULT_HEADERS(), DEFAULT_CACHE_CONTROL()))
 
-        // For advanced users who want to (or need to) do everything themselves.
-        fun HttpClient() = httpClient
+		// For advanced users who want to (or need to) do everything themselves.
+		fun HttpClient() = httpClient
 
-        fun RequestBuilder() = Request.Builder()
-        fun HeadersBuilder() = Headers.Builder()
-        fun FormBodyBuilder() = FormBody.Builder()
-        fun DefaultCacheControl() = CacheControl.Builder()
+		fun RequestBuilder() = Request.Builder()
+		fun HeadersBuilder() = Headers.Builder()
+		fun FormBodyBuilder() = FormBody.Builder()
+		fun DefaultCacheControl() = CacheControl.Builder()
 
-        fun MediaType(str: String) = str.toMediaType()
-        fun RequestBody(data: String, type: MediaType) = data.toRequestBody(type)
-    }
+		fun MediaType(str: String) = str.toMediaType()
+		fun RequestBody(data: String, type: MediaType) = data.toRequestBody(type)
+	}
 
-    /**
-     * Makes use of lua metatables and its "__index" metamethod, which is called when
-     * trying to index a table and a key is not present, to inject our library into the script's Globals.
-     */
-    @Suppress("ClassName")
-    internal class __index(g: Globals) : TwoArgFunction() {
-        private val load: LuaFunction = g["load"] as LuaFunction
-        private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
+	/**
+	 * Makes use of lua metatables and its "__index" metamethod, which is called when
+	 * trying to index a table and a key is not present, to inject our library into the script's Globals.
+	 */
+	@Suppress("ClassName")
+	internal class __index(g: Globals) : TwoArgFunction() {
+		private val load: LuaFunction = g["load"] as LuaFunction
+		private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
 
-        private val luaFuncs: Map<String, LuaValue> = mapOf(
-                "GET" to """
+		private val luaFuncs: Map<String, LuaValue> = mapOf(
+				"GET" to """
                         local url, headers, cctl = ...
                         headers = headers or DEFAULT_HEADERS()
                         cctl = cctl or DEFAULT_CACHE_CONTROL()
 
                         return _GET(url, headers, cctl)
                  """.trimIndent(),
-                "POST" to """
+				"POST" to """
                         local url, headers, body, cctl = ...
                         headers = headers or DEFAULT_HEADERS()
                         cctl = cctl or DEFAULT_CACHE_CONTROL()
@@ -146,7 +146,7 @@ class ShosetsuLib : TwoArgFunction() {
 
                         return _POST(url, headers, body, cctl)
                 """.trimIndent(),
-                "map" to """
+				"map" to """
                         local o, f = ...
                         local t = {}
                         for i=1, o:size() do
@@ -154,7 +154,7 @@ class ShosetsuLib : TwoArgFunction() {
                         end
                         return t
                 """.trimIndent(),
-                "mapNotNil" to """
+				"mapNotNil" to """
                         local o, f = ...
                         local t, j = {}, 1
                         for i=0, o:size()-1 do
@@ -166,7 +166,7 @@ class ShosetsuLib : TwoArgFunction() {
                         end
                         return t
                 """.trimIndent(),
-                "filter" to """
+				"filter" to """
                         local o, f = ...
                         local t, j = {}, 1
                         for i=0, o:size()-1 do
@@ -178,7 +178,7 @@ class ShosetsuLib : TwoArgFunction() {
                         end
                         return t
                 """.trimIndent(),
-                "map2flat" to """
+				"map2flat" to """
                         local o1, f1, f2 = ...
                         local t, j = {}, 1
                         for i=0, o1:size()-1 do
@@ -192,7 +192,7 @@ class ShosetsuLib : TwoArgFunction() {
                         end
                         return t
                 """.trimIndent(),
-                "first" to """
+				"first" to """
                         local o, f = ...
                         for i=1, o:size() do
                             local v = o:get(i-1)
@@ -200,13 +200,13 @@ class ShosetsuLib : TwoArgFunction() {
                         end
                         return nil
                 """.trimIndent(),
-                "wrap" to """
+				"wrap" to """
                         local o, f = ...
                         return function(...)
                             return f(o, ...)
                         end
                 """.trimIndent(),
-                "flatten" to """
+				"flatten" to """
                         local t = ...
                         local n = {}
                         local i = 1
@@ -220,32 +220,32 @@ class ShosetsuLib : TwoArgFunction() {
 
                         return n
                 """.trimIndent()
-        ).map { e -> e.key to load.call(e.value) }.toMap()
+		).map { e -> e.key to load.call(e.value) }.toMap()
 
-        /**
-         * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(o, ...),
-         * the "wrap" function bypasses this.
-         */
-        private val wrap: LuaFunction = luaFuncs["wrap"] as LuaFunction
+		/**
+		 * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(o, ...),
+		 * the "wrap" function bypasses this.
+		 */
+		private val wrap: LuaFunction = luaFuncs["wrap"] as LuaFunction
 
-        override fun call(_self: LuaValue, k: LuaValue): LuaValue {
-            if (k.isstring()) {
-                val o = lib[k.tostring()]
-                if (o != null && o != LuaValue.NIL)
-                    return wrap.call(lib, o)
+		override fun call(_self: LuaValue, k: LuaValue): LuaValue {
+			if (k.isstring()) {
+				val o = lib[k.tostring()]
+				if (o != null && o != LuaValue.NIL)
+					return wrap.call(lib, o)
 
-                val f = luaFuncs[k.tojstring()]
-                if (f != null) return f
-            }
+				val f = luaFuncs[k.tojstring()]
+				if (f != null) return f
+			}
 
-            return LuaValue.NIL
-        }
-    }
+			return LuaValue.NIL
+		}
+	}
 
-    override fun call(modname: LuaValue, env: LuaValue): LuaValue {
-        val g: Globals = env.checkglobals()
-        g.setmetatable(LuaTable())
-        g.getmetatable()["__index"] = __index(g)
-        return g
-    }
+	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
+		val g: Globals = env.checkglobals()
+		g.setmetatable(LuaTable())
+		g.getmetatable()["__index"] = __index(g)
+		return g
+	}
 }
