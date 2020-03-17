@@ -1,5 +1,7 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
+import com.github.doomsdayrs.api.shosetsu.services.core.ShosetsuLib.Companion.FILTER_ID_QUERY
+import com.github.doomsdayrs.api.shosetsu.services.core.ShosetsuLib.Companion.defaultMap
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
@@ -38,7 +40,7 @@ private object Test {
 	private const val PRINT_PASSAGES = false
 
 	private val SOURCES = arrayOf(
-			"en/BoxNovel"
+			"en/VipNovel"
 	).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
@@ -48,6 +50,7 @@ private object Test {
 	private fun loadScript(file: File): LuaValue {
 		val script = JsePlatform.standardGlobals()
 		script.load(ShosetsuLib())
+		script.set("QUERY", FILTER_ID_QUERY)
 		val l = try {
 			script.load(file.readText())!!
 		} catch (e: Error) {
@@ -55,6 +58,19 @@ private object Test {
 		}
 
 		return l.call()!!
+	}
+
+	private fun printMap(map: MutableMap<Int, Any?>) {
+		with(map) {
+			forEach { i: Int, any: Any? ->
+				println("$i->$any")
+				any?.let {
+					println(it::class.java)
+					if (it::class.java.equals(LinkedHashMap::class.java))
+						printMap(it as MutableMap<Int, Any?>)
+				}
+			}
+		}
 	}
 
 	@Suppress("ConstantConditionIf")
@@ -84,22 +100,6 @@ private object Test {
 			})
 	}
 
-	fun defaultMapFromFilters(filters: Array<Filter<*>>): Map<Int, Any?> {
-		val m = mutableMapOf<Int, Any?>()
-		filters.forEach {
-			when (it) {
-				is TextFilter -> m[it.id] = ""
-				is SwitchFilter -> m[it.id] = false
-				is CheckboxFilter -> m[it.id] = false
-				is DropdownFilter -> m[it.id] = 0
-				is RadioGroupFilter -> m[it.id] = 0
-				is FilterGroup<*> -> m.putAll(defaultMapFromFilters(it.filters as Array<Filter<*>>))
-				else -> m[it.id] = null
-			}
-		}
-		return m
-	}
-
 	@Throws(java.io.IOException::class, InterruptedException::class)
 	@JvmStatic
 	fun main(args: Array<String>) {
@@ -118,7 +118,8 @@ private object Test {
 				println("Image    : ${formatter.imageURL}")
 				println("Settings : ${formatter.settings}")
 				println("Filters  : ${formatter.filters}")
-				map.putAll(defaultMapFromFilters(formatter.filters))
+				map.putAll(formatter.filters.defaultMap())
+				printMap(map)
 
 				formatter.listings.forEach { l ->
 					with(l) {
@@ -132,8 +133,7 @@ private object Test {
 
 				if (formatter.hasSearch) {
 					println("\n-------- Search --------")
-					map.putAll(defaultMapFromFilters(formatter.filters))
-					map[0] = SEARCH_VALUE
+					map[FILTER_ID_QUERY] = SEARCH_VALUE
 					showListing(formatter, formatter.search(map, REPORTER))
 				}
 

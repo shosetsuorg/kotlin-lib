@@ -23,7 +23,9 @@ package com.github.doomsdayrs.api.shosetsu.services.core
  */
 @Suppress("unused")
 interface Formatter {
-	class Listing(val name: String, val isIncrementing: Boolean, val getListing: (data: Map<Int, Any?>, increment: Int?) -> Array<Novel.Listing>)
+	class Listing(val name: String, val isIncrementing: Boolean,
+	              val getListing: (data: Map<Int, Any?>, increment: Int?) -> Array<Novel.Listing>
+	)
 
 	val name: String
 	val baseURL: String

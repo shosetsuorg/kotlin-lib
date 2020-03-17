@@ -25,13 +25,18 @@ package com.github.doomsdayrs.api.shosetsu.services.core
 abstract class Filter<T>(val id: Int)
 
 class TextFilter(id: Int, val name: String) : Filter<String>(id)
+
 class SwitchFilter(id: Int, val name: String) : Filter<Boolean>(id)
-class RadioGroupFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
-class FilterGroup<T>(id: Int, val name: String, val filters: Array<Filter<T>>) : Filter<Array<T>>(id)
 class CheckboxFilter(id: Int, val name: String) : Filter<Boolean>(id)
+
+class GenreGroup(id: Int, val name: String, val genres: Array<Filter<*>>) : Filter<Map<String, Boolean>>(id)
+class GenreCheckBoxFilter(id: Int, val name: String) : Filter<Boolean>(id)
 
 /** Android's Spinner */
 class DropdownFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
+class RadioGroupFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
+
+class FilterGroup(id: Int, val name: String, val filters: Array<Filter<*>>) : Filter<Array<*>>(id)
 
 sealed class TriStateFilter(id: Int, name: String) : Filter<Array<Int>>(id)
 

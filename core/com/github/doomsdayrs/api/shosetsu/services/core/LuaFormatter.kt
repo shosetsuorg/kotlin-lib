@@ -71,7 +71,7 @@ class LuaFormatter(private val file: File) : Formatter {
 			val a = ArrayList<Filter<*>>()
 			for (i in 0 until table.length()) {
 				val v = table[i]
-				if (!v.isnil()) a.add(CoerceLuaToJava.coerce(v, Filter<*>::javaClass::class.java) as Filter<*>)
+				if (!v.isnil()) a.add(CoerceLuaToJava.coerce(v, Any::class.java) as Filter<*>)
 			}
 			return a.toTypedArray()
 		}
