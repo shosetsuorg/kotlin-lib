@@ -169,9 +169,15 @@ class ShosetsuLib : TwoArgFunction() {
 				"map" to """
                         local o, f = ...
                         local t = {}
-                        for i=1, o:size() do
-                            t[i] = f(o:get(i-1))
-                        end
+						if type(o) == "table" then
+							for k,v in pairs(o) do
+								t[k] = f(v,k)
+							end
+						else
+							for i=0, o:size()-1 do
+								t[i+1] = f(o:get(i), i)
+							end
+						end
                         return t
                 """.trimIndent(),
 				"mapNotNil" to """

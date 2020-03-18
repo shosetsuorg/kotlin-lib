@@ -43,13 +43,14 @@ class RadioGroupFilter(name: String, val choices: Array<String>) : Filter<Int>(n
 
 class FilterList(name: String, val filters: Array<Filter<*>>) : Filter<Sequence<*>>(name, sequence { yieldAll(filters.map { it.state }) }) {
     override var state: Sequence<*>
-        get() = sequence { yieldAll(filters.map { it.state }) }
+        get() = filters.map { it.state }.asSequence()
         set(value) {}
 }
 
 class FilterGroup<I, T>(name: String, val filters: Array<I>) : Filter<Sequence<T>>(name, sequence { yieldAll(filters.map { it.state }) }) where I : Filter<T> {
     override var state: Sequence<T>
-        get() = sequence { yieldAll(filters.map { it.state }) }
+        get() = filters.map { it.state }.asSequence()
         set(value) {}
 }
 
+fun Sequence<Filter<*>>.values(): Sequence<*> = this.map { it.state }
