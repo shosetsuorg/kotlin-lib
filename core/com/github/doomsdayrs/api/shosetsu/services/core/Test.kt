@@ -46,11 +46,9 @@ private object Test {
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
 	// END CONFIG
 
-
 	private fun loadScript(file: File): LuaValue {
 		val script = JsePlatform.standardGlobals()
 		script.load(ShosetsuLib())
-		script.set("QUERY", FILTER_ID_QUERY)
 		val l = try {
 			script.load(file.readText())!!
 		} catch (e: Error) {
@@ -58,19 +56,6 @@ private object Test {
 		}
 
 		return l.call()!!
-	}
-
-	private fun printMap(map: MutableMap<Int, Any?>) {
-		with(map) {
-			forEach { i: Int, any: Any? ->
-				println("$i->$any")
-				any?.let {
-					println(it::class.java)
-					if (it::class.java.equals(LinkedHashMap::class.java))
-						printMap(it as MutableMap<Int, Any?>)
-				}
-			}
-		}
 	}
 
 	@Suppress("ConstantConditionIf")
@@ -111,21 +96,20 @@ private object Test {
 				println("\n\n========== $format ==========")
 
 				val formatter = LuaFormatter(File(format))
-				val map: MutableMap<Int, Any?> = mutableMapOf()
 
 				println("ID       : ${formatter.formatterID}")
 				println("Name     : ${formatter.name}")
 				println("Image    : ${formatter.imageURL}")
 				println("Settings : ${formatter.settings}")
 				println("Filters  : ${formatter.filters}")
-				map.putAll(formatter.filters.defaultMap())
-				printMap(map)
-
+				val defaults = ArrayList<Any>()
+				defaults.addAll(formatter.filters.defaults())
+				defaults.addAll
 				formatter.listings.forEach { l ->
 					with(l) {
 						println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-						var novels = getListing(map, if (isIncrementing) 1 else null)
-						if (isIncrementing) novels += getListing(map, 2)
+						var novels = getListing(formatter.filtes, if (isIncrementing) 1 else null)
+						if (isIncrementing) novels += getListing(formatter.filters, 2)
 						showListing(formatter, novels)
 						MILLISECONDS.sleep(500)
 					}
@@ -133,7 +117,8 @@ private object Test {
 
 				if (formatter.hasSearch) {
 					println("\n-------- Search --------")
-					map[FILTER_ID_QUERY] = SEARCH_VALUE
+					val a = ArrayList<Filter<*>>(formatter.filters.toList())
+					a.set(0, T)
 					showListing(formatter, formatter.search(map, REPORTER))
 				}
 

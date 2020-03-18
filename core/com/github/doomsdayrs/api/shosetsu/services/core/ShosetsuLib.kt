@@ -35,8 +35,6 @@ import java.util.concurrent.TimeUnit
  */
 class ShosetsuLib : TwoArgFunction() {
 	companion object {
-		const val FILTER_ID_QUERY = 0
-
 		/** Libraries loaded in via shosetsu. Mapping from library name to their returned value. */
 		val libraries: MutableMap<String, LuaValue> = mutableMapOf()
 
@@ -45,31 +43,6 @@ class ShosetsuLib : TwoArgFunction() {
 
 		/** okhttp HTTP Client used by lib functions. */
 		lateinit var httpClient: OkHttpClient
-
-		/** @return [LuaTable] of map */
-		fun Map<Int, Any?>.toLua(): LuaTable {
-			val table = LuaTable()
-			this.forEach { table[it.key] = CoerceJavaToLua.coerce(it.value) }
-			return table
-		}
-
-		fun Array<Filter<*>>.defaultMap(): MutableMap<Int, Any> {
-			val m = mutableMapOf<Int, Any>()
-			forEach {
-				m[it.id] = when (it) {
-					is TextFilter -> ""
-					is SwitchFilter -> false
-					is DropdownFilter -> 0
-					is RadioGroupFilter -> 0
-					is GenreCheckBoxFilter -> arrayOf(it.name, false)
-					is FilterGroup -> it.filters.defaultMap()
-					is GenreGroup -> it.genres.defaultMap()
-					else -> {
-					}
-				}
-			}
-			return m
-		}
 	}
 
 
@@ -84,9 +57,9 @@ class ShosetsuLib : TwoArgFunction() {
 		fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
 		@Suppress("UNCHECKED_CAST")
-		fun Listing(name: String, increments: Boolean, func: LuaFunction) = Formatter.Listing(name, increments) { data, it ->
+		fun Listing(name: String, increments: Boolean, func: LuaFunction) = Formatter.Listing(name, increments) { data, increment ->
 			CoerceLuaToJava.coerce(
-					func.call(data.toLua(), if (it == null) LuaValue.NIL else LuaValue.valueOf(it)),
+					func.call(CoerceJavaToLua.coerce(data), if (increment == null) LuaValue.NIL else LuaValue.valueOf(increment)),
 					Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 		}
 
