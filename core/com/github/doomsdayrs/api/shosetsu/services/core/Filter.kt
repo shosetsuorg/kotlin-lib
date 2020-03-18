@@ -22,6 +22,9 @@ package com.github.doomsdayrs.api.shosetsu.services.core
  */
 abstract class Filter<T>(val name: String, var state: T)
 
+class Header(name: String): Filter<Unit>(name, Unit)
+class Separator : Filter<Unit>("", Unit)
+
 class TextFilter(name: String) : Filter<String>(name, "")
 
 class SwitchFilter(name: String) : Filter<Boolean>(name, false)
@@ -38,5 +41,6 @@ class TriStateFilter(name: String) : Filter<Int>(name, STATE_IGNORED) {
 class DropdownFilter(name: String, val choices: Array<String>) : Filter<Int>(name, 0)
 class RadioGroupFilter(name: String, val choices: Array<String>) : Filter<Int>(name, 0)
 
+class FilterList(name: String, val filters: Array<Filter<*>>) : Filter<Array<*>>(name, emptyArray<Any>())
 class FilterGroup<I, T>(name: String, val filters: Array<I>) : Filter<Array<T>>(name, emptyArray<T>()) where I : Filter<T>
 
