@@ -20,7 +20,7 @@ package com.github.doomsdayrs.api.shosetsu.services.core
  *
  * @author github.com/doomsdayrs
  */
-abstract class Filter<T>(val name: String, var state: T)
+abstract class Filter<T>(val name: String, open var state: T)
 
 class Header(name: String): Filter<Unit>(name, Unit)
 class Separator : Filter<Unit>("", Unit)
@@ -41,6 +41,15 @@ class TriStateFilter(name: String) : Filter<Int>(name, STATE_IGNORED) {
 class DropdownFilter(name: String, val choices: Array<String>) : Filter<Int>(name, 0)
 class RadioGroupFilter(name: String, val choices: Array<String>) : Filter<Int>(name, 0)
 
-class FilterList(name: String, val filters: Array<Filter<*>>) : Filter<Array<*>>(name, emptyArray<Any>())
-class FilterGroup<I, T>(name: String, val filters: Array<I>) : Filter<Array<T>>(name, emptyArray<T>()) where I : Filter<T>
+class FilterList(name: String, val filters: Array<Filter<*>>) : Filter<Sequence<*>>(name, sequence { yieldAll(filters.map { it.state }) }) {
+    override var state: Sequence<*>
+        get() = sequence { yieldAll(filters.map { it.state }) }
+        set(value) {}
+}
+
+class FilterGroup<I, T>(name: String, val filters: Array<I>) : Filter<Sequence<T>>(name, sequence { yieldAll(filters.map { it.state }) }) where I : Filter<T> {
+    override var state: Sequence<T>
+        get() = sequence { yieldAll(filters.map { it.state }) }
+        set(value) {}
+}
 

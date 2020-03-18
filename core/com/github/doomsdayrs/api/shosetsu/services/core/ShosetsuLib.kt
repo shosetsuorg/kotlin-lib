@@ -107,15 +107,14 @@ class ShosetsuLib : TwoArgFunction() {
 
 		// For filters
 
-		fun TextFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.TextFilter(id, name)
-		fun SwitchFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.SwitchFilter(id, name)
-		fun CheckBoxFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.CheckboxFilter(id, name)
-		fun GenreCheckBoxFilter(id: Int, name: String) = com.github.doomsdayrs.api.shosetsu.services.core.GenreCheckBoxFilter(id, name)
+		fun TextFilter(id: Int, name: String) = TextFilter(name)
+		fun SwitchFilter(id: Int, name: String) = SwitchFilter(name)
+		fun CheckBoxFilter(id: Int, name: String) = CheckboxFilter(name)
 
-		fun GenreGroup(id: Int, name: String, genres: Array<Filter<*>>) = com.github.doomsdayrs.api.shosetsu.services.core.GenreGroup(id, name, genres)
-		fun DropdownFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.DropdownFilter(id, name, choices)
-		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) = com.github.doomsdayrs.api.shosetsu.services.core.RadioGroupFilter(id, name, choices)
-		fun FilterGroup(id: Int, name: String, filters: Array<Filter<*>>) = com.github.doomsdayrs.api.shosetsu.services.core.FilterGroup(id, name, filters)
+		fun DropdownFilter(id: Int, name: String, choices: Array<String>) = DropdownFilter(name, choices)
+		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) = RadioGroupFilter(name, choices)
+		fun FilterList(id: Int, name: String, filters: Array<Filter<*>>) = FilterList(name, filters)
+		fun <I,T> FilterGroup(id: Int, name: String, filters: Array<I>) where I : Filter<T> = FilterGroup(name, filters)
 
 		// For normal extensions, these simple functions are sufficient.
 		fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =
