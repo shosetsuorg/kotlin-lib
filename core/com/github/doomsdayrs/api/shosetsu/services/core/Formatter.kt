@@ -23,8 +23,8 @@ package com.github.doomsdayrs.api.shosetsu.services.core
  */
 @Suppress("unused")
 interface Formatter {
-	class Listing(val name: String, val isIncrementing: Boolean,
-	              val getListing: (data: Array<Any>, increment: Int?) -> Array<Novel.Listing>
+	class Listing(val name: String, val isIncrementing: Boolean, val filters: Array<Filter<*>>,
+	              val getListing: (data: Array<*>, increment: Int?) -> Array<Novel.Listing>
 	)
 
 	val name: String
@@ -39,7 +39,7 @@ interface Formatter {
 	fun updateSetting(id: Int, value: Any?)
 
 	val filters: Array<Filter<*>>
-	fun search(data: Map<Int, Any?>, reporter: (status: String) -> Unit): Array<Novel.Listing>
+	fun search(data: Array<*>, reporter: (status: String) -> Unit): Array<Novel.Listing>
 
 	fun getPassage(chapterURL: String): String
 	fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info

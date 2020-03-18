@@ -102,14 +102,12 @@ private object Test {
 				println("Image    : ${formatter.imageURL}")
 				println("Settings : ${formatter.settings}")
 				println("Filters  : ${formatter.filters}")
-				val defaults = ArrayList<Any>()
-				defaults.addAll(formatter.filters.defaults())
-				defaults.addAll
+
 				formatter.listings.forEach { l ->
 					with(l) {
 						println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-						var novels = getListing(formatter.filtes, if (isIncrementing) 1 else null)
-						if (isIncrementing) novels += getListing(formatter.filters, 2)
+						var novels = getListing(filters.values(), if (isIncrementing) 1 else null)
+						if (isIncrementing) novels += getListing(filters.values(), 2)
 						showListing(formatter, novels)
 						MILLISECONDS.sleep(500)
 					}
