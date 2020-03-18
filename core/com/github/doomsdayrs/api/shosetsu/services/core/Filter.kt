@@ -1,6 +1,5 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
-
 /*
  * This file is part of shosetsu-extensions.
  * shosetsu-extensions is free software: you can redistribute it and/or modify
@@ -15,28 +14,29 @@ package com.github.doomsdayrs.api.shosetsu.services.core
  * along with shosetsu-extensions.  If not, see <https://www.gnu.org/licenses/>.
  * ====================================================================
  */
-
 /**
  * shosetsu-extensions
  * 31 / 01 / 2020
  *
  * @author github.com/doomsdayrs
  */
-abstract class Filter<T>(val id: Int)
+abstract class Filter<T>(val name: String, var state: T)
 
-class TextFilter(id: Int, val name: String) : Filter<String>(id)
+class TextFilter(name: String) : Filter<String>(name, "")
 
-class SwitchFilter(id: Int, val name: String) : Filter<Boolean>(id)
-class CheckboxFilter(id: Int, val name: String) : Filter<Boolean>(id)
+class SwitchFilter(name: String) : Filter<Boolean>(name, false)
+class CheckboxFilter(name: String) : Filter<Boolean>(name, false)
 
-class GenreGroup(id: Int, val name: String, val genres: Array<Filter<*>>) : Filter<Map<String, Boolean>>(id)
-class GenreCheckBoxFilter(id: Int, val name: String) : Filter<Boolean>(id)
+class TriStateFilter(name: String) : Filter<Int>(name, STATE_IGNORED) {
+    companion object {
+        const val STATE_IGNORED = 0
+        const val STATE_INCLUDE = 1
+        const val STATE_EXCLUDE = 2
+    }
+}
 
-/** Android's Spinner */
-class DropdownFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
-class RadioGroupFilter(id: Int, val name: String, val choices: Array<String>) : Filter<Int>(id)
+class DropdownFilter(name: String, val choices: Array<String>) : Filter<Int>(name, 0)
+class RadioGroupFilter(name: String, val choices: Array<String>) : Filter<Int>(name, 0)
 
-class FilterGroup(id: Int, val name: String, val filters: Array<Filter<*>>) : Filter<Array<*>>(id)
-
-sealed class TriStateFilter(id: Int, name: String) : Filter<Array<Int>>(id)
+class FilterGroup<I, T>(name: String, val filters: Array<I>) : Filter<Array<T>>(name, emptyArray<T>()) where I : Filter<T>
 
