@@ -1,4 +1,4 @@
-package com.github.doomsdayrs.api.shosetsu.services.core
+package app.shosetsu.lib
 
 import org.json.JSONObject
 import org.luaj.vm2.LuaString.EMPTYSTRING
