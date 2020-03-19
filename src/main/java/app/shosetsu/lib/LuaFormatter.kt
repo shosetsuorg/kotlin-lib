@@ -103,10 +103,10 @@ class LuaFormatter(private val file: File) : Formatter {
 		}
 	}
 
-	override val name by lazy { source["name"].tojstring() }
-	override val baseURL by lazy { source["baseURL"].tojstring() }
+	override val name: String by lazy { source["name"].tojstring() }
+	override val baseURL: String by lazy { source["baseURL"].tojstring() }
 	override val formatterID by lazy { source["id"].toint() }
-	override val imageURL by lazy { source["imageURL"].tojstring() }
+	override val imageURL: String by lazy { source["imageURL"].tojstring() }
 	override val hasCloudFlare by lazy { source["hasCloudFlare"].toboolean() }
 	override val hasSearch by lazy { source["hasSearch"].toboolean() }
 
