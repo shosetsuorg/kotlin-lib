@@ -23,7 +23,8 @@ package com.github.doomsdayrs.api.shosetsu.services.core
  */
 @Suppress("unused")
 interface Formatter {
-	class Listing(val name: String, val isIncrementing: Boolean, val filters: Array<Filter<*>>,
+	// No Filters here!
+	class Listing(val name: String, val isIncrementing: Boolean,
 	              val getListing: (data: Array<*>, increment: Int?) -> Array<Novel.Listing>
 	)
 
