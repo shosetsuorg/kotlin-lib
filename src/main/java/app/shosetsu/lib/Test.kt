@@ -1,4 +1,4 @@
-package com.github.doomsdayrs.api.shosetsu.services.core
+package app.shosetsu.lib
 
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
@@ -113,7 +113,7 @@ private object Test {
 
 				if (formatter.hasSearch) {
 					println("\n-------- Search --------")
-					showListing(formatter, formatter.search((listOf<Any?>(SEARCH_VALUE)+formatter.filters.values()).toTypedArray(), REPORTER))
+					showListing(formatter, formatter.search((listOf<Any?>(SEARCH_VALUE) + formatter.filters.values()).toTypedArray(), REPORTER))
 				}
 
 				MILLISECONDS.sleep(500)

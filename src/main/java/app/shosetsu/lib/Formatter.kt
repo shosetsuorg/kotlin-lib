@@ -1,4 +1,4 @@
-package com.github.doomsdayrs.api.shosetsu.services.core
+package app.shosetsu.lib
 
 /*
  * This file is part of shosetsu-services.
