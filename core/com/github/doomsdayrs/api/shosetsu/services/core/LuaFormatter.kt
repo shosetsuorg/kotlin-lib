@@ -65,13 +65,14 @@ class LuaFormatter(private val file: File) : Formatter {
 			}
 		}
 
-		private fun tableToFilters(table: LuaTable): Array<Filter<*>> {
-			val a = ArrayList<Filter<*>>()
-			for (i in 0 until table.length()) {
-				val v = table[i]
-				if (!v.isnil()) a.add(CoerceLuaToJava.coerce(v, Any::class.java) as Filter<*>)
-			}
-			return a.toTypedArray()
+		private fun tableToFilters(table: LuaTable): Array<Filter<*>> =
+				table.keys().map { table[it] }.filter { !it.isnil() }
+						.map { CoerceLuaToJava.coerce(it, Any::class.java) as Filter<*> }.toTypedArray()
+
+		fun Array<*>.toLua(): LuaTable {
+			val t = LuaTable()
+			this.map { coerce(it) }.forEachIndexed { i, v -> t[i] = v }
+			return t
 		}
 
 	}

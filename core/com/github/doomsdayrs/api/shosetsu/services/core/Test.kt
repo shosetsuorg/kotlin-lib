@@ -1,7 +1,5 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
-import com.github.doomsdayrs.api.shosetsu.services.core.ShosetsuLib.Companion.FILTER_ID_QUERY
-import com.github.doomsdayrs.api.shosetsu.services.core.ShosetsuLib.Companion.defaultMap
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
@@ -115,9 +113,7 @@ private object Test {
 
 				if (formatter.hasSearch) {
 					println("\n-------- Search --------")
-					val a = ArrayList<Filter<*>>(formatter.filters.toList())
-					a.set(0, T)
-					showListing(formatter, formatter.search(map, REPORTER))
+					showListing(formatter, formatter.search((listOf<Any?>(SEARCH_VALUE)+formatter.filters.values()).toTypedArray(), REPORTER))
 				}
 
 				MILLISECONDS.sleep(500)

@@ -57,11 +57,13 @@ class ShosetsuLib : TwoArgFunction() {
 		fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
 		@Suppress("UNCHECKED_CAST")
-		fun Listing(name: String, increments: Boolean, func: LuaFunction) = Formatter.Listing(name, increments) { data, increment ->
+		fun Listing(name: String, increments: Boolean, func: LuaFunction, filters: Array<Filter<*>>) = Formatter.Listing(name, increments, filters) { data, increment ->
 			CoerceLuaToJava.coerce(
 					func.call(CoerceJavaToLua.coerce(data), if (increment == null) LuaValue.NIL else LuaValue.valueOf(increment)),
 					Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 		}
+
+		fun Listing(name: String, increments: Boolean, func: LuaFunction) = Listing(name, increments, func, emptyArray())
 
 		fun Novel() = Novel.Listing()
 		fun NovelInfo() = Novel.Info()

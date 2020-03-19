@@ -53,4 +53,4 @@ class FilterGroup<I, T>(name: String, val filters: Array<I>) : Filter<Sequence<T
         set(value) {}
 }
 
-fun Sequence<Filter<*>>.values(): Sequence<*> = this.map { it.state }
+fun Array<Filter<*>>.values(): Array<*> = this.map { it.state }.toTypedArray()
