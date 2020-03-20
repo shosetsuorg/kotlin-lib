@@ -23,6 +23,7 @@ val dokkaJar by tasks.creating(Jar::class) {
 repositories {
     jcenter()
 	mavenCentral()
+	maven ( "https://jitpack.io" )
 }
 
 dependencies {
