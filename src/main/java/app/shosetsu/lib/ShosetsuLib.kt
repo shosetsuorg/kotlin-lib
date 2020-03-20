@@ -77,20 +77,20 @@ class ShosetsuLib : TwoArgFunction() {
 			else -> Status.UNKNOWN
 		}
 
-		fun Require(name: String): LuaValue? = libraries[name] ?: libLoader(name).let {
-			libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name"); it
+		fun Require(name: String): LuaValue? = libraries[name] ?: libLoader(name).also {
+			libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name")
 		}
 
 		// For filters
 
-		fun TextFilter(id: Int, name: String) = TextFilter(name)
-		fun SwitchFilter(id: Int, name: String) = SwitchFilter(name)
-		fun CheckBoxFilter(id: Int, name: String) = CheckboxFilter(name)
+		fun TextFilter(name: String) = app.shosetsu.lib.TextFilter(name)
+		fun SwitchFilter(name: String) = app.shosetsu.lib.SwitchFilter(name)
+		fun CheckboxFilter(name: String) = app.shosetsu.lib.CheckboxFilter(name)
 
-		fun DropdownFilter(id: Int, name: String, choices: Array<String>) = DropdownFilter(name, choices)
-		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) = RadioGroupFilter(name, choices)
-		fun FilterList(id: Int, name: String, filters: Array<Filter<*>>) = FilterList(name, filters)
-		fun <I,T> FilterGroup(id: Int, name: String, filters: Array<I>) where I : Filter<T> = FilterGroup(name, filters)
+		fun DropdownFilter(name: String, choices: Array<String>) = app.shosetsu.lib.DropdownFilter(name, choices)
+		fun RadioGroupFilter(name: String, choices: Array<String>) = app.shosetsu.lib.RadioGroupFilter(name, choices)
+		fun FilterList(name: String, filters: Array<Filter<*>>) = app.shosetsu.lib.FilterList(name, filters)
+		fun <I,T> FilterGroup(name: String, filters: Array<I>) where I : Filter<T> = app.shosetsu.lib.FilterGroup(name, filters)
 
 		// For normal extensions, these simple functions are sufficient.
 		fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =
