@@ -38,7 +38,7 @@ interface Formatter {
 	val settings: Array<Filter<*>>
 	fun updateSetting(id: Int, value: Any?)
 
-	val filters: Array<Filter<*>>
+	val searchFilters: Array<Filter<*>>
 	fun search(data: Array<*>, reporter: (status: String) -> Unit): Array<Novel.Listing>
 
 	fun getPassage(chapterURL: String): String

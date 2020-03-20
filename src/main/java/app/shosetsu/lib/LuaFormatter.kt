@@ -40,7 +40,7 @@ class LuaFormatter(private val file: File) : Formatter {
 				"imageURL" to EMPTYSTRING,
 				"hasCloudFlare" to FALSE,
 				"hasSearch" to TRUE,
-				"filters" to LuaTable(),
+				"searchFilters" to LuaTable(),
 				"settings" to LuaTable()
 		)
 
@@ -122,8 +122,8 @@ class LuaFormatter(private val file: File) : Formatter {
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	override val filters by lazy {
-		tableToFilters(source["filters"] as LuaTable)
+	override val searchFilters by lazy {
+		tableToFilters(source["searchFilters"] as LuaTable)
 	}
 
 	@Suppress("UNCHECKED_CAST")

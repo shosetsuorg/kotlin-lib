@@ -99,7 +99,7 @@ private object Test {
 				println("Name     : ${formatter.name}")
 				println("Image    : ${formatter.imageURL}")
 				println("Settings : ${formatter.settings}")
-				println("Filters  : ${formatter.filters}")
+				println("Filters  : ${formatter.searchFilters}")
 
 				formatter.listings.forEach { l ->
 					with(l) {
@@ -113,7 +113,7 @@ private object Test {
 
 				if (formatter.hasSearch) {
 					println("\n-------- Search --------")
-					showListing(formatter, formatter.search((listOf<Any?>(SEARCH_VALUE) + formatter.filters.values()).toTypedArray(), REPORTER))
+					showListing(formatter, formatter.search((listOf<Any?>(SEARCH_VALUE) + formatter.searchFilters.values()).toTypedArray(), REPORTER))
 				}
 
 				MILLISECONDS.sleep(500)
