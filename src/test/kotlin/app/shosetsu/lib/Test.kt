@@ -1,6 +1,7 @@
 package app.shosetsu.lib
 
 import okhttp3.OkHttpClient
+import org.junit.Test
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
@@ -28,14 +29,17 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
  *
  * In IDEA, The Classpath should be shosetsu-services but the Working directory should be shosetsu-extensions.
  */
-private object Test {
-	// CONFIG
-	private const val SEARCH_VALUE = "world"
-	private const val PRINT_LISTINGS = false
-	private const val PRINT_LIST_STATS = true
-	private const val PRINT_NOVELS = false
-	private const val PRINT_NOVEL_STATS = true
-	private const val PRINT_PASSAGES = false
+class Test {
+	companion object{
+		// CONFIG
+		private const val SEARCH_VALUE = "world"
+		private const val PRINT_LISTINGS = false
+		private const val PRINT_LIST_STATS = true
+		private const val PRINT_NOVELS = false
+		private const val PRINT_NOVEL_STATS = true
+		private const val PRINT_PASSAGES = false
+	}
+
 
 	private val SOURCES = arrayOf(
 			"en/MTLNovel"
@@ -84,8 +88,8 @@ private object Test {
 	}
 
 	@Throws(java.io.IOException::class, InterruptedException::class)
-	@JvmStatic
-	fun main(args: Array<String>) {
+	@Test
+	fun main() {
 		try {
 			ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
 			ShosetsuLib.httpClient = OkHttpClient()
