@@ -1,4 +1,6 @@
-package com.github.doomsdayrs.api.shosetsu.services.core
+@file:Suppress("MemberVisibilityCanBePrivate")
+
+package app.shosetsu.lib
 
 
 /*

@@ -1,4 +1,6 @@
-package com.github.doomsdayrs.api.shosetsu.services.core
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
+package app.shosetsu.lib
 
 /*
  * This file is part of shosetsu-extensions.

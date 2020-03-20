@@ -1,7 +1,7 @@
-package com.github.doomsdayrs.api.shosetsu.services.core
+package app.shosetsu.lib
 
-import com.github.doomsdayrs.api.shosetsu.services.core.LuaFormatter.Companion.toLua
-import com.github.doomsdayrs.api.shosetsu.services.core.Novel.Status
+import app.shosetsu.lib.LuaFormatter.Companion.toLua
+import app.shosetsu.lib.Novel.Status
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
