@@ -1,5 +1,6 @@
 package com.github.doomsdayrs.api.shosetsu.services.core
 
+import com.github.doomsdayrs.api.shosetsu.services.core.LuaFormatter.Companion.toLua
 import com.github.doomsdayrs.api.shosetsu.services.core.Novel.Status
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -57,9 +58,9 @@ class ShosetsuLib : TwoArgFunction() {
 		fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
 		@Suppress("UNCHECKED_CAST")
-		fun Listing(name: String, increments: Boolean, func: LuaFunction, filters: Array<Filter<*>>) = Formatter.Listing(name, increments, filters) { data, increment ->
+		fun Listing(name: String, increments: Boolean, func: LuaFunction, filters: Array<Filter<*>>) = Formatter.Listing(name, increments, filters) { data, page ->
 			CoerceLuaToJava.coerce(
-					func.call(CoerceJavaToLua.coerce(data), if (increment == null) LuaValue.NIL else LuaValue.valueOf(increment)),
+					func.call(data.toLua(true), if (page == null) LuaValue.NIL else LuaValue.valueOf(page)),
 					Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 		}
 

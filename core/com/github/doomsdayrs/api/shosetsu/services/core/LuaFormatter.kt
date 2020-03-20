@@ -75,6 +75,12 @@ class LuaFormatter(private val file: File) : Formatter {
 			return t
 		}
 
+		fun Array<*>.toLua(oneIndex: Boolean): LuaTable {
+			val t = LuaTable()
+			this.map { coerce(it) }.forEachIndexed { i, v -> t[if (oneIndex) i+1 else i] = v }
+			return t
+		}
+
 	}
 
 	@Suppress("unused")

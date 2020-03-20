@@ -38,7 +38,7 @@ private object Test {
 	private const val PRINT_PASSAGES = false
 
 	private val SOURCES = arrayOf(
-			"en/VipNovel"
+			"en/MTLNovel"
 	).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
