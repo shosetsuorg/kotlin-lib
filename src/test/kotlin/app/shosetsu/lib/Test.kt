@@ -29,18 +29,22 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
  * In IDEA, The Classpath should be shosetsu-services but the Working directory should be shosetsu-extensions.
  */
 object Test {
-		// CONFIG
-		private const val SEARCH_VALUE = "world"
-		private const val PRINT_LISTINGS = false
-		private const val PRINT_LIST_STATS = true
-		private const val PRINT_NOVELS = false
-		private const val PRINT_NOVEL_STATS = true
-		private const val PRINT_PASSAGES = false
+	// CONFIG
+	private const val SEARCH_VALUE = "world"
+	private const val PRINT_LISTINGS = false
+	private const val PRINT_LIST_STATS = true
+	private const val PRINT_NOVELS = false
+	private const val PRINT_NOVEL_STATS = true
+	private const val PRINT_PASSAGES = false
 
 
 	private val SOURCES = arrayOf(
-			"en/MTLNovel"
-	).map { "src/main/resources/src/$it.lua" }
+			"en/BoxNovel",
+			"en/Foxaholic",
+			"en/KissLightNovels",
+			"en/NovelTrench",
+			"en/ReadNovelForLife"
+			).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
 	// END CONFIG
@@ -98,6 +102,7 @@ object Test {
 
 				println("ID       : ${formatter.formatterID}")
 				println("Name     : ${formatter.name}")
+				println("BaseURL  : ${formatter.baseURL}")
 				println("Image    : ${formatter.imageURL}")
 				println("Settings : ${formatter.settings}")
 				println("Filters  : ${formatter.searchFilters}")
