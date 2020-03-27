@@ -50,14 +50,14 @@ class LuaFormatter(private val file: File) : Formatter {
 				"imageURL" to TSTRING,
 
 				"listings" to TTABLE,
-				"filters" to TTABLE,
+				"searchFilters" to TTABLE,
 
 				"getPassage" to TFUNCTION,
 				"parseNovel" to TFUNCTION,
 				"search" to TFUNCTION,
 				"updateSetting" to TFUNCTION
 		)
-
+		const val FILTER_POSITION_QUERY = 0
 		private fun makeLuaReporter(f: (status: String) -> Unit) = object : OneArgFunction() {
 			override fun call(p0: LuaValue?): LuaValue {
 				f(p0!!.tojstring())
@@ -77,7 +77,7 @@ class LuaFormatter(private val file: File) : Formatter {
 
 		fun Array<*>.toLua(oneIndex: Boolean): LuaTable {
 			val t = LuaTable()
-			this.map { coerce(it) }.forEachIndexed { i, v -> t[if (oneIndex) i+1 else i] = v }
+			this.map { coerce(it) }.forEachIndexed { i, v -> t[if (oneIndex) i + 1 else i] = v }
 			return t
 		}
 
@@ -95,6 +95,7 @@ class LuaFormatter(private val file: File) : Formatter {
 	init {
 		val script = JsePlatform.standardGlobals()
 		script.load(ShosetsuLib())
+		script.set("QUERY", FILTER_POSITION_QUERY)
 		val l = try {
 			script.load(file.readText())!!
 		} catch (e: Error) {

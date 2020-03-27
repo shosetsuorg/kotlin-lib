@@ -1,6 +1,7 @@
 package app.shosetsu.lib
 
 import okhttp3.OkHttpClient
+import org.luaj.vm2.LuaClosure
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
@@ -39,10 +40,6 @@ object Test {
 
 
 	private val SOURCES = arrayOf(
-			"en/BoxNovel",
-			"en/Foxaholic",
-			"en/KissLightNovels",
-			"en/NovelTrench",
 			"en/ReadNovelForLife"
 			).map { "src/main/resources/src/$it.lua" }
 
@@ -104,9 +101,8 @@ object Test {
 				println("Name     : ${formatter.name}")
 				println("BaseURL  : ${formatter.baseURL}")
 				println("Image    : ${formatter.imageURL}")
-				println("Settings : ${formatter.settings}")
-				println("Filters  : ${formatter.searchFilters}")
-
+				println("Settings : ${formatter.settings.toList().toString()}")
+				println("Filters  : ${formatter.searchFilters.toList().toString()}")
 				formatter.listings.forEach { l ->
 					with(l) {
 						println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
