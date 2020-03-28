@@ -40,7 +40,7 @@ object Test {
 
 
 	private val SOURCES = arrayOf(
-			"en/ReadNovelForLife"
+			"en/VipNovel"
 			).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
