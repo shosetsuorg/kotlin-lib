@@ -32,15 +32,15 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
 object Test {
 	// CONFIG
 	private const val SEARCH_VALUE = "world"
-	private const val PRINT_LISTINGS = false
+	private const val PRINT_LISTINGS = true
 	private const val PRINT_LIST_STATS = true
-	private const val PRINT_NOVELS = false
+	private const val PRINT_NOVELS = true
 	private const val PRINT_NOVEL_STATS = true
 	private const val PRINT_PASSAGES = false
 
 
 	private val SOURCES = arrayOf(
-			"en/VipNovel"
+			"en/ReadNovelFull"
 			).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
