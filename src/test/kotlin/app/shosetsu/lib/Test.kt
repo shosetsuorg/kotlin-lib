@@ -40,7 +40,28 @@ object Test {
 
 
 	private val SOURCES = arrayOf(
-			"en/ReadNovelFull"
+			//"en/BestLightNovel",
+			//"en/BoxNovel",
+			//"en/CreativeNovels",
+			//"en/FastNovel",
+			//#"en/Foxaholic",
+			//"en/KissLightNovels",
+			//#"en/MNovelFree",
+			//#"en/MTLNovel",
+			//"en/NovelFull",
+			//"en/NovelOnlineFree",
+			//"en/NovelOnlineFull",
+			//"en/NovelTrench",
+			//#"en/ReadNovelForLife",
+			//"en/ReadNovelFull",
+			//"en/VipNovel",
+			//#"en/VolareNovels",
+			//#"en/WuxiaWorld",
+			//#"jp/Syosetsu",
+			//#"vi/247Truyen",
+			//"zn/15doc",
+			//#"zn/Tangsanshu",
+			""
 			).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
