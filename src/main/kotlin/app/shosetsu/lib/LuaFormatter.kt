@@ -1,19 +1,5 @@
 package app.shosetsu.lib
 
-import org.json.JSONObject
-import org.luaj.vm2.LuaString.EMPTYSTRING
-import org.luaj.vm2.LuaTable
-import org.luaj.vm2.LuaValue
-import org.luaj.vm2.LuaValue.*
-import org.luaj.vm2.lib.OneArgFunction
-import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
-import org.luaj.vm2.lib.jse.CoerceLuaToJava
-import org.luaj.vm2.lib.jse.JsePlatform
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileReader
-import java.io.IOException
-
 /*
  * This file is part of shosetsu-services.
  * shosetsu-services is free software: you can redistribute it and/or modify
@@ -28,6 +14,21 @@ import java.io.IOException
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
  */
+
+import org.json.JSONObject
+import org.luaj.vm2.LuaString.EMPTYSTRING
+import org.luaj.vm2.LuaTable
+import org.luaj.vm2.LuaValue
+import org.luaj.vm2.LuaValue.*
+import org.luaj.vm2.lib.OneArgFunction
+import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
+import org.luaj.vm2.lib.jse.CoerceLuaToJava
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import java.io.IOException
+
+
 /**
  * shosetsu-extensions
  * 16 / 01 / 2020
@@ -36,6 +37,9 @@ import java.io.IOException
  */
 class LuaFormatter(private val file: File) : Formatter {
 	companion object {
+		/**
+		 * Values that may not be present
+		 */
 		val defaults: Map<String, LuaValue> = mapOf(
 				"imageURL" to EMPTYSTRING,
 				"hasCloudFlare" to FALSE,
@@ -44,20 +48,31 @@ class LuaFormatter(private val file: File) : Formatter {
 				"settings" to LuaTable()
 		)
 
-		val keys: Map<String, Int> = mapOf(
+		/**
+		 * Values that must be present
+		 */
+		val hardKeys: Map<String, Int> = mapOf(
 				"id" to TNUMBER,
 				"name" to TSTRING,
-				"imageURL" to TSTRING,
 
 				"listings" to TTABLE,
 				"searchFilters" to TTABLE,
 
 				"getPassage" to TFUNCTION,
-				"parseNovel" to TFUNCTION,
-				"search" to TFUNCTION,
-				"updateSetting" to TFUNCTION
+				"parseNovel" to TFUNCTION
 		)
+
+		/**
+		 * What is unique about soft keys is they are conditional on the soft key beforehand
+		 * IE, if hasSearch is false, then search does not need to be present in script
+		 */
+		val softKeys: Map<String, Pair<Pair<String, Int>, (LuaValue) -> Boolean>> = mapOf(
+				"hasSearch" to Pair(Pair("search", TFUNCTION), { (it == TRUE) }),
+				"settings" to Pair(Pair("updateSetting", TFUNCTION), { (it as LuaTable).length() != 0 })
+		)
+
 		const val FILTER_POSITION_QUERY = 0
+
 		private fun makeLuaReporter(f: (status: String) -> Unit) = object : OneArgFunction() {
 			override fun call(p0: LuaValue?): LuaValue {
 				f(p0!!.tojstring())
@@ -93,21 +108,38 @@ class LuaFormatter(private val file: File) : Formatter {
 	private val source: LuaTable
 
 	init {
-		val script = JsePlatform.standardGlobals()
-		script.load(ShosetsuLib())
-		script.set("QUERY", FILTER_POSITION_QUERY)
+		val globals = shosetsuGlobals()
 		val l = try {
-			script.load(file.readText())!!
+			globals.load(file.readText())!!
 		} catch (e: Error) {
 			throw e
 		}
 		source = l.call() as LuaTable
 
-		// Checks table
+		// If the modified default value doesnt exist, it assigns the default
 		defaults.filter { source[it.key].isnil() }.forEach { source[it.key] = it.value }
-		with(keys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
-			if (isNotEmpty()) throw NullPointerException("Lua Script has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" }))
+
+		// If any required value is not found, it throws an NullPointerException
+		with(hardKeys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
+			if (isNotEmpty())
+				throw NullPointerException(
+						"LuaScript has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" })
+				)
 		}
+
+		// If any of the softKeys matching their condition of requirement are not found, it throws an NullPointerException
+		with(softKeys.filter {
+			val t = it.value.first
+			if (it.value.second(source[it.key])) {
+				source.get(t.first).type() != t.second
+			} else false
+		}.map { it.value.first.first }) {
+			if (isNotEmpty())
+				throw NullPointerException(
+						"LuaScript has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" })
+				)
+		}
+
 	}
 
 	override val name: String by lazy { source["name"].tojstring() }
@@ -133,15 +165,31 @@ class LuaFormatter(private val file: File) : Formatter {
 	}
 
 	override fun updateSetting(id: Int, value: Any?) {
-		source["updateSetting"].call(valueOf(id), coerce(value))
+		val f = source["updateSetting"]
+		if (f.type() != TFUNCTION) return
+		f.call(valueOf(id), coerce(value))
 	}
 
-	override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
+	override fun getPassage(chapterURL: String): String =
+			source["getPassage"].call(chapterURL).tojstring()
 
-	override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters), makeLuaReporter(reporter)), Novel.Info::class.java) as Novel.Info
+	override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info =
+			CoerceLuaToJava.coerce(source["parseNovel"].call(
+					valueOf(novelURL),
+					valueOf(loadChapters),
+					makeLuaReporter(reporter)
+			), Novel.Info::class.java) as Novel.Info
 
 	@Suppress("UNCHECKED_CAST")
 	override fun search(data: Array<*>, reporter: (status: String) -> Unit): Array<Novel.Listing> =
-			CoerceLuaToJava.coerce(source["search"].call(data.toLua(), makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+			CoerceLuaToJava.coerce(source["search"].call(
+					data.toLua(),
+					makeLuaReporter(reporter)
+			), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 
+	override fun freshURL(smallURL: String, type: Int): String {
+		val f = source["freshURL"]
+		if (f.type() != TFUNCTION) return smallURL
+		return f.call(valueOf(smallURL), valueOf(type)).tojstring()
+	}
 }

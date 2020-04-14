@@ -43,4 +43,11 @@ interface Formatter {
 
 	fun getPassage(chapterURL: String): String
 	fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
+
+	/**
+	 *  @param smallURL [String] URL to make fresh
+	 *  @param type [Int] Type of url. 1 for novelURL, 2 for chapterURL
+	 *  @return A reconstructed URL; In case the URL is shortened to save space
+	 */
+	fun freshURL(smallURL: String, type: Int): String
 }
