@@ -9,7 +9,6 @@ import org.luaj.vm2.LuaValue.*
 import org.luaj.vm2.lib.OneArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
-import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
 import java.io.IOException
 
@@ -65,8 +64,8 @@ class LuaFormatter(val content: String) : Formatter {
 		 * IE, if hasSearch is false, then search does not need to be present in script
 		 */
 		val softKeys: Map<String, Pair<Pair<String, Int>, (LuaValue) -> Boolean>> = mapOf(
-				"hasSearch" to Pair(Pair("search", TFUNCTION), { (it == TRUE) }),
-				"settings" to Pair(Pair("updateSetting", TFUNCTION), { (it as LuaTable).length() != 0 })
+				"hasSearch" to Pair(Pair("search", TFUNCTION), { v -> (v == TRUE) }),
+				"settings" to Pair(Pair("updateSetting", TFUNCTION), { v -> (v as LuaTable).length() != 0 })
 		)
 
 		const val FILTER_POSITION_QUERY = 0
