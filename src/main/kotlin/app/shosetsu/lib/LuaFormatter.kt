@@ -1,5 +1,18 @@
 package app.shosetsu.lib
 
+import org.json.JSONException
+import org.json.JSONObject
+import org.luaj.vm2.LuaString.EMPTYSTRING
+import org.luaj.vm2.LuaTable
+import org.luaj.vm2.LuaValue
+import org.luaj.vm2.LuaValue.*
+import org.luaj.vm2.lib.OneArgFunction
+import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
+import org.luaj.vm2.lib.jse.CoerceLuaToJava
+import org.luaj.vm2.lib.jse.JsePlatform
+import java.io.File
+import java.io.IOException
+
 /*
  * This file is part of shosetsu-services.
  * shosetsu-services is free software: you can redistribute it and/or modify
@@ -14,28 +27,13 @@ package app.shosetsu.lib
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  * ====================================================================
  */
-
-import org.json.JSONObject
-import org.luaj.vm2.LuaString.EMPTYSTRING
-import org.luaj.vm2.LuaTable
-import org.luaj.vm2.LuaValue
-import org.luaj.vm2.LuaValue.*
-import org.luaj.vm2.lib.OneArgFunction
-import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
-import org.luaj.vm2.lib.jse.CoerceLuaToJava
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileReader
-import java.io.IOException
-
-
 /**
  * shosetsu-extensions
  * 16 / 01 / 2020
  *
  * @author github.com/doomsdayrs
  */
-class LuaFormatter(private val file: File) : Formatter {
+class LuaFormatter(val content: String) : Formatter {
 	companion object {
 		/**
 		 * Values that may not be present
@@ -98,9 +96,13 @@ class LuaFormatter(private val file: File) : Formatter {
 
 	}
 
+	constructor(file: File) : this(file.readText())
+
 	@Suppress("unused")
 	fun getMetaData(): JSONObject? = try {
-		JSONObject(BufferedReader(FileReader(file)).use { it.readLine() }?.dropWhile { it != '{' })
+		JSONObject(content.substring(0, content.indexOf("\n")))
+	} catch (e: JSONException) {
+		e.printStackTrace(); null
 	} catch (e: IOException) {
 		e.printStackTrace(); null
 	}
@@ -110,7 +112,7 @@ class LuaFormatter(private val file: File) : Formatter {
 	init {
 		val globals = shosetsuGlobals()
 		val l = try {
-			globals.load(file.readText())!!
+			globals.load(content)!!
 		} catch (e: Error) {
 			throw e
 		}

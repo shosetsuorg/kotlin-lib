@@ -45,13 +45,19 @@ class TriStateFilter(name: String) : Filter<Int>(name, STATE_IGNORED) {
 class DropdownFilter(name: String, val choices: Array<String>) : Filter<Int>(name, 0)
 class RadioGroupFilter(name: String, val choices: Array<String>) : Filter<Int>(name, 0)
 
-class FilterList(name: String, val filters: Array<Filter<*>>) : Filter<Sequence<*>>(name, sequence { yieldAll(filters.map { it.state }) }) {
+class FilterList(
+		name: String,
+		val filters: Array<Filter<*>>
+) : Filter<Sequence<*>>(name, sequence { yieldAll(filters.map { it.state }) }) {
 	override var state: Sequence<*>
 		get() = filters.map { it.state }.asSequence()
 		set(value) {}
 }
 
-class FilterGroup<I, T>(name: String, val filters: Array<I>) : Filter<Sequence<T>>(name, sequence { yieldAll(filters.map { it.state }) }) where I : Filter<T> {
+class FilterGroup<I, T>(
+		name: String,
+		val filters: Array<I>
+) : Filter<Sequence<T>>(name, sequence { yieldAll(filters.map { it.state }) }) where I : Filter<T> {
 	override var state: Sequence<T>
 		get() = filters.map { it.state }.asSequence()
 		set(value) {}

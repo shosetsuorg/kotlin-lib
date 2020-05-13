@@ -58,13 +58,18 @@ class ShosetsuLib : TwoArgFunction() {
 		fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
 		@Suppress("UNCHECKED_CAST")
-		fun Listing(name: String, filters: Array<Filter<*>>,increments: Boolean, func: LuaFunction) = Formatter.Listing(name, increments, filters) { data, page ->
-			CoerceLuaToJava.coerce(
-					func.call(data.toLua(true), if (page == null) LuaValue.NIL else LuaValue.valueOf(page)),
-					Array<Novel.Listing>::class.java) as Array<Novel.Listing>
-		}
+		fun Listing(name: String, filters: Array<Filter<*>>, increments: Boolean, func: LuaFunction) =
+				Formatter.Listing(name, increments, filters) { data, page ->
+					CoerceLuaToJava.coerce(
+							func.call(
+									data.toLua(true),
+									if (page == null) LuaValue.NIL else LuaValue.valueOf(page)
+							),
+							Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+				}
 
-		fun Listing(name: String, increments: Boolean, func: LuaFunction) = Listing(name, emptyArray(),increments,  func)
+		fun Listing(name: String, increments: Boolean, func: LuaFunction) =
+				Listing(name, emptyArray(), increments, func)
 
 		fun Novel() = Novel.Listing()
 		fun NovelInfo() = Novel.Info()
@@ -83,14 +88,26 @@ class ShosetsuLib : TwoArgFunction() {
 
 		// For filters
 
-		fun TextFilter(name: String) = app.shosetsu.lib.TextFilter(name)
-		fun SwitchFilter(name: String) = app.shosetsu.lib.SwitchFilter(name)
-		fun CheckboxFilter(name: String) = app.shosetsu.lib.CheckboxFilter(name)
+		fun TextFilter(name: String) =
+				app.shosetsu.lib.TextFilter(name)
 
-		fun DropdownFilter(name: String, choices: Array<String>) = app.shosetsu.lib.DropdownFilter(name, choices)
-		fun RadioGroupFilter(name: String, choices: Array<String>) = app.shosetsu.lib.RadioGroupFilter(name, choices)
-		fun FilterList(name: String, filters: Array<Filter<*>>) = app.shosetsu.lib.FilterList(name, filters)
-		fun <I,T> FilterGroup(name: String, filters: Array<I>) where I : Filter<T> = app.shosetsu.lib.FilterGroup(name, filters)
+		fun SwitchFilter(name: String) =
+				app.shosetsu.lib.SwitchFilter(name)
+
+		fun CheckboxFilter(name: String) =
+				app.shosetsu.lib.CheckboxFilter(name)
+
+		fun DropdownFilter(name: String, choices: Array<String>) =
+				app.shosetsu.lib.DropdownFilter(name, choices)
+
+		fun RadioGroupFilter(name: String, choices: Array<String>) =
+				app.shosetsu.lib.RadioGroupFilter(name, choices)
+
+		fun FilterList(name: String, filters: Array<Filter<*>>) =
+				app.shosetsu.lib.FilterList(name, filters)
+
+		fun <I, T> FilterGroup(name: String, filters: Array<I>) where I : Filter<T> =
+				app.shosetsu.lib.FilterGroup(name, filters)
 
 		// For normal extensions, these simple functions are sufficient.
 		fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =
