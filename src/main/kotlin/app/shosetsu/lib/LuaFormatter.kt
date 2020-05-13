@@ -1,5 +1,6 @@
 package app.shosetsu.lib
 
+import org.json.JSONException
 import org.json.JSONObject
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
@@ -9,9 +10,7 @@ import org.luaj.vm2.lib.OneArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import org.luaj.vm2.lib.jse.JsePlatform
-import java.io.BufferedReader
 import java.io.File
-import java.io.FileReader
 import java.io.IOException
 
 /*
@@ -34,7 +33,7 @@ import java.io.IOException
  *
  * @author github.com/doomsdayrs
  */
-class LuaFormatter(private val file: File) : Formatter {
+class LuaFormatter(val content: String) : Formatter {
 	companion object {
 		val defaults: Map<String, LuaValue> = mapOf(
 				"imageURL" to EMPTYSTRING,
@@ -83,9 +82,13 @@ class LuaFormatter(private val file: File) : Formatter {
 
 	}
 
+	constructor(file: File) : this(file.readText())
+
 	@Suppress("unused")
 	fun getMetaData(): JSONObject? = try {
-		JSONObject(BufferedReader(FileReader(file)).use { it.readLine() }?.dropWhile { it != '{' })
+		JSONObject(content.substring(0, content.indexOf("\n")))
+	} catch (e: JSONException) {
+		e.printStackTrace(); null
 	} catch (e: IOException) {
 		e.printStackTrace(); null
 	}
@@ -97,7 +100,7 @@ class LuaFormatter(private val file: File) : Formatter {
 		script.load(ShosetsuLib())
 		script.set("QUERY", FILTER_POSITION_QUERY)
 		val l = try {
-			script.load(file.readText())!!
+			script.load(content)!!
 		} catch (e: Error) {
 			throw e
 		}
@@ -106,7 +109,9 @@ class LuaFormatter(private val file: File) : Formatter {
 		// Checks table
 		defaults.filter { source[it.key].isnil() }.forEach { source[it.key] = it.value }
 		with(keys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
-			if (isNotEmpty()) throw NullPointerException("Lua Script has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" }))
+			if (isNotEmpty())
+				throw NullPointerException("Lua Script has missing or invalid:" +
+						fold("", { a, s -> "$a\n\t\t$s;" }))
 		}
 	}
 
@@ -138,10 +143,18 @@ class LuaFormatter(private val file: File) : Formatter {
 
 	override fun getPassage(chapterURL: String): String = source["getPassage"].call(chapterURL).tojstring()
 
-	override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info = CoerceLuaToJava.coerce(source["parseNovel"].call(valueOf(novelURL), valueOf(loadChapters), makeLuaReporter(reporter)), Novel.Info::class.java) as Novel.Info
+	override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info =
+			CoerceLuaToJava.coerce(source["parseNovel"].call(
+					valueOf(novelURL),
+					valueOf(loadChapters),
+					makeLuaReporter(reporter)
+			), Novel.Info::class.java) as Novel.Info
 
 	@Suppress("UNCHECKED_CAST")
 	override fun search(data: Array<*>, reporter: (status: String) -> Unit): Array<Novel.Listing> =
-			CoerceLuaToJava.coerce(source["search"].call(data.toLua(), makeLuaReporter(reporter)), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+			CoerceLuaToJava.coerce(source["search"].call(
+					data.toLua(),
+					makeLuaReporter(reporter)
+			), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 
 }

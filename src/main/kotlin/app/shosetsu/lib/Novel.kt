@@ -23,7 +23,13 @@ package app.shosetsu.lib
  */
 class Novel {
 	data class Listing(var title: String = "unknown", var link: String = "", var imageURL: String = "")
-	data class Chapter(var release: String = "unknown", var title: String = "unknown", var link: String = "", var order: Double = 0.0)
+	data class Chapter(
+			var release: String = "unknown",
+			var title: String = "unknown",
+			var link: String = "",
+			var order: Double = 0.0
+	)
+
 	enum class Status(val title: String) {
 		PUBLISHING("Publishing"), COMPLETED("Completed"), PAUSED("Paused"), UNKNOWN("Unknown");
 
