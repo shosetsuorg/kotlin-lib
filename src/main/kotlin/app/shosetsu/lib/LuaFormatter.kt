@@ -25,8 +25,8 @@ import java.io.IOException
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
- * ====================================================================
  */
+
 /**
  * shosetsu-extensions
  * 16 / 01 / 2020
