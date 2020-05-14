@@ -99,7 +99,7 @@ class LuaFormatter(val content: String) : Formatter {
 
 	@Suppress("unused")
 	fun getMetaData(): JSONObject? = try {
-		JSONObject(content.substring(0, content.indexOf("\n")))
+		JSONObject(content.substring(0, content.indexOf("\n")).replace("--", "").trim())
 	} catch (e: JSONException) {
 		e.printStackTrace(); null
 	} catch (e: IOException) {
