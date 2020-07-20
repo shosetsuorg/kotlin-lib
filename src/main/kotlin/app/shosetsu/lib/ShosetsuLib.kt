@@ -1,7 +1,5 @@
 package app.shosetsu.lib
 
-import app.shosetsu.lib.LuaFormatter.Companion.toLua
-import app.shosetsu.lib.Novel.Status
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -26,8 +24,8 @@ import java.util.concurrent.TimeUnit
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
- * ====================================================================
  */
+
 /**
  * shosetsu-services
  * 2020-01-20
@@ -57,55 +55,73 @@ class ShosetsuLib : TwoArgFunction() {
 		fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
 		fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
 
+		/** Lua Constructor for [Formatter.Listing] */
 		@Suppress("UNCHECKED_CAST")
-		fun Listing(name: String, filters: Array<Filter<*>>, increments: Boolean, func: LuaFunction) =
-				Formatter.Listing(name, increments, filters) { data, page ->
+		fun Listing(name: String, increments: Boolean, func: LuaFunction) =
+				Formatter.Listing(name, increments) { data, page ->
 					CoerceLuaToJava.coerce(
 							func.call(
-									data.toLua(true),
+									data.toLua(),
 									if (page == null) LuaValue.NIL else LuaValue.valueOf(page)
 							),
 							Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 				}
 
-		fun Listing(name: String, increments: Boolean, func: LuaFunction) =
-				Listing(name, emptyArray(), increments, func)
-
+		/** Lua Constructor for [Novel.Listing] */
 		fun Novel() = Novel.Listing()
+
+		/** Lua Constructor for [Novel.Info] */
 		fun NovelInfo() = Novel.Info()
+
+		/** Lua Constructor for [Novel.Chapter] */
 		fun NovelChapter() = Novel.Chapter()
 
-		fun NovelStatus(type: Int): Status = when (type) {
-			0 -> Status.PUBLISHING
-			1 -> Status.COMPLETED
-			2 -> Status.PAUSED
-			else -> Status.UNKNOWN
+		/**
+		 * Lua Constructor for [Novel.Status]
+		 * @param type maps to a certain enum
+		 */
+		fun NovelStatus(type: Int): Novel.Status = when (type) {
+			0 -> Novel.Status.PUBLISHING
+			1 -> Novel.Status.COMPLETED
+			2 -> Novel.Status.PAUSED
+			else -> Novel.Status.UNKNOWN
 		}
 
-		fun Require(name: String): LuaValue? = libraries[name] ?: libLoader(name).also {
-			libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name")
-		}
+		/**
+		 * Requests for a certain library to be loaded
+		 */
+		fun Require(name: String): LuaValue? =
+				libraries[name] ?: libLoader(name).also {
+					libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name")
+				}
 
 		// For filters
 
-		fun TextFilter(name: String) =
-				app.shosetsu.lib.TextFilter(name)
+		/** @see [app.shosetsu.lib.TextFilter] */
+		fun TextFilter(id: Int, name: String) =
+				app.shosetsu.lib.TextFilter(id, name)
 
-		fun SwitchFilter(name: String) =
-				app.shosetsu.lib.SwitchFilter(name)
+		/** @see [app.shosetsu.lib.SwitchFilter] */
+		fun SwitchFilter(id: Int, name: String) =
+				app.shosetsu.lib.SwitchFilter(id, name)
 
-		fun CheckboxFilter(name: String) =
-				app.shosetsu.lib.CheckboxFilter(name)
+		/** @see [app.shosetsu.lib.CheckboxFilter] */
+		fun CheckboxFilter(id: Int, name: String) =
+				app.shosetsu.lib.CheckboxFilter(id, name)
 
-		fun DropdownFilter(name: String, choices: Array<String>) =
-				app.shosetsu.lib.DropdownFilter(name, choices)
+		/** @see [app.shosetsu.lib.DropdownFilter] */
+		fun DropdownFilter(id: Int, name: String, choices: Array<String>) =
+				app.shosetsu.lib.DropdownFilter(id, name, choices)
 
-		fun RadioGroupFilter(name: String, choices: Array<String>) =
-				app.shosetsu.lib.RadioGroupFilter(name, choices)
+		/** @see [app.shosetsu.lib.RadioGroupFilter] */
+		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) =
+				app.shosetsu.lib.RadioGroupFilter(id, name, choices)
 
+		/** @see [app.shosetsu.lib.FilterList] */
 		fun FilterList(name: String, filters: Array<Filter<*>>) =
 				app.shosetsu.lib.FilterList(name, filters)
 
+		/** @see [app.shosetsu.lib.FilterGroup] */
 		fun <I, T> FilterGroup(name: String, filters: Array<I>) where I : Filter<T> =
 				app.shosetsu.lib.FilterGroup(name, filters)
 

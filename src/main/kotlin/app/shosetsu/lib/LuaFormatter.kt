@@ -27,7 +27,7 @@ import java.io.IOException
  */
 
 /**
- * shosetsu-extensions
+ * shosetsu-kotlin-lib
  * 16 / 01 / 2020
  *
  * @author github.com/doomsdayrs
@@ -81,17 +81,7 @@ class LuaFormatter(val content: String) : Formatter {
 				table.keys().map { table[it] }.filter { !it.isnil() }
 						.map { CoerceLuaToJava.coerce(it, Any::class.java) as Filter<*> }.toTypedArray()
 
-		fun Array<*>.toLua(): LuaTable {
-			val t = LuaTable()
-			this.map { coerce(it) }.forEachIndexed { i, v -> t[i] = v }
-			return t
-		}
 
-		fun Array<*>.toLua(oneIndex: Boolean): LuaTable {
-			val t = LuaTable()
-			this.map { coerce(it) }.forEachIndexed { i, v -> t[if (oneIndex) i + 1 else i] = v }
-			return t
-		}
 
 	}
 
@@ -156,12 +146,12 @@ class LuaFormatter(val content: String) : Formatter {
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	override val searchFilters by lazy {
+	override val searchFiltersModel by lazy {
 		tableToFilters(source["searchFilters"] as LuaTable)
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	override val settings by lazy {
+	override val settingsModel by lazy {
 		tableToFilters(source["settings"] as LuaTable)
 	}
 
@@ -182,7 +172,7 @@ class LuaFormatter(val content: String) : Formatter {
 			), Novel.Info::class.java) as Novel.Info
 
 	@Suppress("UNCHECKED_CAST")
-	override fun search(data: Array<*>, reporter: (status: String) -> Unit): Array<Novel.Listing> =
+	override fun search(data: Map<Int, *>, reporter: (status: String) -> Unit): Array<Novel.Listing> =
 			CoerceLuaToJava.coerce(source["search"].call(
 					data.toLua(),
 					makeLuaReporter(reporter)

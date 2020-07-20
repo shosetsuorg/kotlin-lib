@@ -12,8 +12,8 @@ package app.shosetsu.lib
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
- * ====================================================================
  */
+
 /**
  * shosetsu-services
  * 30 / May / 2019
@@ -23,25 +23,91 @@ package app.shosetsu.lib
  */
 @Suppress("unused")
 interface Formatter {
-	class Listing(val name: String, val isIncrementing: Boolean, val filters: Array<Filter<*>>,
-	              val getListing: (data: Array<*>, increment: Int?) -> Array<Novel.Listing>
+	/**
+	 * This represents a "Page" that the source might have for listing novels
+	 * Many sources have a singular listing, which contains filters and queries
+	 * Some sources have extra pages to display sources, such as a separate page for latest updates or most viewed
+	 */
+	class Listing(
+			/** Name of this listing */
+			val name: String,
+
+			/** If you can continue scrolling for more data or not */
+			val isIncrementing: Boolean,
+
+			/**
+			 * This gets data from the listing
+			 */
+			val getListing: (data: Map<Int, *>, increment: Int?) -> Array<Novel.Listing>
 	)
 
+	/** Name of this extension */
 	val name: String
+
+	/**
+	 * Base URL of the extension
+	 * Used to open up in browser
+	 */
 	val baseURL: String
+
+	/**
+	 * Image URL of the extension
+	 * Used for user recognition
+	 */
 	val imageURL: String
+
+	/**
+	 * Formatter identification
+	 * Separates this from other extensions
+	 * Should be as unique as possible
+	 */
 	val formatterID: Int
+
+	/** If this extension is capable of searching */
 	val hasSearch: Boolean
+
+	/** If this extension has cloudflare protection that requires interception */
 	val hasCloudFlare: Boolean
+
+	/**
+	 * Represents the different listings of this extension
+	 * @see [Listing]
+	 */
 	val listings: Array<Listing>
 
-	val settings: Array<Filter<*>>
+	/**
+	 * Represents the settings model this extension provides
+	 */
+	val settingsModel: Array<Filter<*>>
+
+	/**
+	 * Represents the filters models to be adjusted on the right
+	 */
+	val searchFiltersModel: Array<Filter<*>>
+
+	/**
+	 * Applies a setting a value
+	 */
 	fun updateSetting(id: Int, value: Any?)
 
-	val searchFilters: Array<Filter<*>>
-	fun search(data: Array<*>, reporter: (status: String) -> Unit): Array<Novel.Listing>
+	/**
+	 * @param data Data that includes query and other filters
+	 * @param reporter Way to print out debug to log
+	 */
+	fun search(data: Map<Int, *>, reporter: (status: String) -> Unit): Array<Novel.Listing>
 
+	/**
+	 * Get the passage of a novel
+	 * @param chapterURL will be the unFresh URL
+	 */
 	fun getPassage(chapterURL: String): String
+
+	/**
+	 * Using the unFresh [novelURL], Requests for information on the novel
+	 * @param novelURL unFresh URL of the novel
+	 * @param loadChapters option to load chapters or not, for minor performance options (and debug)
+	 * @param reporter Way to print out debug to log
+	 */
 	fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
 
 	/**

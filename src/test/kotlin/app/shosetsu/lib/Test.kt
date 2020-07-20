@@ -1,7 +1,6 @@
 package app.shosetsu.lib
 
 import okhttp3.OkHttpClient
-import org.luaj.vm2.LuaClosure
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
@@ -62,7 +61,7 @@ object Test {
 			//"zn/15doc",
 			//#"zn/Tangsanshu",
 			""
-			).map { "src/main/resources/src/$it.lua" }
+	).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
 	// END CONFIG
@@ -122,21 +121,21 @@ object Test {
 				println("Name     : ${formatter.name}")
 				println("BaseURL  : ${formatter.baseURL}")
 				println("Image    : ${formatter.imageURL}")
-				println("Settings : ${formatter.settings.toList().toString()}")
-				println("Filters  : ${formatter.searchFilters.toList().toString()}")
+				println("Settings : ${formatter.settingsModel.toList().toString()}")
+				println("Filters  : ${formatter.searchFiltersModel.toList().toString()}")
 				formatter.listings.forEach { l ->
 					with(l) {
-						println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-						var novels = getListing(filters.values(), if (isIncrementing) 1 else null)
-						if (isIncrementing) novels += getListing(filters.values(), 2)
-						showListing(formatter, novels)
-						MILLISECONDS.sleep(500)
+						//println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
+						//var novels = getListing(filters.values(), if (isIncrementing) 1 else null)
+						//if (isIncrementing) novels += getListing(filters.values(), 2)
+						///showListing(formatter, novels)
+						//MILLISECONDS.sleep(500)
 					}
 				}
 
 				if (formatter.hasSearch) {
-					println("\n-------- Search --------")
-					showListing(formatter, formatter.search((listOf<Any?>(SEARCH_VALUE) + formatter.searchFilters.values()).toTypedArray(), REPORTER))
+					//println("\n-------- Search --------")
+					//showListing(formatter, formatter.search((listOf<Any?>(SEARCH_VALUE) + formatter.searchFiltersModel.values()).toTypedArray(), REPORTER))
 				}
 
 				MILLISECONDS.sleep(500)
