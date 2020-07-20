@@ -24,92 +24,93 @@ package app.shosetsu.lib
  * If the setting type is ever changed, the ID should be changed
  */
 abstract class Filter<T>(val id: Int, val name: String, open var state: T) {
-	override fun toString(): String = "Filter(name='$name', state=${if (state is Sequence<*>) state.toString() else state})"
-}
+	override fun toString(): String =
+			"Filter(name='$name', state=`${if (state is Sequence<*>) state.toString() else state}`)"
 
-/**
- * Represents a header, used to separate different parts of filters/settings
- * Includes [Separator]
- */
-class Header(name: String) : Filter<Unit>(-1, name, Unit)
+	/**
+	 * Represents a header, used to separate different parts of filters/settings
+	 * Includes [Separator]
+	 */
+	class Header(name: String) : Filter<Unit>(-1, name, Unit)
 
-/**
- * Divides parts of the filters/settings
- */
-class Separator() : Filter<Unit>(-1, "", Unit)
+	/**
+	 * Divides parts of the filters/settings
+	 */
+	class Separator() : Filter<Unit>(-1, "", Unit)
 
-/**
- * Input for text
- * Includes [Separator]
- */
-class TextFilter(id: Int, name: String) : Filter<String>(id, name, "")
-
-
-/**
- * Input for boolean option
- * Includes [Separator]
- */
-class SwitchFilter(id: Int, name: String) : Filter<Boolean>(id, name, false)
+	/**
+	 * Input for text
+	 * Includes [Separator]
+	 */
+	class Text(id: Int, name: String) : Filter<String>(id, name, "")
 
 
-/**
- * Input for boolean option
- * Includes [Separator]
- */
-class CheckboxFilter(id: Int, name: String) : Filter<Boolean>(id, name, false)
+	/**
+	 * Input for boolean option
+	 * Includes [Separator]
+	 */
+	class Switch(id: Int, name: String) : Filter<Boolean>(id, name, false)
 
 
-/**
- * Input for ternary value
- * Includes [Separator]
- */
-class TriStateFilter(id: Int, name: String) : Filter<Int>(id, name, STATE_IGNORED) {
-	companion object {
-		const val STATE_IGNORED = 0
-		const val STATE_INCLUDE = 1
-		const val STATE_EXCLUDE = 2
+	/**
+	 * Input for boolean option
+	 * Includes [Separator]
+	 */
+	class Checkbox(id: Int, name: String) : Filter<Boolean>(id, name, false)
+
+
+	/**
+	 * Input for ternary value
+	 * Includes [Separator]
+	 */
+	class TriState(id: Int, name: String) : Filter<Int>(id, name, STATE_IGNORED) {
+		companion object {
+			const val STATE_IGNORED = 0
+			const val STATE_INCLUDE = 1
+			const val STATE_EXCLUDE = 2
+		}
 	}
-}
 
 
-/**
- * Input for a choice from a list
- * Includes [Separator]
- */
-class DropdownFilter(id: Int, name: String, val choices: Array<String>) : Filter<Int>(id, name, 0)
+	/**
+	 * Input for a choice from a list
+	 * Includes [Separator]
+	 */
+	class Dropdown(id: Int, name: String, val choices: Array<String>) : Filter<Int>(id, name, 0)
 
 
-/**
- * Input for a choice from a list
- * Includes [Separator]
- */
-class RadioGroupFilter(id: Int, name: String, val choices: Array<String>) : Filter<Int>(id, name, 0)
+	/**
+	 * Input for a choice from a list
+	 * Includes [Separator]
+	 */
+	class RadioGroup(id: Int, name: String, val choices: Array<String>) : Filter<Int>(id, name, 0)
 
 
 // Grouping
 
-/**
- * A collapsable list of filters
- * Includes [Separator]
- */
-class FilterList(
-		name: String,
-		val filters: Array<Filter<*>>
-) : Filter<Sequence<*>>(-1, name, sequence { yieldAll(filters.map { it.state }) }) {
-	override var state: Sequence<*>
-		get() = filters.map { it.state }.asSequence()
-		set(value) {}
-}
+	/**
+	 * A collapsable list of filters
+	 * Includes [Separator]
+	 */
+	class List(
+			name: String,
+			val filters: Array<Filter<*>>
+	) : Filter<Sequence<*>>(-1, name, sequence { yieldAll(filters.map { it.state }) }) {
+		override var state: Sequence<*>
+			get() = filters.map { it.state }.asSequence()
+			set(value) {}
+	}
 
-/**
- * Input for a specific list of filters
- * Includes [Separator]
- */
-class FilterGroup<I, T>(
-		name: String,
-		val filters: Array<I>
-) : Filter<Sequence<T>>(-1, name, sequence { yieldAll(filters.map { it.state }) }) where I : Filter<T> {
-	override var state: Sequence<T>
-		get() = filters.map { it.state }.asSequence()
-		set(value) {}
+	/**
+	 * Input for a specific list of filters
+	 * Includes [Separator]
+	 */
+	class Group<I, T>(
+			name: String,
+			val filters: Array<I>
+	) : Filter<Sequence<T>>(-1, name, sequence { yieldAll(filters.map { it.state }) }) where I : Filter<T> {
+		override var state: Sequence<T>
+			get() = filters.map { it.state }.asSequence()
+			set(value) {}
+	}
 }

@@ -98,32 +98,29 @@ class ShosetsuLib : TwoArgFunction() {
 		// For filters
 
 		/** @see [app.shosetsu.lib.TextFilter] */
-		fun TextFilter(id: Int, name: String) =
-				app.shosetsu.lib.TextFilter(id, name)
+		fun TextFilter(id: Int, name: String) = Filter.Text(id, name)
 
 		/** @see [app.shosetsu.lib.SwitchFilter] */
-		fun SwitchFilter(id: Int, name: String) =
-				app.shosetsu.lib.SwitchFilter(id, name)
+		fun SwitchFilter(id: Int, name: String) = Filter.Switch(id, name)
 
 		/** @see [app.shosetsu.lib.CheckboxFilter] */
-		fun CheckboxFilter(id: Int, name: String) =
-				app.shosetsu.lib.CheckboxFilter(id, name)
+		fun CheckboxFilter(id: Int, name: String) = Filter.Checkbox(id, name)
 
 		/** @see [app.shosetsu.lib.DropdownFilter] */
 		fun DropdownFilter(id: Int, name: String, choices: Array<String>) =
-				app.shosetsu.lib.DropdownFilter(id, name, choices)
+				Filter.Dropdown(id, name, choices)
 
 		/** @see [app.shosetsu.lib.RadioGroupFilter] */
 		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) =
-				app.shosetsu.lib.RadioGroupFilter(id, name, choices)
+				Filter.RadioGroup(id, name, choices)
 
 		/** @see [app.shosetsu.lib.FilterList] */
 		fun FilterList(name: String, filters: Array<Filter<*>>) =
-				app.shosetsu.lib.FilterList(name, filters)
+				Filter.List(name, filters)
 
 		/** @see [app.shosetsu.lib.FilterGroup] */
 		fun <I, T> FilterGroup(name: String, filters: Array<I>) where I : Filter<T> =
-				app.shosetsu.lib.FilterGroup(name, filters)
+				Filter.Group(name, filters)
 
 		// For normal extensions, these simple functions are sufficient.
 		fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =
