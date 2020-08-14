@@ -1,7 +1,9 @@
 package app.shosetsu.lib
 
 import org.luaj.vm2.LuaTable
+import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
+import org.luaj.vm2.lib.jse.CoerceLuaToJava
 
 /*
  * This file is part of shosetsu-kotlin-lib.
@@ -16,6 +18,9 @@ import org.luaj.vm2.lib.jse.CoerceJavaToLua
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-kotlin-lib.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+/** Convenient kotlin function to convert a value to a jvm value */
+inline fun <reified T> coerceLuaToJava(value: LuaValue): T = CoerceLuaToJava.coerce(value, T::class.java) as T
 
 /** Converts a [Map] to a [LuaTable] */
 fun Map<Int, *>.toLua(): LuaTable = LuaTable().also {

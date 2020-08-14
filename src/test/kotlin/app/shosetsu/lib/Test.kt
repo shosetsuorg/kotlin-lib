@@ -35,10 +35,10 @@ object Test {
 	private const val PRINT_LIST_STATS = true
 	private const val PRINT_NOVELS = true
 	private const val PRINT_NOVEL_STATS = true
-	private const val PRINT_PASSAGES = false
+	private const val PRINT_PASSAGES = true
 
 
-	private val SOURCES = arrayOf(
+	private val SOURCES: List<String> = arrayOf(
 			//"en/BestLightNovel",
 			//"en/BoxNovel",
 			//"en/CreativeNovels",
@@ -46,8 +46,8 @@ object Test {
 			//#"en/Foxaholic",
 			//"en/KissLightNovels",
 			//#"en/MNovelFree",
-			//#"en/MTLNovel",
-			//"en/NovelFull",
+			"en/MTLNovel"
+			//"en/NovelFull"
 			//"en/NovelOnlineFree",
 			//"en/NovelOnlineFull",
 			//"en/NovelTrench",
@@ -60,7 +60,6 @@ object Test {
 			//#"vi/247Truyen",
 			//"zn/15doc",
 			//#"zn/Tangsanshu",
-			""
 	).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
@@ -97,7 +96,7 @@ object Test {
 
 		val passage = fmt.getPassage(novel.chapters[0].link)
 		if (PRINT_PASSAGES)
-			println(passage)
+			println("Passage:\t$passage")
 		else
 			println(with(passage) {
 				if (length < 25) "Result: $this"
@@ -110,32 +109,47 @@ object Test {
 	fun main(args: Array<String>) {
 		try {
 			ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
-			ShosetsuLib.httpClient = OkHttpClient()
+			ShosetsuLib.httpClient = OkHttpClient.Builder().addInterceptor {
+				it.proceed(it.request().also { request -> println(request.url.toUrl().toString()) })
+			}.build()
 
 			for (format in SOURCES) {
 				println("\n\n========== $format ==========")
 
 				val formatter = LuaFormatter(File(format))
+				val settingsModel: Map<Int, *> = formatter.settingsModel.valuesMap()
+				val searchFiltersModel: Map<Int, *> = formatter.searchFiltersModel.valuesMap()
 
 				println("ID       : ${formatter.formatterID}")
 				println("Name     : ${formatter.name}")
 				println("BaseURL  : ${formatter.baseURL}")
 				println("Image    : ${formatter.imageURL}")
-				println("Settings : ${formatter.settingsModel.toList().toString()}")
-				println("Filters  : ${formatter.searchFiltersModel.toList().toString()}")
+				println("Settings : $settingsModel")
+				println("Filters  : $searchFiltersModel")
 				formatter.listings.forEach { l ->
 					with(l) {
-						//println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
-						//var novels = getListing(filters.values(), if (isIncrementing) 1 else null)
-						//if (isIncrementing) novels += getListing(filters.values(), 2)
-						///showListing(formatter, novels)
-						//MILLISECONDS.sleep(500)
+						println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
+						var novels = getListing(
+								searchFiltersModel,
+								if (isIncrementing) 1 else null
+						)
+						if (isIncrementing)
+							novels += getListing(searchFiltersModel, 2)
+
+						showListing(formatter, novels)
+						MILLISECONDS.sleep(500)
 					}
 				}
 
 				if (formatter.hasSearch) {
-					//println("\n-------- Search --------")
-					//showListing(formatter, formatter.search((listOf<Any?>(SEARCH_VALUE) + formatter.searchFiltersModel.values()).toTypedArray(), REPORTER))
+					println("\n-------- Search --------")
+					showListing(
+							formatter,
+							formatter.search(
+									HashMap(searchFiltersModel).apply { set(QUERY_INDEX, SEARCH_VALUE) },
+									REPORTER
+							)
+					)
 				}
 
 				MILLISECONDS.sleep(500)

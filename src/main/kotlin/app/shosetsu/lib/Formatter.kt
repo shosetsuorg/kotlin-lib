@@ -23,6 +23,7 @@ package app.shosetsu.lib
  */
 @Suppress("unused")
 interface Formatter {
+
 	/**
 	 * This represents a "Page" that the source might have for listing novels
 	 * Many sources have a singular listing, which contains filters and queries

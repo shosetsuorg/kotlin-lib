@@ -3,11 +3,16 @@ package app.shosetsu.lib
 import org.luaj.vm2.Globals
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.JsePlatform
+import org.luaj.vm2.LuaValue.valueOf as lValueOf
 
-val SHOSETSU_GLOBALS = mapOf<String, LuaValue>(
-		"QUERY" to LuaValue.valueOf(LuaFormatter.FILTER_POSITION_QUERY),
-		"FRESH_NOVEL" to LuaValue.valueOf(1),
-		"FRESH_CHAPT" to LuaValue.valueOf(2)
+const val QUERY_INDEX: Int = 0
+const val FRESH_NOVEL_URL: Int = 1
+const val FRESH_CHAPTER_URL: Int = 0
+
+val SHOSETSU_GLOBALS: Map<String, LuaValue> = mapOf<String, LuaValue>(
+		"QUERY" to lValueOf(QUERY_INDEX),
+		"FRESH_NOVEL" to lValueOf(FRESH_NOVEL_URL),
+		"FRESH_CHAPT" to lValueOf(FRESH_CHAPTER_URL)
 )
 
 /**
@@ -15,7 +20,12 @@ val SHOSETSU_GLOBALS = mapOf<String, LuaValue>(
  */
 fun shosetsuGlobals(): Globals {
 	val globals = JsePlatform.standardGlobals()
+
+	// Applies shosetsu globals on top of the standard ones
 	SHOSETSU_GLOBALS.forEach { (s, luaValue) -> globals.set(s, luaValue) }
+
+	// Loads shosetsu support lib
 	globals.load(ShosetsuLib())
+
 	return globals
 }

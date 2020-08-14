@@ -51,10 +51,7 @@ class LuaFormatter(val content: String) : Formatter {
 		val hardKeys: Map<String, Int> = mapOf(
 				"id" to TNUMBER,
 				"name" to TSTRING,
-
 				"listings" to TTABLE,
-				"searchFilters" to TTABLE,
-
 				"getPassage" to TFUNCTION,
 				"parseNovel" to TFUNCTION
 		)
@@ -68,7 +65,8 @@ class LuaFormatter(val content: String) : Formatter {
 				"settings" to Pair(Pair("updateSetting", TFUNCTION), { v -> (v as LuaTable).length() != 0 })
 		)
 
-		const val FILTER_POSITION_QUERY = 0
+		@Deprecated("Moved to globals", replaceWith = ReplaceWith("QUERY_INDEX"))
+		const val FILTER_POSITION_QUERY: Int = 0
 
 		private fun makeLuaReporter(f: (status: String) -> Unit) = object : OneArgFunction() {
 			override fun call(p0: LuaValue?): LuaValue {
@@ -80,7 +78,6 @@ class LuaFormatter(val content: String) : Formatter {
 		private fun tableToFilters(table: LuaTable): Array<Filter<*>> =
 				table.keys().map { table[it] }.filter { !it.isnil() }
 						.map { CoerceLuaToJava.coerce(it, Any::class.java) as Filter<*> }.toTypedArray()
-
 
 
 	}
@@ -141,42 +138,40 @@ class LuaFormatter(val content: String) : Formatter {
 	override val hasSearch by lazy { source["hasSearch"].toboolean() }
 
 	@Suppress("UNCHECKED_CAST")
-	override val listings by lazy {
-		CoerceLuaToJava.coerce(source["listings"], Array<Formatter.Listing>::class.java) as Array<Formatter.Listing>
+	override val listings: Array<Formatter.Listing> by lazy {
+		coerceLuaToJava<Array<Formatter.Listing>>(source["listings"])
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	override val searchFiltersModel by lazy {
+	override val searchFiltersModel: Array<Filter<*>> by lazy {
 		tableToFilters(source["searchFilters"] as LuaTable)
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	override val settingsModel by lazy {
+	override val settingsModel: Array<Filter<*>> by lazy {
 		tableToFilters(source["settings"] as LuaTable)
 	}
 
 	override fun updateSetting(id: Int, value: Any?) {
-		val f = source["updateSetting"]
-		if (f.type() != TFUNCTION) return
-		f.call(valueOf(id), coerce(value))
+		source["updateSetting"].takeIf { it.type() == TFUNCTION }?.call(valueOf(id), coerce(value)) ?: return
 	}
 
 	override fun getPassage(chapterURL: String): String =
 			source["getPassage"].call(chapterURL).tojstring()
 
 	override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info =
-			CoerceLuaToJava.coerce(source["parseNovel"].call(
+			coerceLuaToJava(source["parseNovel"].call(
 					valueOf(novelURL),
 					valueOf(loadChapters),
 					makeLuaReporter(reporter)
-			), Novel.Info::class.java) as Novel.Info
+			))
 
 	@Suppress("UNCHECKED_CAST")
 	override fun search(data: Map<Int, *>, reporter: (status: String) -> Unit): Array<Novel.Listing> =
-			CoerceLuaToJava.coerce(source["search"].call(
+			coerceLuaToJava(source["search"].call(
 					data.toLua(),
 					makeLuaReporter(reporter)
-			), Array<Novel.Listing>::class.java) as Array<Novel.Listing>
+			))
 
 	override fun freshURL(smallURL: String, type: Int): String {
 		val f = source["freshURL"]
