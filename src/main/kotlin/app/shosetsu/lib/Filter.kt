@@ -86,7 +86,7 @@ abstract class Filter<T>(val id: Int, val name: String, open var state: T) {
 	class RadioGroup(id: Int, name: String, val choices: Array<String>) : Filter<Int>(id, name, 0)
 
 
-// Grouping
+	// Grouping
 
 	/**
 	 * A collapsable list of filters
@@ -95,22 +95,26 @@ abstract class Filter<T>(val id: Int, val name: String, open var state: T) {
 	class List(
 			name: String,
 			val filters: Array<Filter<*>>
-	) : Filter<Sequence<*>>(-1, name, sequence { yieldAll(filters.map { it.state }) }) {
-		override var state: Sequence<*>
-			get() = filters.map { it.state }.asSequence()
+	) : Filter<Map<Int, Any>>(-1, name, filters.mapify()) {
+		override var state: Map<Int, Any>
+			get() = filters.mapify()
 			set(value) {}
 	}
+
 
 	/**
 	 * Input for a specific list of filters
 	 * Includes [Separator]
+	 * @param filters Filters present
 	 */
-	class Group<I, T>(
-			name: String,
-			val filters: Array<I>
-	) : Filter<Sequence<T>>(-1, name, sequence { yieldAll(filters.map { it.state }) }) where I : Filter<T> {
-		override var state: Sequence<T>
-			get() = filters.map { it.state }.asSequence()
+	class Group<T>(name: String, val filters: Array<Filter<T>>) : Filter<Map<Int, T>>(
+			id = -1,
+			name = name,
+			state = filters.mapifyS()
+	) {
+
+		override var state: Map<Int, T>
+			get() = filters.mapifyS()
 			set(value) {}
 	}
 }

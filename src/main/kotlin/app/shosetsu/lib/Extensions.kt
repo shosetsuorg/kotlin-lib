@@ -38,12 +38,21 @@ fun Array<*>.toLua(oneIndex: Boolean): LuaTable = LuaTable().also {
 	this.map { CoerceJavaToLua.coerce(it) }.forEachIndexed { i, v -> it[if (oneIndex) i + 1 else i] = v }
 }
 
-fun Array<Filter<*>>.values(): Array<*> = this.map { it.state }.toTypedArray()
 
-fun Array<Filter<*>>.valuesMap(): Map<Int, *> {
-	val map = HashMap<Int, Any?>()
-	this.forEach { map[it.id] = it.state }
-	return map
+fun Array<Filter<*>>.mapify(): Map<Int, Any> = HashMap<Int, Any>().apply hasMap@{
+	this@mapify.forEach {
+		when (val state = it.state) {
+			is Map<*, *> -> this.putAll(state as Map<out Int, Any>)
+			else -> this[it.id] = state!!
+		}
+	}
 }
 
-
+fun <T> Array<Filter<T>>.mapifyS(): Map<Int, T> = HashMap<Int, T>().apply hasMap@{
+	this@mapifyS.forEach {
+		when (val state = it.state) {
+			is Map<*, *> -> this.putAll(state as Map<out Int, T>)
+			else -> this[it.id] = state
+		}
+	}
+}

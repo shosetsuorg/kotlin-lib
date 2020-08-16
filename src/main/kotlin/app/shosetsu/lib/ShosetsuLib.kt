@@ -119,7 +119,7 @@ class ShosetsuLib : TwoArgFunction() {
 				Filter.List(name, filters)
 
 		/** @see [app.shosetsu.lib.FilterGroup] */
-		fun <I, T> FilterGroup(name: String, filters: Array<I>) where I : Filter<T> =
+		fun <T> FilterGroup(name: String, filters: Array<Filter<T>>): Filter.Group<T> =
 				Filter.Group(name, filters)
 
 		// For normal extensions, these simple functions are sufficient.

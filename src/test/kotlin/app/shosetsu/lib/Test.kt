@@ -40,13 +40,13 @@ object Test {
 
 	private val SOURCES: List<String> = arrayOf(
 			//"en/BestLightNovel",
-			//"en/BoxNovel",
+			"en/BoxNovel"
 			//"en/CreativeNovels",
 			//"en/FastNovel",
 			//#"en/Foxaholic",
 			//"en/KissLightNovels",
 			//#"en/MNovelFree",
-			"en/MTLNovel"
+			//"en/MTLNovel"
 			//"en/NovelFull"
 			//"en/NovelOnlineFree",
 			//"en/NovelOnlineFull",
@@ -104,6 +104,28 @@ object Test {
 			})
 	}
 
+	fun Array<Filter<*>>.printOut(indent: Int = 0) {
+		forEach {
+			val tabs = StringBuilder("\t").apply { for (i in 0 until indent) this.append("\t") }
+			val name = it.javaClass.simpleName.let {
+				if (it.length > 7)
+					it.substring(0, 6)
+				else it
+			}
+			println("$tabs>${name}\t[${it.id}]\t${it.name}\t={${it.state?.javaClass?.simpleName}}")
+			when (it) {
+				is Filter.List -> {
+					it.filters.printOut(indent + 1)
+				}
+				is Filter.Group<*> -> {
+					it.filters.map { it as Filter<*> }.toTypedArray().printOut(indent + 1)
+				}
+				else -> {
+				}
+			}
+		}
+	}
+
 	@JvmStatic
 	@Throws(java.io.IOException::class, InterruptedException::class)
 	fun main(args: Array<String>) {
@@ -117,8 +139,14 @@ object Test {
 				println("\n\n========== $format ==========")
 
 				val formatter = LuaFormatter(File(format))
-				val settingsModel: Map<Int, *> = formatter.settingsModel.valuesMap()
-				val searchFiltersModel: Map<Int, *> = formatter.searchFiltersModel.valuesMap()
+				val settingsModel: Map<Int, *> = formatter.settingsModel.also {
+					println("Settings model:")
+					it.printOut()
+				}.mapify()
+				val searchFiltersModel: Map<Int, *> = formatter.searchFiltersModel.also {
+					println("SearchFilters Model:")
+					it.printOut()
+				}.mapify()
 
 				println("ID       : ${formatter.formatterID}")
 				println("Name     : ${formatter.name}")
