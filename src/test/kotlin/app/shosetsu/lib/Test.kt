@@ -40,14 +40,14 @@ object Test {
 
 	private val SOURCES: List<String> = arrayOf(
 			//"en/BestLightNovel",
-			"en/BoxNovel"
+			//"en/BoxNovel"
 			//"en/CreativeNovels",
 			//"en/FastNovel",
 			//#"en/Foxaholic",
 			//"en/KissLightNovels",
 			//#"en/MNovelFree",
 			//"en/MTLNovel"
-			//"en/NovelFull"
+			"en/NovelFull"
 			//"en/NovelOnlineFree",
 			//"en/NovelOnlineFull",
 			//"en/NovelTrench",
@@ -165,7 +165,11 @@ object Test {
 							novels += getListing(searchFiltersModel, 2)
 
 						showListing(formatter, novels)
-						MILLISECONDS.sleep(500)
+						try {
+							MILLISECONDS.sleep(500)
+						} catch (e: InterruptedException) {
+							e.printStackTrace()
+						}
 					}
 				}
 

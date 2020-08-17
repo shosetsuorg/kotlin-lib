@@ -23,6 +23,13 @@ package app.shosetsu.lib
  */
 @Suppress("unused")
 interface Formatter {
+	companion object {
+		/** Chapter url key for [expandURL] & [shrinkURL]*/
+		const val KEY_CHAPTER_URL: Int = 2
+
+		/** Novel url key for [expandURL] & [shrinkURL]*/
+		const val KEY_NOVEL_URL: Int = 1
+	}
 
 	/**
 	 * This represents a "Page" that the source might have for listing novels
@@ -99,22 +106,30 @@ interface Formatter {
 
 	/**
 	 * Get the passage of a novel
-	 * @param chapterURL will be the unFresh URL
+	 * @param chapterURL of the chapter, will be fed into [expandURL] with [KEY_CHAPTER_URL]
 	 */
 	fun getPassage(chapterURL: String): String
 
 	/**
-	 * Using the unFresh [novelURL], Requests for information on the novel
-	 * @param novelURL unFresh URL of the novel
+	 * Using the novel url, Requests for information on the novel
+	 * @param novelURL url of novel, will be fed into [expandURL] with [KEY_NOVEL_URL]
 	 * @param loadChapters option to load chapters or not, for minor performance options (and debug)
 	 * @param reporter Way to print out debug to log
 	 */
 	fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
 
 	/**
-	 *  @param smallURL [String] URL to make fresh
-	 *  @param type [Int] Type of url. 1 for novelURL, 2 for chapterURL
-	 *  @return A reconstructed URL; In case the URL is shortened to save space
+	 *  @param smallURL URL to enlarge
+	 *  @param type Type of url. Either [KEY_CHAPTER_URL] or [KEY_NOVEL_URL]
+	 *  @return enlarged URL
 	 */
-	fun freshURL(smallURL: String, type: Int): String
+	fun expandURL(smallURL: String, type: Int): String
+
+	/**
+	 * Access class to shrink data of novels
+	 * @param longURL A long url to shrink
+	 * @param type Type of url. Either [KEY_CHAPTER_URL] or [KEY_NOVEL_URL]
+	 * @return shrunken url
+	 */
+	fun shrinkURL(longURL: String, type: Int): String
 }

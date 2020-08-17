@@ -30,7 +30,7 @@ import java.io.IOException
  * shosetsu-kotlin-lib
  * 16 / 01 / 2020
  *
- * @author github.com/doomsdayrs
+ * @param content extension script
  */
 class LuaFormatter(val content: String) : Formatter {
 	companion object {
@@ -65,6 +65,7 @@ class LuaFormatter(val content: String) : Formatter {
 				"settings" to Pair(Pair("updateSetting", TFUNCTION), { v -> (v as LuaTable).length() != 0 })
 		)
 
+		/***/
 		@Deprecated("Moved to globals", replaceWith = ReplaceWith("QUERY_INDEX"))
 		const val FILTER_POSITION_QUERY: Int = 0
 
@@ -84,6 +85,9 @@ class LuaFormatter(val content: String) : Formatter {
 
 	constructor(file: File) : this(file.readText())
 
+	/**
+	 * Returns the metadata that is at the header of the extension
+	 */
 	@Suppress("unused")
 	fun getMetaData(): JSONObject? = try {
 		JSONObject(content.substring(0, content.indexOf("\n")).replace("--", "").trim())
@@ -157,11 +161,11 @@ class LuaFormatter(val content: String) : Formatter {
 	}
 
 	override fun getPassage(chapterURL: String): String =
-			source["getPassage"].call(chapterURL).tojstring()
+			source["getPassage"].call(expandURL(chapterURL, 1)).tojstring()
 
 	override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info =
 			coerceLuaToJava(source["parseNovel"].call(
-					valueOf(novelURL),
+					valueOf(expandURL(novelURL, 1)),
 					valueOf(loadChapters),
 					makeLuaReporter(reporter)
 			))
@@ -173,9 +177,15 @@ class LuaFormatter(val content: String) : Formatter {
 					makeLuaReporter(reporter)
 			))
 
-	override fun freshURL(smallURL: String, type: Int): String {
-		val f = source["freshURL"]
+	override fun expandURL(smallURL: String, type: Int): String {
+		val f = source["expandURL"]
 		if (f.type() != TFUNCTION) return smallURL
 		return f.call(valueOf(smallURL), valueOf(type)).tojstring()
+	}
+
+	override fun shrinkURL(longURL: String, type: Int): String {
+		val f = source["shrinkURL"]
+		if (f.type() != TFUNCTION) return longURL
+		return f.call(valueOf(longURL), valueOf(type)).tojstring()
 	}
 }
