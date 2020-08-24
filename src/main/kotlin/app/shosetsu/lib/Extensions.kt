@@ -1,5 +1,6 @@
 package app.shosetsu.lib
 
+import com.google.common.io.Resources
 import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
@@ -55,4 +56,11 @@ fun <T> Array<Filter<T>>.mapifyS(): Map<Int, T> = HashMap<Int, T>().apply hasMap
 			else -> this[it.id] = state
 		}
 	}
+}
+
+/**
+ * Reads a resource file
+ */
+fun loadResource(file: String): String {
+	return Resources.getResource(file).readText()
 }

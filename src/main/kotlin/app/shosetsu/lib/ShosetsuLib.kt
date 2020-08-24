@@ -33,27 +33,23 @@ import java.util.concurrent.TimeUnit
  * @author github.com/technojo4
  */
 class ShosetsuLib : TwoArgFunction() {
-	companion object {
-		/** Libraries loaded in via shosetsu. Mapping from library name to their returned value. */
-		val libraries: MutableMap<String, LuaValue> = mutableMapOf()
 
-		/** Loads libraries from their names. */
-		lateinit var libLoader: (name: String) -> LuaValue?
-
-		/** okhttp HTTP Client used by lib functions. */
-		lateinit var httpClient: OkHttpClient
+	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
+		val g: Globals = env.checkglobals()
+		g.setmetatable(LuaTable())
+		g.getmetatable()["__index"] = __index(g)
+		return g
 	}
-
 
 	@Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
 	internal class LibFunctions {
-		fun DEFAULT_CACHE_CONTROL() = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
-		fun DEFAULT_HEADERS() = Headers.Builder().build()
+		fun DEFAULT_CACHE_CONTROL(): CacheControl = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
+		fun DEFAULT_HEADERS(): Headers = Headers.Builder().build()
 		fun DEFAULT_BODY(): RequestBody = FormBody.Builder().build()
 
 		fun <E> List(): ArrayList<E> = ArrayList()
 		fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
-		fun <E> Reverse(arr: ArrayList<E>) = arr.reverse()
+		fun <E> Reverse(arr: ArrayList<E>): Unit = arr.reverse()
 
 		/** Lua Constructor for [Formatter.Listing] */
 		@Suppress("UNCHECKED_CAST")
@@ -68,13 +64,13 @@ class ShosetsuLib : TwoArgFunction() {
 				}
 
 		/** Lua Constructor for [Novel.Listing] */
-		fun Novel() = Novel.Listing()
+		fun Novel(): Novel.Listing = Novel.Listing()
 
 		/** Lua Constructor for [Novel.Info] */
-		fun NovelInfo() = Novel.Info()
+		fun NovelInfo(): Novel.Info = Novel.Info()
 
 		/** Lua Constructor for [Novel.Chapter] */
-		fun NovelChapter() = Novel.Chapter()
+		fun NovelChapter(): Novel.Chapter = Novel.Chapter()
 
 		/**
 		 * Lua Constructor for [Novel.Status]
@@ -90,35 +86,34 @@ class ShosetsuLib : TwoArgFunction() {
 		/**
 		 * Requests for a certain library to be loaded
 		 */
-		fun Require(name: String): LuaValue? =
-				libraries[name] ?: libLoader(name).also {
-					libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name")
-				}
+		fun Require(name: String): LuaValue? = libraries[name] ?: libLoader(name).also {
+			libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name")
+		}
 
 		// For filters
 
-		/** @see [app.shosetsu.lib.TextFilter] */
-		fun TextFilter(id: Int, name: String) = Filter.Text(id, name)
+		/** @see [app.shosetsu.lib.Filter.Text] */
+		fun TextFilter(id: Int, name: String): Filter.Text = Filter.Text(id, name)
 
-		/** @see [app.shosetsu.lib.SwitchFilter] */
-		fun SwitchFilter(id: Int, name: String) = Filter.Switch(id, name)
+		/** @see [app.shosetsu.lib.Filter.Switch] */
+		fun SwitchFilter(id: Int, name: String): Filter.Switch = Filter.Switch(id, name)
 
-		/** @see [app.shosetsu.lib.CheckboxFilter] */
-		fun CheckboxFilter(id: Int, name: String) = Filter.Checkbox(id, name)
+		/** @see [app.shosetsu.lib.Filter.Checkbox] */
+		fun CheckboxFilter(id: Int, name: String): Filter.Checkbox = Filter.Checkbox(id, name)
 
-		/** @see [app.shosetsu.lib.DropdownFilter] */
-		fun DropdownFilter(id: Int, name: String, choices: Array<String>) =
+		/** @see [app.shosetsu.lib.Filter.Dropdown] */
+		fun DropdownFilter(id: Int, name: String, choices: Array<String>): Filter.Dropdown =
 				Filter.Dropdown(id, name, choices)
 
-		/** @see [app.shosetsu.lib.RadioGroupFilter] */
-		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>) =
+		/** @see [app.shosetsu.lib.Filter.RadioGroup] */
+		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>): Filter.RadioGroup =
 				Filter.RadioGroup(id, name, choices)
 
-		/** @see [app.shosetsu.lib.FilterList] */
-		fun FilterList(name: String, filters: Array<Filter<*>>) =
+		/** @see [app.shosetsu.lib.Filter.List] */
+		fun FilterList(name: String, filters: Array<Filter<*>>): Filter.List =
 				Filter.List(name, filters)
 
-		/** @see [app.shosetsu.lib.FilterGroup] */
+		/** @see [app.shosetsu.lib.Filter.Group] */
 		fun <T> FilterGroup(name: String, filters: Array<Filter<T>>): Filter.Group<T> =
 				Filter.Group(name, filters)
 
@@ -130,21 +125,26 @@ class ShosetsuLib : TwoArgFunction() {
 				Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
 
 
-		fun Document(str: String) = Jsoup.parse(str)!!
-		fun Request(req: Request) = httpClient.newCall(req).execute()
-		fun RequestDocument(req: Request) = Document(Request(req).body!!.string())
+		fun Document(str: String): Document = Jsoup.parse(str)!!
+		fun Request(req: Request): Response = httpClient.newCall(req).execute()
+		fun RequestDocument(req: Request): Document = Document(
+				Request(req).let { r ->
+					r.takeIf { it.code == 200 }?.body?.string() ?: throw HTTPException(r.code)
+				}
+		)
+
 		fun GETDocument(url: String): Document = RequestDocument(_GET(url, DEFAULT_HEADERS(), DEFAULT_CACHE_CONTROL()))
 
 		// For advanced users who want to (or need to) do everything themselves.
-		fun HttpClient() = httpClient
+		fun HttpClient(): OkHttpClient = httpClient
 
-		fun RequestBuilder() = Request.Builder()
-		fun HeadersBuilder() = Headers.Builder()
-		fun FormBodyBuilder() = FormBody.Builder()
-		fun DefaultCacheControl() = CacheControl.Builder()
+		fun RequestBuilder(): Request.Builder = Request.Builder()
+		fun HeadersBuilder(): Headers.Builder = Headers.Builder()
+		fun FormBodyBuilder(): FormBody.Builder = FormBody.Builder()
+		fun DefaultCacheControl(): CacheControl.Builder = CacheControl.Builder()
 
-		fun MediaType(str: String) = str.toMediaType()
-		fun RequestBody(data: String, type: MediaType) = data.toRequestBody(type)
+		fun MediaType(str: String): MediaType = str.toMediaType()
+		fun RequestBody(data: String, type: MediaType): RequestBody = data.toRequestBody(type)
 	}
 
 	/**
@@ -156,103 +156,8 @@ class ShosetsuLib : TwoArgFunction() {
 		private val load: LuaFunction = g["load"] as LuaFunction
 		private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
 
-		private val luaFuncs: Map<String, LuaValue> = mapOf(
-				"GET" to """
-                        local url, headers, cctl = ...
-                        headers = headers or DEFAULT_HEADERS()
-                        cctl = cctl or DEFAULT_CACHE_CONTROL()
-
-                        return _GET(url, headers, cctl)
-                 """.trimIndent(),
-				"POST" to """
-                        local url, headers, body, cctl = ...
-                        headers = headers or DEFAULT_HEADERS()
-                        cctl = cctl or DEFAULT_CACHE_CONTROL()
-                        body = body or DEFAULT_BODY()
-
-                        return _POST(url, headers, body, cctl)
-                """.trimIndent(),
-				"map" to """
-                        local o, f = ...
-                        local t = {}
-						if type(o) == "table" then
-							for k,v in pairs(o) do
-								t[k] = f(v,k)
-							end
-						else
-							for i=0, o:size()-1 do
-								t[i+1] = f(o:get(i), i)
-							end
-						end
-                        return t
-                """.trimIndent(),
-				"mapNotNil" to """
-                        local o, f = ...
-                        local t, j = {}, 1
-                        for i=0, o:size()-1 do
-                            local v = f(o:get(i))
-                            if v then
-                                t[j] = v
-                                j = j + 1
-                            end
-                        end
-                        return t
-                """.trimIndent(),
-				"filter" to """
-                        local o, f = ...
-                        local t, j = {}, 1
-                        for i=0, o:size()-1 do
-                            local v = o:get(i)
-                            if f(v) then
-                                t[j] = v
-                                j = j + 1
-                            end
-                        end
-                        return t
-                """.trimIndent(),
-				"map2flat" to """
-                        local o1, f1, f2 = ...
-                        local t, j = {}, 1
-                        for i=0, o1:size()-1 do
-                            local o2 = f1(o1:get(i))
-                            if o2 then
-                                for k=0, o2:size()-1 do
-                                    t[j] = f2(o2:get(k))
-                                    j = j + 1
-                                end
-                            end
-                        end
-                        return t
-                """.trimIndent(),
-				"first" to """
-                        local o, f = ...
-                        for i=1, o:size() do
-                            local v = o:get(i-1)
-                            if f(v) then return v end
-                        end
-                        return nil
-                """.trimIndent(),
-				"wrap" to """
-                        local o, f = ...
-                        return function(...)
-                            return f(o, ...)
-                        end
-                """.trimIndent(),
-				"flatten" to """
-                        local t = ...
-                        local n = {}
-                        local i = 1
-
-                        for _,u in pairs(t) do
-                            for _,v in pairs(u) do
-                                n[i] = v
-                                i = i + 1
-                            end
-                        end
-
-                        return n
-                """.trimIndent()
-		).map { e -> e.key to load.call(e.value) }.toMap()
+		private val luaFuncs: Map<String, LuaValue> = permaLuaFuncs
+				.map { e -> e.key to load.call(e.value) }.toMap()
 
 		/**
 		 * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(o, ...),
@@ -265,20 +170,36 @@ class ShosetsuLib : TwoArgFunction() {
 				val o = lib[k.tostring()]
 				if (o != null && o != LuaValue.NIL)
 					return wrap.call(lib, o)
-
 				val f = luaFuncs[k.tojstring()]
 				if (f != null) return f
 			}
-
 			return LuaValue.NIL
 		}
 	}
 
-	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
-		val g: Globals = env.checkglobals()
-		g.setmetatable(LuaTable())
-		g.getmetatable()["__index"] = __index(g)
-		return g
+	companion object {
+		/** Libraries loaded in via shosetsu. Mapping from library name to their returned value. */
+		val libraries: MutableMap<String, LuaValue> = mutableMapOf()
+
+		/** Loads libraries from their names. */
+		lateinit var libLoader: (name: String) -> LuaValue?
+
+		/** okhttp HTTP Client used by lib functions. */
+		lateinit var httpClient: OkHttpClient
+
+		private val permaLuaFuncs by lazy {
+			mapOf(
+					"GET" to loadResource("GET.lua"),
+					"POST" to loadResource("POST.lua"),
+					"map" to loadResource("map.lua"),
+					"mapNotNil" to loadResource("mapNotNil.lua"),
+					"filter" to loadResource("filter.lua"),
+					"map2flat" to loadResource("map2flat.lua"),
+					"first" to loadResource("first.lua"),
+					"wrap" to loadResource("wrap.lua"),
+					"flatten" to loadResource("flatten.lua")
+			)
+		}
 	}
 }
 
