@@ -40,14 +40,14 @@ object Test {
 
 	private val SOURCES: List<String> = arrayOf(
 			//"en/BestLightNovel",
-			//"en/BoxNovel"
+			"en/BoxNovel"
 			//"en/CreativeNovels",
 			//"en/FastNovel",
 			//#"en/Foxaholic",
 			//"en/KissLightNovels",
 			//#"en/MNovelFree",
 			//"en/MTLNovel"
-			"en/NovelFull"
+			//"en/NovelFull"
 			//"en/NovelOnlineFree",
 			//"en/NovelOnlineFull",
 			//"en/NovelTrench",

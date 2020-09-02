@@ -3,6 +3,7 @@ package app.shosetsu.lib
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.internal.closeQuietly
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.luaj.vm2.*
@@ -129,7 +130,10 @@ class ShosetsuLib : TwoArgFunction() {
 		fun Request(req: Request): Response = httpClient.newCall(req).execute()
 		fun RequestDocument(req: Request): Document = Document(
 				Request(req).let { r ->
-					r.takeIf { it.code == 200 }?.body?.string() ?: throw HTTPException(r.code)
+					r.takeIf { it.code == 200 }?.body?.string() ?: {
+						r.closeQuietly()
+						throw HTTPException(r.code)
+					}()
 				}
 		)
 
