@@ -84,6 +84,15 @@ class ShosetsuLib : TwoArgFunction() {
 			else -> Novel.Status.UNKNOWN
 		}
 
+		fun ChapterType(type: Int): Novel.ChapterType = when (type) {
+			0 -> Novel.ChapterType.STRING
+			1 -> Novel.ChapterType.HTML
+			2 -> Novel.ChapterType.EPUB
+			3 -> Novel.ChapterType.PDF
+			4 -> Novel.ChapterType.MD
+			else -> Novel.ChapterType.STRING
+		}
+
 		/**
 		 * Requests for a certain library to be loaded
 		 */

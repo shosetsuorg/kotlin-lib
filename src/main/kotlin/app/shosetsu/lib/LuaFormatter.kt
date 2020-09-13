@@ -42,7 +42,8 @@ class LuaFormatter(val content: String) : Formatter {
 				"hasCloudFlare" to FALSE,
 				"hasSearch" to TRUE,
 				"searchFilters" to LuaTable(),
-				"settings" to LuaTable()
+				"settings" to LuaTable(),
+				"chapterType" to coerce(Novel.ChapterType.STRING)
 		)
 
 		/**
@@ -149,6 +150,9 @@ class LuaFormatter(val content: String) : Formatter {
 	@Suppress("UNCHECKED_CAST")
 	override val searchFiltersModel: Array<Filter<*>> by lazy {
 		tableToFilters(source["searchFilters"] as LuaTable)
+	}
+	override val chapterType: Novel.ChapterType by lazy {
+		coerceLuaToJava<Novel.ChapterType>(source["chapterType"])
 	}
 
 	@Suppress("UNCHECKED_CAST")

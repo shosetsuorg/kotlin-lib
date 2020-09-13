@@ -51,4 +51,22 @@ class Novel {
 			var artists: Array<String> = arrayOf(),
 			var chapters: List<Chapter> = arrayListOf()
 	)
+
+	/** Represents the data type chapters are returned as */
+	enum class ChapterType {
+		/** Chapters are just strings */
+		STRING,
+
+		/** Chapters are HTML webpages */
+		HTML,
+
+		/** Chapters are MarkDown strings */
+		MD,
+
+		/** Chapters are epub types */
+		EPUB,
+
+		/** Chapters are PDF types */
+		PDF
+	}
 }

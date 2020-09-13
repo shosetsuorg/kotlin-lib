@@ -93,6 +93,9 @@ interface Formatter {
 	 */
 	val searchFiltersModel: Array<Filter<*>>
 
+	/** Represents the data type of the chapters that [getPassage] returns */
+	val chapterType: Novel.ChapterType
+
 	/**
 	 * Applies a setting a value
 	 */
@@ -107,6 +110,7 @@ interface Formatter {
 	/**
 	 * Get the passage of a novel
 	 * @param chapterURL of the chapter, will be fed into [expandURL] with [KEY_CHAPTER_URL]
+	 * @return [String] of data corresponding to the [chapterType]
 	 */
 	fun getPassage(chapterURL: String): String
 
