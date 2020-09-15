@@ -2,9 +2,11 @@ package app.shosetsu.lib
 
 import app.shosetsu.lib.Formatter.Companion.KEY_CHAPTER_URL
 import app.shosetsu.lib.Formatter.Companion.KEY_NOVEL_URL
-import org.luaj.vm2.Globals
-import org.luaj.vm2.LuaValue
-import org.luaj.vm2.lib.jse.JsePlatform
+import org.luaj.vm2.*
+import org.luaj.vm2.compiler.LuaC
+import org.luaj.vm2.lib.*
+import org.luaj.vm2.lib.jse.*
+import org.luaj.vm2.luajc.LuaJC
 import org.luaj.vm2.LuaValue.valueOf as lValueOf
 
 /**
@@ -21,17 +23,84 @@ val SHOSETSU_GLOBALS: Map<String, LuaValue> = mapOf<String, LuaValue>(
 		"KEY_NOVEL_URL" to lValueOf(KEY_NOVEL_URL)
 )
 
-/**
- * Globals for shosetsu
- */
-fun shosetsuGlobals(): Globals {
-	val globals = JsePlatform.standardGlobals()
+fun LuaTable.frozen(name: String, allowed: Array<String>? = null): LuaTable {
+	var tbl = this
+	if (allowed != null) {
+		val new = LuaTable()
+		allowed.forEach { new[it] = tbl[it] }
+		tbl = new
+	}
 
-	// Applies shosetsu globals on top of the standard ones
+	val mt = LuaTable()
+	val new = LuaTable()
+	mt["__index"] = tbl
+	mt["__newindex"] = object : ZeroArgFunction() {
+		override fun call(): LuaValue = throw LuaError("$name is read-only.")
+	}
+	new.setmetatable(mt)
+
+	return new
+}
+
+fun Globals.freezeLib(key: String, allowed: Array<String>? = null)
+		= this.set(key, (this.get(key) as? LuaTable)!!.frozen(key, allowed))
+
+fun Globals.frozen(): Globals {
+	val mt = LuaTable()
+	val new = Globals()
+	new["_G"] = new
+
+	// why does LuaJ have all this shit
+	new.STDIN = this.STDIN
+	new.STDOUT = this.STDOUT
+	new.STDERR = this.STDERR
+	new.finder = this.finder
+	new.running = this.running
+	new.baselib = this.baselib
+	new.package_ = this.package_
+	new.debuglib = this.debuglib
+	new.loader = this.loader
+	new.undumper = this.undumper
+	new.compiler = this.compiler
+
+	mt["__index"] = this
+	mt["__newindex"] = object : ZeroArgFunction() {
+		// not sure if this is the best idea, but it enforces better code quality/speed and it should reduce risks.
+		override fun call(): LuaValue = throw LuaError("Cannot create a global. Please use a local variable/function.")
+	}
+	new.setmetatable(mt)
+	return new
+}
+
+
+fun shosetsuGlobals(): Globals {
+	// Creation of globals
+	var globals = Globals()
+	globals.load(JseBaseLib())
+	globals.load(PackageLib())
+	globals.load(Bit32Lib())
+	globals.load(TableLib())
+	globals.load(StringLib())
+	globals.load(CoroutineLib())
+	globals.load(JseMathLib())
+	globals.load(JseOsLib())
+	globals.load(LuajavaLib())
+
+	// Load shosetsu environment
+	globals.load(ShosetsuLib())
 	SHOSETSU_GLOBALS.forEach { (s, luaValue) -> globals.set(s, luaValue) }
 
-	// Loads shosetsu support lib
-	globals.load(ShosetsuLib())
+	LoadState.install(globals)
+	LuaC.install(globals)
+
+	// Freezing & Sandboxing
+	globals.freezeLib("package")
+	globals.freezeLib("bit32")
+	globals.freezeLib("table")
+	globals.freezeLib("coroutine")
+	globals.freezeLib("math")
+	globals.freezeLib("os", arrayOf("clock", "date", "difftime", "setlocale", "time"))
+	globals = globals.frozen()
 
 	return globals
 }

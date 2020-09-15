@@ -2,7 +2,6 @@ package app.shosetsu.lib
 
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
-import org.luaj.vm2.lib.jse.JsePlatform
 import java.io.File
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
@@ -18,8 +17,8 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
  * GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
- * ====================================================================
  */
+
 /**
  * shosetsu-services
  * 03 / June / 2019
@@ -37,39 +36,37 @@ object Test {
 	private const val PRINT_NOVEL_STATS = true
 	private const val PRINT_PASSAGES = true
 
-
 	private val SOURCES: List<String> = arrayOf(
-			//"en/BestLightNovel",
-			"en/BoxNovel"
-			//"en/CreativeNovels",
-			//"en/FastNovel",
-			//#"en/Foxaholic",
-			//"en/KissLightNovels",
-			//#"en/MNovelFree",
-			//"en/MTLNovel"
-			//"en/NovelFull"
-			//"en/NovelOnlineFree",
-			//"en/NovelOnlineFull",
-			//"en/NovelTrench",
-			//#"en/ReadNovelForLife",
-			//"en/ReadNovelFull",
-			//"en/VipNovel",
-			//#"en/VolareNovels",
-			//#"en/WuxiaWorld",
-			//#"jp/Syosetsu",
-			//#"vi/247Truyen",
-			//"zn/15doc",
-			//#"zn/Tangsanshu",
+			// "en/BestLightNovel",
+			// "en/BoxNovel"
+			// "en/CreativeNovels",
+			// "en/FastNovel",
+			// "en/Foxaholic",
+			// "en/KissLightNovels",
+			// "en/MNovelFree",
+			// "en/MTLNovel"
+			// "en/NovelFull"
+			// "en/NovelOnlineFree",
+			// "en/NovelOnlineFull",
+			// "en/NovelTrench",
+			// "en/ReadNovelForLife",
+			// "en/ReadNovelFull",
+			// "en/VipNovel",
+			// "en/VolareNovels",
+			// "en/WuxiaWorld",
+			// "jp/Syosetsu",
+			// "vi/247Truyen",
+			// "zn/15doc",
+			// "zn/Tangsanshu",
 	).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
 	// END CONFIG
 
+	private val globals = shosetsuGlobals()
 	private fun loadScript(file: File): LuaValue {
-		val script = JsePlatform.standardGlobals()
-		script.load(ShosetsuLib())
 		val l = try {
-			script.load(file.readText())!!
+			globals.load(file.readText())!!
 		} catch (e: Error) {
 			throw e
 		}

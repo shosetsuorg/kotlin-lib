@@ -160,10 +160,6 @@ class ShosetsuLib : TwoArgFunction() {
 		fun RequestBody(data: String, type: MediaType): RequestBody = data.toRequestBody(type)
 	}
 
-	/**
-	 * Makes use of lua metatables and its "__index" metamethod, which is called when
-	 * trying to index a table and a key is not present, to inject our library into the script's Globals.
-	 */
 	@Suppress("ClassName")
 	internal class __index(g: Globals) : TwoArgFunction() {
 		private val load: LuaFunction = g["load"] as LuaFunction
@@ -172,10 +168,6 @@ class ShosetsuLib : TwoArgFunction() {
 		private val luaFuncs: Map<String, LuaValue> = permaLuaFuncs
 				.map { e -> e.key to load.call(e.value) }.toMap()
 
-		/**
-		 * Normally, you'd call functions in java objects with o:F(...), which is actually syntax sugar for o.F(o, ...),
-		 * the "wrap" function bypasses this.
-		 */
 		private val wrap: LuaFunction = luaFuncs["wrap"] as LuaFunction
 
 		override fun call(_self: LuaValue, k: LuaValue): LuaValue {
@@ -215,5 +207,3 @@ class ShosetsuLib : TwoArgFunction() {
 		}
 	}
 }
-
-
