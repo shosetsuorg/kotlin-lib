@@ -5,8 +5,10 @@ import app.shosetsu.lib.Formatter.Companion.KEY_NOVEL_URL
 import org.luaj.vm2.*
 import org.luaj.vm2.compiler.LuaC
 import org.luaj.vm2.lib.*
-import org.luaj.vm2.lib.jse.*
-import org.luaj.vm2.luajc.LuaJC
+import org.luaj.vm2.lib.jse.JseBaseLib
+import org.luaj.vm2.lib.jse.JseMathLib
+import org.luaj.vm2.lib.jse.JseOsLib
+import org.luaj.vm2.lib.jse.LuajavaLib
 import org.luaj.vm2.LuaValue.valueOf as lValueOf
 
 /**
@@ -42,8 +44,7 @@ fun LuaTable.frozen(name: String, allowed: Array<String>? = null): LuaTable {
 	return new
 }
 
-fun Globals.freezeLib(key: String, allowed: Array<String>? = null)
-		= this.set(key, (this.get(key) as? LuaTable)!!.frozen(key, allowed))
+fun Globals.freezeLib(key: String, allowed: Array<String>? = null) = this.set(key, (this.get(key) as? LuaTable)!!.frozen(key, allowed))
 
 fun Globals.frozen(): Globals {
 	val mt = LuaTable()

@@ -37,27 +37,25 @@ object Test {
 	private const val PRINT_PASSAGES = true
 
 	private val SOURCES: List<String> = arrayOf(
-			// "en/BestLightNovel",
-			// "en/BoxNovel"
-			// "en/CreativeNovels",
-			// "en/FastNovel",
-			// "en/Foxaholic",
-			// "en/KissLightNovels",
-			// "en/MNovelFree",
-			// "en/MTLNovel"
-			// "en/NovelFull"
-			// "en/NovelOnlineFree",
-			// "en/NovelOnlineFull",
-			// "en/NovelTrench",
-			// "en/ReadNovelForLife",
-			// "en/ReadNovelFull",
-			// "en/VipNovel",
-			// "en/VolareNovels",
-			// "en/WuxiaWorld",
-			// "jp/Syosetsu",
-			// "vi/247Truyen",
-			// "zn/15doc",
-			// "zn/Tangsanshu",
+			//"en/BestLightNovel",
+			//"en/BoxNovel",
+			//"en/CreativeNovels",
+			//"en/FastNovel",
+			//"en/Foxaholic", Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
+			//"en/KissLightNovels",
+			//"en/MNovelFree", Doesn't seem to be a novelfull
+			//"en/MTLNovel",
+			//"en/NovelFull",
+			"en/NovelTrench",
+			"en/ReadNovelForLife",
+			"en/ReadNovelFull",
+			"en/VipNovel",
+			"en/VolareNovels",
+			"en/WuxiaWorld",
+			"jp/Syosetsu",
+			"vi/247Truyen",
+			"zn/15doc",
+			"zn/Tangsanshu"
 	).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
