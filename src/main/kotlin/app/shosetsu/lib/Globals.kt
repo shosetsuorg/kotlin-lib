@@ -86,12 +86,13 @@ fun shosetsuGlobals(): Globals {
 	globals.load(JseOsLib())
 	globals.load(LuajavaLib())
 
+	// Install compilers.
+	LoadState.install(globals)
+	LuaC.install(globals)
+
 	// Load shosetsu environment
 	globals.load(ShosetsuLib())
 	SHOSETSU_GLOBALS.forEach { (s, luaValue) -> globals.set(s, luaValue) }
-
-	LoadState.install(globals)
-	LuaC.install(globals)
 
 	// Freezing & Sandboxing
 	globals.freezeLib("package")
