@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
  */
 object Test {
 	// CONFIG
-	private const val SEARCH_VALUE = "world"
+	private const val SEARCH_VALUE = "斗"
 	private const val PRINT_LISTINGS = true
 	private const val PRINT_LIST_STATS = true
 	private const val PRINT_NOVELS = true
@@ -51,9 +51,9 @@ object Test {
 			//"en/ReadNovelFull",
 			//"en/VipNovel",
 			//"en/VolareNovels",
-			"en/WuxiaWorld",
-			"jp/Syosetsu",
-			"zn/15doc",
+			//"en/WuxiaWorld",
+			//"jp/Syosetsu",
+			//"zn/15doc",
 			"zn/Tangsanshu"
 	).map { "src/main/resources/src/$it.lua" }
 
