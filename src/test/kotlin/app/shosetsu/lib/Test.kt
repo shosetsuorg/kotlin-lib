@@ -46,14 +46,13 @@ object Test {
 			//"en/MNovelFree", Doesn't seem to be a novelfull
 			//"en/MTLNovel",
 			//"en/NovelFull",
-			"en/NovelTrench",
-			"en/ReadNovelForLife",
-			"en/ReadNovelFull",
-			"en/VipNovel",
-			"en/VolareNovels",
+			//"en/NovelTrench", --:70 attempt to concatenate string and boolean
+			//"en/ReadNovelForLife", -- ReadNovelForLife
+			//"en/ReadNovelFull",
+			//"en/VipNovel",
+			//"en/VolareNovels",
 			"en/WuxiaWorld",
 			"jp/Syosetsu",
-			"vi/247Truyen",
 			"zn/15doc",
 			"zn/Tangsanshu"
 	).map { "src/main/resources/src/$it.lua" }
