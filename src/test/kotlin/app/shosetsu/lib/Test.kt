@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
  */
 object Test {
 	// CONFIG
-	private const val SEARCH_VALUE = "斗"
+	private const val SEARCH_VALUE = "world"
 	private const val PRINT_LISTINGS = true
 	private const val PRINT_LIST_STATS = true
 	private const val PRINT_NOVELS = true
@@ -44,7 +44,7 @@ object Test {
 			//"en/Foxaholic", Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
 			//"en/KissLightNovels",
 			//"en/MNovelFree", Doesn't seem to be a novelfull
-			//"en/MTLNovel",
+			"en/MTLNovel"
 			//"en/NovelFull",
 			//"en/NovelTrench", --:70 attempt to concatenate string and boolean
 			//"en/ReadNovelForLife", -- ReadNovelForLife
@@ -54,7 +54,7 @@ object Test {
 			//"en/WuxiaWorld",
 			//"jp/Syosetsu",
 			//"zn/15doc",
-			"zn/Tangsanshu"
+			//"zn/Tangsanshu"
 	).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
