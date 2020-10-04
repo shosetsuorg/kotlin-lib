@@ -44,7 +44,7 @@ object Test {
 			//"en/Foxaholic", Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
 			//"en/KissLightNovels",
 			//"en/MNovelFree", Doesn't seem to be a novelfull
-			"en/MTLNovel"
+			//"en/MTLNovel"
 			//"en/NovelFull",
 			//"en/NovelTrench", --:70 attempt to concatenate string and boolean
 			//"en/ReadNovelForLife", -- ReadNovelForLife
@@ -54,7 +54,8 @@ object Test {
 			//"en/WuxiaWorld",
 			//"jp/Syosetsu",
 			//"zn/15doc",
-			//"zn/Tangsanshu"
+			//"zn/Tangsanshu",
+			"pt/saikaiscan"
 	).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
