@@ -50,7 +50,7 @@ object Test {
 			//"en/ReadNovelForLife", -- ReadNovelForLife
 			//"en/ReadNovelFull",
 			//"en/VipNovel",
-			//"en/VolareNovels",
+			"en/VolareNovels",
 			//"en/WuxiaWorld",
 			//"jp/Syosetsu",
 			//"zn/15doc",
