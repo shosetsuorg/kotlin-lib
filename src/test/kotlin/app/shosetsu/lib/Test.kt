@@ -38,7 +38,7 @@ object Test {
 	private const val PRINT_NOVEL_STATS = true
 	private const val PRINT_PASSAGES = true
 
-	private val SOURCES: List<String> = arrayOf(
+	private val SOURCES: List<String> = arrayOf<String>(
 			//"en/BestLightNovel",
 			//"en/BoxNovel",
 			//"en/CreativeNovels",

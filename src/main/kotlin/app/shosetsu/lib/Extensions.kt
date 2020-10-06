@@ -20,26 +20,6 @@ import org.luaj.vm2.lib.jse.CoerceLuaToJava
  * along with shosetsu-kotlin-lib.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/** Convenient kotlin function to convert a value to a jvm value */
-inline fun <reified T> coerceLuaToJava(value: LuaValue): T = CoerceLuaToJava.coerce(value, T::class.java) as T
-
-/** Converts a [Map] to a [LuaTable] */
-fun Map<Int, *>.toLua(): LuaTable = LuaTable().also {
-	this.forEach { (i, any) -> it[i] = CoerceJavaToLua.coerce(any) }
-}
-
-
-/** Converts a [Map] to a [LuaTable] */
-fun Array<*>.toLua(): LuaTable = LuaTable().also {
-	this.map { CoerceJavaToLua.coerce(it) }.forEachIndexed { i, v -> it[i] = v }
-}
-
-/** Converts [Array] of anything to [LuaTable] */
-fun Array<*>.toLua(oneIndex: Boolean): LuaTable = LuaTable().also {
-	this.map { CoerceJavaToLua.coerce(it) }.forEachIndexed { i, v -> it[if (oneIndex) i + 1 else i] = v }
-}
-
-
 fun Array<Filter<*>>.mapify(): Map<Int, Any> = HashMap<Int, Any>().apply hasMap@{
 	this@mapify.forEach {
 		when (val state = it.state) {
