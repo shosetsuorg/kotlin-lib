@@ -1,5 +1,6 @@
-package app.shosetsu.lib
+package app.shosetsu.lib.lua
 
+import app.shosetsu.lib.*
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -33,7 +34,7 @@ import java.util.concurrent.TimeUnit
  *
  * @author github.com/technojo4
  */
-class ShosetsuLib : TwoArgFunction() {
+class ShosetsuLuaLib : TwoArgFunction() {
 
 	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
 		val g: Globals = env.checkglobals()
@@ -52,15 +53,12 @@ class ShosetsuLib : TwoArgFunction() {
 		fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
 		fun <E> Reverse(arr: ArrayList<E>): Unit = arr.reverse()
 
-		/** Lua Constructor for [Formatter.Listing] */
+		/** Lua Constructor for [IExtension.Listing] */
 		@Suppress("UNCHECKED_CAST")
 		fun Listing(name: String, increments: Boolean, func: LuaFunction) =
-				Formatter.Listing(name, increments) { data, page ->
+				IExtension.Listing(name, increments) { data ->
 					CoerceLuaToJava.coerce(
-							func.call(
-									data.toLua(),
-									if (page == null) LuaValue.NIL else LuaValue.valueOf(page)
-							),
+							func.call(data.toLua()),
 							Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 				}
 

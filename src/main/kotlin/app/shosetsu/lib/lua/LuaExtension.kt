@@ -1,5 +1,6 @@
-package app.shosetsu.lib
+package app.shosetsu.lib.lua
 
+import app.shosetsu.lib.*
 import org.json.JSONException
 import org.json.JSONObject
 import org.luaj.vm2.LuaString.EMPTYSTRING
@@ -11,6 +12,7 @@ import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import java.io.File
 import java.io.IOException
+import java.security.InvalidParameterException
 
 /*
  * This file is part of shosetsu-services.
@@ -32,29 +34,54 @@ import java.io.IOException
  *
  * @param content extension script
  */
-class LuaFormatter(val content: String) : Formatter {
+class LuaExtension(val content: String) : IExtension {
 	companion object {
+
+		private const val KEY_ID = "id"
+		private const val KEY_NAME = "name"
+		private const val KEY_BASE_URL = "baseURL"
+		private const val KEY_IMAGE_URL = "imageURL"
+
+		private const val KEY_HAS_CLOUD_FLARE = "hasCloudFlare"
+
+		private const val KEY_SEARCH = "search"
+		private const val KEY_HAS_SEARCH = "hasSearch"
+		private const val KEY_IS_SEARCH_INC = "isSearchIncrementing"
+		private const val KEY_SEARCH_FILTERS = "searchFilters"
+
+		private const val KEY_SETTINGS = "settings"
+		private const val KEY_UPDATE_SETTING = "updateSetting"
+
+		private const val KEY_CHAPTER_TYPE = "chapterType"
+		private const val KEY_LISTINGS = "listings"
+		private const val KEY_GET_PASSAGE = "getPassage"
+		private const val KEY_PARSE_NOVEL = "parseNovel"
+
+		private const val KEY_EXPAND_URL = "expandURL"
+		private const val KEY_SHRINK_URL = "shrinkURL"
+
 		/**
 		 * Values that may not be present
 		 */
 		val defaults: Map<String, LuaValue> = mapOf(
-				"imageURL" to EMPTYSTRING,
-				"hasCloudFlare" to FALSE,
-				"hasSearch" to TRUE,
-				"searchFilters" to LuaTable(),
-				"settings" to LuaTable(),
-				"chapterType" to coerce(Novel.ChapterType.STRING)
+				KEY_IMAGE_URL to EMPTYSTRING,
+				KEY_HAS_CLOUD_FLARE to FALSE,
+				KEY_HAS_SEARCH to TRUE,
+				KEY_IS_SEARCH_INC to TRUE,
+				KEY_SEARCH_FILTERS to LuaTable(),
+				KEY_SETTINGS to LuaTable(),
+				KEY_CHAPTER_TYPE to coerce(Novel.ChapterType.STRING)
 		)
 
 		/**
 		 * Values that must be present
 		 */
 		val hardKeys: Map<String, Int> = mapOf(
-				"id" to TNUMBER,
-				"name" to TSTRING,
-				"listings" to TTABLE,
-				"getPassage" to TFUNCTION,
-				"parseNovel" to TFUNCTION
+				KEY_ID to TNUMBER,
+				KEY_NAME to TSTRING,
+				KEY_LISTINGS to TTABLE,
+				KEY_GET_PASSAGE to TFUNCTION,
+				KEY_PARSE_NOVEL to TFUNCTION
 		)
 
 		/**
@@ -62,13 +89,9 @@ class LuaFormatter(val content: String) : Formatter {
 		 * IE, if hasSearch is false, then search does not need to be present in script
 		 */
 		val softKeys: Map<String, Pair<Pair<String, Int>, (LuaValue) -> Boolean>> = mapOf(
-				"hasSearch" to Pair(Pair("search", TFUNCTION), { v -> (v == TRUE) }),
-				"settings" to Pair(Pair("updateSetting", TFUNCTION), { v -> (v as LuaTable).length() != 0 })
+				KEY_HAS_SEARCH to Pair(Pair(KEY_SEARCH, TFUNCTION), { v -> (v == TRUE) }),
+				KEY_SETTINGS to Pair(Pair(KEY_UPDATE_SETTING, TFUNCTION), { v -> (v as LuaTable).length() != 0 })
 		)
-
-		/***/
-		@Deprecated("Moved to globals", replaceWith = ReplaceWith("QUERY_INDEX"))
-		const val FILTER_POSITION_QUERY: Int = 0
 
 		private fun makeLuaReporter(f: (status: String) -> Unit) = object : OneArgFunction() {
 			override fun call(p0: LuaValue?): LuaValue {
@@ -133,62 +156,67 @@ class LuaFormatter(val content: String) : Formatter {
 				)
 		}
 
+		// Ensures searchFilters conform to design
+		tableToFilters(source[KEY_SEARCH_FILTERS] as LuaTable).let {
+			println(it.contentDeepToString())
+			if (it.any { it.id == QUERY_INDEX || it.id == PAGE_INDEX })
+				throw InvalidParameterException("Search filters contain illegal ID $QUERY_INDEX||$PAGE_INDEX")
+		}
+
 	}
 
-	override val name: String by lazy { source["name"].tojstring() }
-	override val baseURL: String by lazy { source["baseURL"].tojstring() }
-	override val formatterID by lazy { source["id"].toint() }
-	override val imageURL: String by lazy { source["imageURL"].tojstring() }
-	override val hasCloudFlare by lazy { source["hasCloudFlare"].toboolean() }
-	override val hasSearch by lazy { source["hasSearch"].toboolean() }
+	override val name: String by lazy { source[KEY_NAME].tojstring() }
+	override val baseURL: String by lazy { source[KEY_BASE_URL].tojstring() }
+	override val formatterID by lazy { source[KEY_ID].toint() }
+	override val imageURL: String by lazy { source[KEY_IMAGE_URL].tojstring() }
+	override val hasCloudFlare by lazy { source[KEY_HAS_CLOUD_FLARE].toboolean() }
+	override val hasSearch by lazy { source[KEY_HAS_SEARCH].toboolean() }
+	override val isSearchIncrementing: Boolean by lazy { source[KEY_IS_SEARCH_INC].toboolean() }
 
 	@Suppress("UNCHECKED_CAST")
-	override val listings: Array<Formatter.Listing> by lazy {
-		coerceLuaToJava<Array<Formatter.Listing>>(source["listings"])
+	override val listings: Array<IExtension.Listing> by lazy {
+		coerceLuaToJava<Array<IExtension.Listing>>(source[KEY_LISTINGS])
 	}
 
 	@Suppress("UNCHECKED_CAST")
 	override val searchFiltersModel: Array<Filter<*>> by lazy {
-		tableToFilters(source["searchFilters"] as LuaTable)
+		tableToFilters(source[KEY_SEARCH_FILTERS] as LuaTable)
 	}
 	override val chapterType: Novel.ChapterType by lazy {
-		coerceLuaToJava<Novel.ChapterType>(source["chapterType"])
+		coerceLuaToJava<Novel.ChapterType>(source[KEY_CHAPTER_TYPE])
 	}
 
 	@Suppress("UNCHECKED_CAST")
 	override val settingsModel: Array<Filter<*>> by lazy {
-		tableToFilters(source["settings"] as LuaTable)
+		tableToFilters(source[KEY_SETTINGS] as LuaTable)
 	}
 
 	override fun updateSetting(id: Int, value: Any?) {
-		source["updateSetting"].takeIf { it.type() == TFUNCTION }?.call(valueOf(id), coerce(value)) ?: return
+		source[KEY_UPDATE_SETTING].takeIf { it.type() == TFUNCTION }?.call(valueOf(id), coerce(value)) ?: return
 	}
 
 	override fun getPassage(chapterURL: String): String =
-			source["getPassage"].call(expandURL(chapterURL, 1)).tojstring()
+			source[KEY_GET_PASSAGE].call(expandURL(chapterURL, 1)).tojstring()
 
 	override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info =
-			coerceLuaToJava(source["parseNovel"].call(
+			coerceLuaToJava(source[KEY_PARSE_NOVEL].call(
 					valueOf(expandURL(novelURL, 1)),
 					valueOf(loadChapters),
 					makeLuaReporter(reporter)
 			))
 
 	@Suppress("UNCHECKED_CAST")
-	override fun search(data: Map<Int, *>, reporter: (status: String) -> Unit): Array<Novel.Listing> =
-			coerceLuaToJava(source["search"].call(
-					data.toLua(),
-					makeLuaReporter(reporter)
-			))
+	override fun search(data: Map<Int, *>): Array<Novel.Listing> =
+			coerceLuaToJava(source[KEY_SEARCH].call(data.toLua()))
 
 	override fun expandURL(smallURL: String, type: Int): String {
-		val f = source["expandURL"]
+		val f = source[KEY_EXPAND_URL]
 		if (f.type() != TFUNCTION) return smallURL
 		return f.call(valueOf(smallURL), valueOf(type)).tojstring()
 	}
 
 	override fun shrinkURL(longURL: String, type: Int): String {
-		val f = source["shrinkURL"]
+		val f = source[KEY_SHRINK_URL]
 		if (f.type() != TFUNCTION) return longURL
 		return f.call(valueOf(longURL), valueOf(type)).tojstring()
 	}

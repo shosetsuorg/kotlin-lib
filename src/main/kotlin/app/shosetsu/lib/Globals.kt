@@ -1,7 +1,8 @@
 package app.shosetsu.lib
 
-import app.shosetsu.lib.Formatter.Companion.KEY_CHAPTER_URL
-import app.shosetsu.lib.Formatter.Companion.KEY_NOVEL_URL
+import app.shosetsu.lib.IExtension.Companion.KEY_CHAPTER_URL
+import app.shosetsu.lib.IExtension.Companion.KEY_NOVEL_URL
+import app.shosetsu.lib.lua.ShosetsuLuaLib
 import org.luaj.vm2.*
 import org.luaj.vm2.compiler.LuaC
 import org.luaj.vm2.lib.*
@@ -11,16 +12,21 @@ import org.luaj.vm2.lib.jse.JseOsLib
 import org.luaj.vm2.lib.jse.LuajavaLib
 import org.luaj.vm2.LuaValue.valueOf as lValueOf
 
-/**
- * The index all queries are set to when passing data along
- */
+/** The index all queries are set to when passing data along */
 const val QUERY_INDEX: Int = 0
+
+/**
+ * The index of the page number that is set into the data passed
+ * into [IExtension.search] & [IExtension.Listing.getListing]
+ * */
+const val PAGE_INDEX: Int = 1
 
 /**
  * Global values that are passed into lua with [shosetsuGlobals]
  */
 val SHOSETSU_GLOBALS: Map<String, LuaValue> = mapOf<String, LuaValue>(
 		"QUERY" to lValueOf(QUERY_INDEX),
+		"PAGE" to lValueOf(PAGE_INDEX),
 		"KEY_CHAPTER_URL" to lValueOf(KEY_CHAPTER_URL),
 		"KEY_NOVEL_URL" to lValueOf(KEY_NOVEL_URL)
 )
@@ -92,7 +98,7 @@ fun shosetsuGlobals(): Globals {
 	LuaC.install(globals)
 
 	// Load shosetsu environment
-	globals.load(ShosetsuLib())
+	globals.load(ShosetsuLuaLib())
 	SHOSETSU_GLOBALS.forEach { (s, luaValue) -> globals.set(s, luaValue) }
 
 	// Freezing & Sandboxing

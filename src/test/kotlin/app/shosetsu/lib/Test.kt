@@ -1,5 +1,7 @@
 package app.shosetsu.lib
 
+import app.shosetsu.lib.lua.LuaExtension
+import app.shosetsu.lib.lua.ShosetsuLuaLib
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import java.io.File
@@ -40,22 +42,22 @@ object Test {
 			//"en/BestLightNovel",
 			//"en/BoxNovel",
 			//"en/CreativeNovels",
-			//"en/FastNovel",
-			//"en/Foxaholic", Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
+			//"en/FastNovel", -- line 54, nil
+			//"en/Foxaholic", //Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
 			//"en/KissLightNovels",
-			//"en/MNovelFree", Doesn't seem to be a novelfull
-			//"en/MTLNovel"
+			//"en/MNovelFree", //Doesn't seem to be a novelfull
+			//"en/MTLNovel",
 			//"en/NovelFull",
-			//"en/NovelTrench", --:70 attempt to concatenate string and boolean
-			//"en/ReadNovelForLife", -- ReadNovelForLife
-			//"en/ReadNovelFull",
+			//"en/NovelTrench", // --:70 attempt to concatenate string and boolean
+			//"en/ReadNovelForLife", // Ded site
+			//"en/ReadNovelFull", // Meta offset issue?
 			//"en/VipNovel",
-			"en/VolareNovels",
+			//"en/VolareNovels",
 			//"en/WuxiaWorld",
 			//"jp/Syosetsu",
+			//"pt/SaikaiScan", -- Removed search query
 			//"zn/15doc",
-			//"zn/Tangsanshu",
-			"pt/saikaiscan"
+			//"zn/Tangsanshu"
 	).map { "src/main/resources/src/$it.lua" }
 
 	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
@@ -73,7 +75,7 @@ object Test {
 	}
 
 	@Suppress("ConstantConditionIf")
-	private fun showListing(fmt: Formatter, novels: Array<Novel.Listing>) {
+	private fun showListing(fmt: IExtension, novels: Array<Novel.Listing>) {
 		if (PRINT_LISTINGS)
 			println("[" + novels.joinToString(", ") { it.toString() } + "]")
 
@@ -125,15 +127,15 @@ object Test {
 	@Throws(java.io.IOException::class, InterruptedException::class)
 	fun main(args: Array<String>) {
 		try {
-			ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
-			ShosetsuLib.httpClient = OkHttpClient.Builder().addInterceptor {
+			ShosetsuLuaLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
+			ShosetsuLuaLib.httpClient = OkHttpClient.Builder().addInterceptor {
 				it.proceed(it.request().also { request -> println(request.url.toUrl().toString()) })
 			}.build()
 
 			for (format in SOURCES) {
 				println("\n\n========== $format ==========")
 
-				val formatter = LuaFormatter(File(format))
+				val formatter = LuaExtension(File(format))
 				val settingsModel: Map<Int, *> = formatter.settingsModel.also {
 					println("Settings model:")
 					it.printOut()
@@ -153,11 +155,15 @@ object Test {
 					with(l) {
 						println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
 						var novels = getListing(
-								searchFiltersModel,
-								if (isIncrementing) 1 else null
+								HashMap(searchFiltersModel).apply {
+									this[PAGE_INDEX] = if (isIncrementing) 1 else null
+								}
 						)
+
 						if (isIncrementing)
-							novels += getListing(searchFiltersModel, 2)
+							novels += getListing(HashMap(searchFiltersModel).apply {
+								this[PAGE_INDEX] = 2
+							})
 
 						showListing(formatter, novels)
 						try {
@@ -173,10 +179,23 @@ object Test {
 					showListing(
 							formatter,
 							formatter.search(
-									HashMap(searchFiltersModel).apply { set(QUERY_INDEX, SEARCH_VALUE) },
-									REPORTER
+									HashMap(searchFiltersModel).apply {
+										set(QUERY_INDEX, SEARCH_VALUE)
+										set(PAGE_INDEX, 0)
+									}
 							)
 					)
+					if (formatter.isSearchIncrementing) {
+						showListing(
+								formatter,
+								formatter.search(
+										HashMap(searchFiltersModel).apply {
+											set(QUERY_INDEX, SEARCH_VALUE)
+											set(PAGE_INDEX, 2)
+										}
+								)
+						)
+					}
 				}
 
 				MILLISECONDS.sleep(500)

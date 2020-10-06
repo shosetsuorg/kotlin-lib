@@ -22,7 +22,7 @@ package app.shosetsu.lib
  * @noinspection unused
  */
 @Suppress("unused")
-interface Formatter {
+interface IExtension {
 	companion object {
 		/** Chapter url key for [expandURL] & [shrinkURL]*/
 		const val KEY_CHAPTER_URL: Int = 2
@@ -46,7 +46,7 @@ interface Formatter {
 			/**
 			 * This gets data from the listing
 			 */
-			val getListing: (data: Map<Int, *>, increment: Int?) -> Array<Novel.Listing>
+			val getListing: (data: Map<Int, *>) -> Array<Novel.Listing>
 	)
 
 	/** Name of this extension */
@@ -73,6 +73,9 @@ interface Formatter {
 
 	/** If this extension is capable of searching */
 	val hasSearch: Boolean
+
+	/** If this extensions search can be incremented */
+	val isSearchIncrementing:Boolean
 
 	/** If this extension has cloudflare protection that requires interception */
 	val hasCloudFlare: Boolean
@@ -105,7 +108,7 @@ interface Formatter {
 	 * @param data Data that includes query and other filters
 	 * @param reporter Way to print out debug to log
 	 */
-	fun search(data: Map<Int, *>, reporter: (status: String) -> Unit): Array<Novel.Listing>
+	fun search(data: Map<Int, *>): Array<Novel.Listing>
 
 	/**
 	 * Get the passage of a novel
