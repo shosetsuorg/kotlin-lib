@@ -4,6 +4,8 @@ import app.shosetsu.lib.lua.LuaExtension
 import app.shosetsu.lib.lua.ShosetsuLuaLib
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
+import app.shosetsu.lib.lua.shosetsuGlobals
+
 import java.io.File
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
