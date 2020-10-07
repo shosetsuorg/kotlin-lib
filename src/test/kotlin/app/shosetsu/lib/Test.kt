@@ -44,25 +44,23 @@ object Test {
 			//"en/BestLightNovel",
 			//"en/BoxNovel",
 			//"en/CreativeNovels",
-			//"en/FastNovel", -- line 54, nil
+			//"en/FastNovel" // line 54, nil
 			//"en/Foxaholic", //Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
 			//"en/KissLightNovels",
 			//"en/MNovelFree", //Doesn't seem to be a novelfull
 			//"en/MTLNovel",
 			//"en/NovelFull",
 			//"en/NovelTrench", // --:70 attempt to concatenate string and boolean
-			//"en/ReadNovelForLife", // Ded site
 			//"en/ReadNovelFull", // Meta offset issue?
 			//"en/VipNovel",
 			//"en/VolareNovels",
 			//"en/WuxiaWorld",
 			//"jp/Syosetsu",
-			//"pt/SaikaiScan", -- Removed search query
+			//"pt/SaikaiScan",
 			//"zn/15doc",
 			//"zn/Tangsanshu"
 	).map { "src/main/resources/src/$it.lua" }
 
-	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
 	// END CONFIG
 
 	private val globals = shosetsuGlobals()
@@ -87,7 +85,7 @@ object Test {
 
 		println()
 
-		val novel = fmt.parseNovel(novels[0].link, true, REPORTER)
+		val novel = fmt.parseNovel(novels[0].link, true)
 		if (PRINT_NOVELS) println(novel)
 		if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
 

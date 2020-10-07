@@ -1,5 +1,7 @@
 package app.shosetsu.lib
 
+import org.json.JSONObject
+
 /*
  * This file is part of shosetsu-services.
  * shosetsu-services is free software: you can redistribute it and/or modify
@@ -48,6 +50,9 @@ interface IExtension {
 			 */
 			val getListing: (data: Map<Int, *>) -> Array<Novel.Listing>
 	)
+
+	/** Meta data of the extension */
+	val metaData:JSONObject?
 
 	/** Name of this extension */
 	val name: String
@@ -106,7 +111,6 @@ interface IExtension {
 
 	/**
 	 * @param data Data that includes query and other filters
-	 * @param reporter Way to print out debug to log
 	 */
 	fun search(data: Map<Int, *>): Array<Novel.Listing>
 
@@ -121,9 +125,8 @@ interface IExtension {
 	 * Using the novel url, Requests for information on the novel
 	 * @param novelURL url of novel, will be fed into [expandURL] with [KEY_NOVEL_URL]
 	 * @param loadChapters option to load chapters or not, for minor performance options (and debug)
-	 * @param reporter Way to print out debug to log
 	 */
-	fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
+	fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info
 
 	/**
 	 *  @param smallURL URL to enlarge

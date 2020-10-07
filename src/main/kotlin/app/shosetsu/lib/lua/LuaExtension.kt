@@ -113,12 +113,14 @@ class LuaExtension(val content: String) : IExtension {
 	 * Returns the metadata that is at the header of the extension
 	 */
 	@Suppress("unused")
-	fun getMetaData(): JSONObject? = try {
-		JSONObject(content.substring(0, content.indexOf("\n")).replace("--", "").trim())
-	} catch (e: JSONException) {
-		e.printStackTrace(); null
-	} catch (e: IOException) {
-		e.printStackTrace(); null
+	override val metaData: JSONObject? by lazy {
+		try {
+			JSONObject(content.substring(0, content.indexOf("\n")).replace("--", "").trim())
+		} catch (e: JSONException) {
+			e.printStackTrace(); null
+		} catch (e: IOException) {
+			e.printStackTrace(); null
+		}
 	}
 
 	private val source: LuaTable
@@ -198,11 +200,10 @@ class LuaExtension(val content: String) : IExtension {
 	override fun getPassage(chapterURL: String): String =
 			source[KEY_GET_PASSAGE].call(expandURL(chapterURL, 1)).tojstring()
 
-	override fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info =
+	override fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info =
 			coerceLuaToJava(source[KEY_PARSE_NOVEL].call(
 					valueOf(expandURL(novelURL, 1)),
-					valueOf(loadChapters),
-					makeLuaReporter(reporter)
+					valueOf(loadChapters)
 			))
 
 	@Suppress("UNCHECKED_CAST")
