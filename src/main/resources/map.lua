@@ -1,5 +1,8 @@
+-- o is a table or java object with size and get methods (usually Elements or ArrayList)
+-- f is a function mapping every value from that table or arraylist to the value it will become in the resulting table
 local o, f = ...
-local t = {}
+
+local t = {} -- result
 if type(o) == "table" then
     for k,v in pairs(o) do
         t[k] = f(v,k)
@@ -9,4 +12,5 @@ else
         t[i+1] = f(o:get(i), i)
     end
 end
+
 return t
