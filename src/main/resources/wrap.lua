@@ -1,4 +1,5 @@
-local o, f = ...
-return function(...)
-    return f(o, ...)
+return function(o, f)
+    return function(...)
+        return f(o, ...)
+    end
 end

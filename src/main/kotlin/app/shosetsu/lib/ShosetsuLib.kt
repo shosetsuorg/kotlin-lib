@@ -35,13 +35,6 @@ import java.util.concurrent.TimeUnit
  */
 class ShosetsuLib : TwoArgFunction() {
 
-	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
-		val g: Globals = env.checkglobals()
-		g.setmetatable(LuaTable())
-		g.getmetatable()["__index"] = __index(g)
-		return g
-	}
-
 	@Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
 	internal class LibFunctions {
 		fun DEFAULT_CACHE_CONTROL(): CacheControl = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
@@ -65,13 +58,13 @@ class ShosetsuLib : TwoArgFunction() {
 				}
 
 		/** Lua Constructor for [Novel.Listing] */
-		fun Novel(): Novel.Listing = Novel.Listing()
+		fun _Novel(): Novel.Listing = Novel.Listing()
 
 		/** Lua Constructor for [Novel.Info] */
-		fun NovelInfo(): Novel.Info = Novel.Info()
+		fun _NovelInfo(): Novel.Info = Novel.Info()
 
 		/** Lua Constructor for [Novel.Chapter] */
-		fun NovelChapter(): Novel.Chapter = Novel.Chapter()
+		fun _NovelChapter(): Novel.Chapter = Novel.Chapter()
 
 		/**
 		 * Lua Constructor for [Novel.Status]
@@ -160,13 +153,20 @@ class ShosetsuLib : TwoArgFunction() {
 		fun RequestBody(data: String, type: MediaType): RequestBody = data.toRequestBody(type)
 	}
 
+	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
+		val g: Globals = env.checkglobals()
+		g.setmetatable(LuaTable())
+		g.getmetatable()["__index"] = __index(g)
+		return g
+	}
+
 	@Suppress("ClassName")
 	internal class __index(g: Globals) : TwoArgFunction() {
 		private val load: LuaFunction = g["load"] as LuaFunction
 		private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
 
 		private val luaFuncs: Map<String, LuaValue> = permaLuaFuncs
-				.map { e -> e.key to load.call(e.value) }.toMap()
+				.map { e -> e.key to load.call(e.value).call() }.toMap()
 
 		private val wrap: LuaFunction = luaFuncs["wrap"] as LuaFunction
 
@@ -202,7 +202,10 @@ class ShosetsuLib : TwoArgFunction() {
 					"map2flat" to loadResource("map2flat.lua"),
 					"first" to loadResource("first.lua"),
 					"wrap" to loadResource("wrap.lua"),
-					"flatten" to loadResource("flatten.lua")
+					"flatten" to loadResource("flatten.lua"),
+					"Novel" to loadResource("Novel.lua"),
+					"NovelInfo" to loadResource("NovelInfo.lua"),
+					"NovelChapter" to loadResource("NovelChapter.lua")
 			)
 		}
 	}

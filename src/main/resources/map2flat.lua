@@ -33,8 +33,7 @@ local function flatten(o)
     return t
 end
 
-do
-    local o, f1, f2 = ...
+return function(o, f1, f2)
     local t, j = {}, 0
     return flatten(map( -- flatten (any[][] -> any[])
         map(o, f1), -- map first (any[] -> any[][])
