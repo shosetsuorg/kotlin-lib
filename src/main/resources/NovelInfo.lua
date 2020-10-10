@@ -1,5 +1,5 @@
 return function(t)
-    local o = _NovelChapter()
+    local o = _NovelInfo()
     if not t then return o end
 
     local fields = {

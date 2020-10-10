@@ -5,6 +5,8 @@ import app.shosetsu.lib.lua.ShosetsuLuaLib
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import app.shosetsu.lib.lua.shosetsuGlobals
+import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 
 import java.io.File
 import java.util.concurrent.TimeUnit.MILLISECONDS
@@ -44,14 +46,14 @@ object Test {
 			//"en/BestLightNovel",
 			//"en/BoxNovel",
 			//"en/CreativeNovels",
-			//"en/FastNovel" // line 54, nil
+			//"en/FastNovel", // line 54, nil
 			//"en/Foxaholic", //Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
 			//"en/KissLightNovels",
 			//"en/MNovelFree", //Doesn't seem to be a novelfull
 			//"en/MTLNovel",
 			//"en/NovelFull",
-			//"en/NovelTrench", // --:70 attempt to concatenate string and boolean
-			//"en/ReadNovelFull", // Meta offset issue?
+			//"en/NovelTrench", // --:70 attempt to concatenate string and boolean for search
+			//"en/ReadNovelFull",
 			//"en/VipNovel",
 			//"en/VolareNovels",
 			//"en/WuxiaWorld",
@@ -85,7 +87,7 @@ object Test {
 
 		println()
 
-		val novel = fmt.parseNovel(novels[0].link, true)
+		val novel = fmt.parseNovel(novels[1].link, true)
 		if (PRINT_NOVELS) println(novel)
 		if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
 
@@ -144,6 +146,7 @@ object Test {
 					println("SearchFilters Model:")
 					it.printOut()
 				}.mapify()
+				Elements().size
 
 				println("ID       : ${formatter.formatterID}")
 				println("Name     : ${formatter.name}")

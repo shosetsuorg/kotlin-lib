@@ -36,6 +36,13 @@ import java.util.concurrent.TimeUnit
  */
 class ShosetsuLuaLib : TwoArgFunction() {
 
+	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
+		val g: Globals = env.checkglobals()
+		g.setmetatable(LuaTable())
+		g.getmetatable()["__index"] = __index(g)
+		return g
+	}
+
 	@Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
 	internal class LibFunctions {
 		fun DEFAULT_CACHE_CONTROL(): CacheControl = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
@@ -149,13 +156,6 @@ class ShosetsuLuaLib : TwoArgFunction() {
 
 		fun MediaType(str: String): MediaType = str.toMediaType()
 		fun RequestBody(data: String, type: MediaType): RequestBody = data.toRequestBody(type)
-	}
-
-	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
-		val g: Globals = env.checkglobals()
-		g.setmetatable(LuaTable())
-		g.getmetatable()["__index"] = __index(g)
-		return g
 	}
 
 	@Suppress("ClassName")
