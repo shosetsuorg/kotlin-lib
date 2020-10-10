@@ -1,4 +1,5 @@
-com.github.Doomsdayrs.api.novelreader_core.main/*
-com.github.Doomsdayrs.api.novelreader_core.extensions/*
 target/*
 .idea/*
+*.iml
+.gradle
+out/*
