@@ -11,7 +11,6 @@ import org.luaj.vm2.lib.OneArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import java.io.File
-import java.io.IOException
 import java.security.InvalidParameterException
 
 /*
@@ -113,14 +112,26 @@ class LuaExtension(val content: String) : IExtension {
 	 * Returns the metadata that is at the header of the extension
 	 */
 	@Suppress("unused")
-	override val metaData: JSONObject? by lazy {
-		try {
-			JSONObject(content.substring(0, content.indexOf("\n")).replace("--", "").trim())
-		} catch (e: JSONException) {
-			e.printStackTrace(); null
-		} catch (e: IOException) {
-			e.printStackTrace(); null
-		}
+	override val exMetaData: IExtension.ExMetaData by lazy {
+		val json = JSONObject(content.substring(0, content.indexOf("\n")).replace("--", "").trim())
+
+		IExtension.ExMetaData(
+				json.getInt("id"),
+				Version(json.getString("ver")),
+				Version(json.getString("libVer")),
+				json.getString("author"),
+				try {
+					json.getString("repo")
+				} catch (e: JSONException) {
+					println("JSON for repo does not exist, substituting")
+					""
+				},
+				json.getJSONArray("dep").map { it as String }.map {
+					it.split(">=").let { split ->
+						split[0] to Version(split[1])
+					}
+				}.toTypedArray()
+		)
 	}
 
 	private val source: LuaTable

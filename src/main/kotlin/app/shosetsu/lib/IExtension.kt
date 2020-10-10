@@ -1,7 +1,5 @@
 package app.shosetsu.lib
 
-import org.json.JSONObject
-
 /*
  * This file is part of shosetsu-services.
  * shosetsu-services is free software: you can redistribute it and/or modify
@@ -34,6 +32,19 @@ interface IExtension {
 	}
 
 	/**
+	 * @param version 3 index array
+	 *
+	 */
+	data class ExMetaData(
+			val id: Int,
+			val version: Version,
+			val libVersion: Version,
+			val author: String,
+			val repo: String,
+			val dependencies: Array<Pair<String, Version>>
+	)
+
+	/**
 	 * This represents a "Page" that the source might have for listing novels
 	 * Many sources have a singular listing, which contains filters and queries
 	 * Some sources have extra pages to display sources, such as a separate page for latest updates or most viewed
@@ -52,7 +63,7 @@ interface IExtension {
 	)
 
 	/** Meta data of the extension */
-	val metaData:JSONObject?
+	val exMetaData: ExMetaData
 
 	/** Name of this extension */
 	val name: String
@@ -80,7 +91,7 @@ interface IExtension {
 	val hasSearch: Boolean
 
 	/** If this extensions search can be incremented */
-	val isSearchIncrementing:Boolean
+	val isSearchIncrementing: Boolean
 
 	/** If this extension has cloudflare protection that requires interception */
 	val hasCloudFlare: Boolean
