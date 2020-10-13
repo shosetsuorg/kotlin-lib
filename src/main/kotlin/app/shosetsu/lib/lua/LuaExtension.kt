@@ -1,6 +1,7 @@
 package app.shosetsu.lib.lua
 
 import app.shosetsu.lib.*
+import app.shosetsu.lib.json.*
 import org.json.JSONException
 import org.json.JSONObject
 import org.luaj.vm2.LuaString.EMPTYSTRING
@@ -116,17 +117,17 @@ class LuaExtension(val content: String) : IExtension {
 		val json = JSONObject(content.substring(0, content.indexOf("\n")).replace("--", "").trim())
 
 		IExtension.ExMetaData(
-				json.getInt("id"),
-				Version(json.getString("ver")),
-				Version(json.getString("libVer")),
-				json.getString("author"),
+				json.getInt(J_ID),
+				Version(json.getString(J_VERSION)),
+				Version(json.getString(J_LIB_VERSION)),
+				json.getString(J_AUTHOR),
 				try {
-					json.getString("repo")
+					json.getString(J_REPO)
 				} catch (e: JSONException) {
 					println("JSON for repo does not exist, substituting")
 					""
 				},
-				json.getJSONArray("dep").map { it as String }.map {
+				json.getJSONArray(J_DEP).map { it as String }.map {
 					it.split(">=").let { split ->
 						split[0] to Version(split[1])
 					}
