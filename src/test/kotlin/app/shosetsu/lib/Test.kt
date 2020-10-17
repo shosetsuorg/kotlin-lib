@@ -1,5 +1,8 @@
 package app.shosetsu.lib
 
+import app.shosetsu.lib.lua.LuaExtension
+import app.shosetsu.lib.lua.ShosetsuLuaLib
+import app.shosetsu.lib.lua.shosetsuGlobals
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import java.io.File
@@ -36,29 +39,27 @@ object Test {
 	private const val PRINT_NOVEL_STATS = true
 	private const val PRINT_PASSAGES = true
 
-	private val SOURCES: List<String> = arrayOf(
+	private val SOURCES: List<String> = arrayOf<String>(
 			//"en/BestLightNovel",
 			//"en/BoxNovel",
 			//"en/CreativeNovels",
-			//"en/FastNovel",
-			//"en/Foxaholic", Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
+			//"en/FastNovel", // line 54, nil
+			//"en/Foxaholic", //Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
 			//"en/KissLightNovels",
-			//"en/MNovelFree", Doesn't seem to be a novelfull
-			//"en/MTLNovel"
+			//"en/MNovelFree", //Doesn't seem to be a novelfull
+			//"en/MTLNovel",
 			//"en/NovelFull",
-			//"en/NovelTrench", --:70 attempt to concatenate string and boolean
-			//"en/ReadNovelForLife", -- ReadNovelForLife
+			//"en/NovelTrench", // --:70 attempt to concatenate string and boolean for search
 			//"en/ReadNovelFull",
 			//"en/VipNovel",
-			"en/VolareNovels",
+			//"en/VolareNovels",
 			//"en/WuxiaWorld",
 			//"jp/Syosetsu",
+			//"pt/SaikaiScan",
 			//"zn/15doc",
-			//"zn/Tangsanshu",
-			"pt/saikaiscan"
+			//"zn/Tangsanshu"
 	).map { "src/main/resources/src/$it.lua" }
 
-	private val REPORTER: (String) -> Unit = { println("Progress: $it") }
 	// END CONFIG
 
 	private val globals = shosetsuGlobals()
@@ -73,9 +74,9 @@ object Test {
 	}
 
 	@Suppress("ConstantConditionIf")
-	private fun showListing(fmt: Formatter, novels: Array<Novel.Listing>) {
+	private fun showListing(fmt: IExtension, novels: Array<Novel.Listing>) {
 		if (PRINT_LISTINGS)
-			println("[" + novels.joinToString(", ") { it.toString() } + "]")
+			println("$CPURPLE[" + novels.joinToString(", ") { it.toString() } + "]$CRESET")
 
 		println("${novels.size} novels.")
 		if (PRINT_LIST_STATS)
@@ -83,12 +84,17 @@ object Test {
 
 		println()
 
-		val novel = fmt.parseNovel(novels[0].link, true, REPORTER)
+		var selectedNovel = 0
+		var novel: Novel.Info = fmt.parseNovel(novels[selectedNovel].link, true)
+		while (novel.chapters.isEmpty()){
+			println("$CRED Chapters are empty, trying next novel $CRESET")
+			selectedNovel++
+			novel = fmt.parseNovel(novels[selectedNovel].link, true)
+		}
 		if (PRINT_NOVELS) println(novel)
 		if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
 
 		println()
-
 		val passage = fmt.getPassage(novel.chapters[0].link)
 		if (PRINT_PASSAGES)
 			println("Passage:\t$passage")
@@ -121,45 +127,59 @@ object Test {
 		}
 	}
 
+	/** Resets the color of a line */
+	private const val CRESET: String = "\u001B[0m"
+	private const val CCYAN: String = "\u001B[36m"
+	private const val CPURPLE: String = "\u001B[35m"
+	private const val CRED: String = "\u001B[31m"
+
 	@JvmStatic
 	@Throws(java.io.IOException::class, InterruptedException::class)
 	fun main(args: Array<String>) {
 		try {
-			ShosetsuLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
-			ShosetsuLib.httpClient = OkHttpClient.Builder().addInterceptor {
+			ShosetsuLuaLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
+			ShosetsuLuaLib.httpClient = OkHttpClient.Builder().addInterceptor {
 				it.proceed(it.request().also { request -> println(request.url.toUrl().toString()) })
 			}.build()
 
-			for (format in SOURCES) {
-				println("\n\n========== $format ==========")
+			for (extensionPath in SOURCES) {
+				println("\n\n========== $extensionPath ==========")
 
-				val formatter = LuaFormatter(File(format))
-				val settingsModel: Map<Int, *> = formatter.settingsModel.also {
+				val extension = LuaExtension(File(extensionPath))
+				val settingsModel: Map<Int, *> = extension.settingsModel.also {
 					println("Settings model:")
 					it.printOut()
 				}.mapify()
-				val searchFiltersModel: Map<Int, *> = formatter.searchFiltersModel.also {
+				val searchFiltersModel: Map<Int, *> = extension.searchFiltersModel.also {
 					println("SearchFilters Model:")
 					it.printOut()
 				}.mapify()
 
-				println("ID       : ${formatter.formatterID}")
-				println("Name     : ${formatter.name}")
-				println("BaseURL  : ${formatter.baseURL}")
-				println("Image    : ${formatter.imageURL}")
+				println(CCYAN)
+				println("ID       : ${extension.formatterID}")
+				println("Name     : ${extension.name}")
+				println("BaseURL  : ${extension.baseURL}")
+				println("Image    : ${extension.imageURL}")
 				println("Settings : $settingsModel")
 				println("Filters  : $searchFiltersModel")
-				formatter.listings.forEach { l ->
+				println("MetaData : ${extension.exMetaData}")
+				println(CRESET)
+
+				extension.listings.forEach { l ->
 					with(l) {
 						println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
 						var novels = getListing(
-								searchFiltersModel,
-								if (isIncrementing) 1 else null
+								HashMap(searchFiltersModel).apply {
+									this[PAGE_INDEX] = if (isIncrementing) 1 else null
+								}
 						)
-						if (isIncrementing)
-							novels += getListing(searchFiltersModel, 2)
 
-						showListing(formatter, novels)
+						if (isIncrementing)
+							novels += getListing(HashMap(searchFiltersModel).apply {
+								this[PAGE_INDEX] = 2
+							})
+
+						showListing(extension, novels)
 						try {
 							MILLISECONDS.sleep(500)
 						} catch (e: InterruptedException) {
@@ -168,15 +188,28 @@ object Test {
 					}
 				}
 
-				if (formatter.hasSearch) {
+				if (extension.hasSearch) {
 					println("\n-------- Search --------")
 					showListing(
-							formatter,
-							formatter.search(
-									HashMap(searchFiltersModel).apply { set(QUERY_INDEX, SEARCH_VALUE) },
-									REPORTER
+							extension,
+							extension.search(
+									HashMap(searchFiltersModel).apply {
+										set(QUERY_INDEX, SEARCH_VALUE)
+										set(PAGE_INDEX, 0)
+									}
 							)
 					)
+					if (extension.isSearchIncrementing) {
+						showListing(
+								extension,
+								extension.search(
+										HashMap(searchFiltersModel).apply {
+											set(QUERY_INDEX, SEARCH_VALUE)
+											set(PAGE_INDEX, 2)
+										}
+								)
+						)
+					}
 				}
 
 				MILLISECONDS.sleep(500)

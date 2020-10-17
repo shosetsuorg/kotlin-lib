@@ -1,5 +1,6 @@
-package app.shosetsu.lib
+package app.shosetsu.lib.lua
 
+import app.shosetsu.lib.*
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -33,7 +34,7 @@ import java.util.concurrent.TimeUnit
  *
  * @author github.com/technojo4
  */
-class ShosetsuLib : TwoArgFunction() {
+class ShosetsuLuaLib : TwoArgFunction() {
 
 	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
 		val g: Globals = env.checkglobals()
@@ -52,26 +53,23 @@ class ShosetsuLib : TwoArgFunction() {
 		fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
 		fun <E> Reverse(arr: ArrayList<E>): Unit = arr.reverse()
 
-		/** Lua Constructor for [Formatter.Listing] */
+		/** Lua Constructor for [IExtension.Listing] */
 		@Suppress("UNCHECKED_CAST")
 		fun Listing(name: String, increments: Boolean, func: LuaFunction) =
-				Formatter.Listing(name, increments) { data, page ->
+				IExtension.Listing(name, increments) { data ->
 					CoerceLuaToJava.coerce(
-							func.call(
-									data.toLua(),
-									if (page == null) LuaValue.NIL else LuaValue.valueOf(page)
-							),
+							func.call(data.toLua()),
 							Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 				}
 
 		/** Lua Constructor for [Novel.Listing] */
-		fun Novel(): Novel.Listing = Novel.Listing()
+		fun _Novel(): Novel.Listing = Novel.Listing()
 
 		/** Lua Constructor for [Novel.Info] */
-		fun NovelInfo(): Novel.Info = Novel.Info()
+		fun _NovelInfo(): Novel.Info = Novel.Info()
 
 		/** Lua Constructor for [Novel.Chapter] */
-		fun NovelChapter(): Novel.Chapter = Novel.Chapter()
+		fun _NovelChapter(): Novel.Chapter = Novel.Chapter()
 
 		/**
 		 * Lua Constructor for [Novel.Status]
@@ -166,7 +164,7 @@ class ShosetsuLib : TwoArgFunction() {
 		private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
 
 		private val luaFuncs: Map<String, LuaValue> = permaLuaFuncs
-				.map { e -> e.key to load.call(e.value) }.toMap()
+				.map { e -> e.key to load.call(e.value).call() }.toMap()
 
 		private val wrap: LuaFunction = luaFuncs["wrap"] as LuaFunction
 
@@ -202,7 +200,10 @@ class ShosetsuLib : TwoArgFunction() {
 					"map2flat" to loadResource("map2flat.lua"),
 					"first" to loadResource("first.lua"),
 					"wrap" to loadResource("wrap.lua"),
-					"flatten" to loadResource("flatten.lua")
+					"flatten" to loadResource("flatten.lua"),
+					"Novel" to loadResource("Novel.lua"),
+					"NovelInfo" to loadResource("NovelInfo.lua"),
+					"NovelChapter" to loadResource("NovelChapter.lua")
 			)
 		}
 	}

@@ -25,7 +25,7 @@ package app.shosetsu.lib
  */
 sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	override fun toString(): String =
-			"Filter(name='$name', state=`${if (state is Sequence<*>) state.toString() else state}`)"
+			"Filter(id='$id', name='$name', state=`${if (state is Sequence<*>) state.toString() else state}`)"
 
 	/**
 	 * Represents a header, used to separate different parts of filters/settings

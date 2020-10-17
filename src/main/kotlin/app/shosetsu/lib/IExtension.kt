@@ -22,7 +22,7 @@ package app.shosetsu.lib
  * @noinspection unused
  */
 @Suppress("unused")
-interface Formatter {
+interface IExtension {
 	companion object {
 		/** Chapter url key for [expandURL] & [shrinkURL]*/
 		const val KEY_CHAPTER_URL: Int = 2
@@ -30,6 +30,19 @@ interface Formatter {
 		/** Novel url key for [expandURL] & [shrinkURL]*/
 		const val KEY_NOVEL_URL: Int = 1
 	}
+
+	/**
+	 * @param version 3 index array
+	 *
+	 */
+	data class ExMetaData(
+			val id: Int,
+			val version: Version,
+			val libVersion: Version,
+			val author: String,
+			val repo: String,
+			val dependencies: Array<Pair<String, Version>>
+	)
 
 	/**
 	 * This represents a "Page" that the source might have for listing novels
@@ -46,8 +59,11 @@ interface Formatter {
 			/**
 			 * This gets data from the listing
 			 */
-			val getListing: (data: Map<Int, *>, increment: Int?) -> Array<Novel.Listing>
+			val getListing: (data: Map<Int, *>) -> Array<Novel.Listing>
 	)
+
+	/** Meta data of the extension */
+	val exMetaData: ExMetaData
 
 	/** Name of this extension */
 	val name: String
@@ -73,6 +89,9 @@ interface Formatter {
 
 	/** If this extension is capable of searching */
 	val hasSearch: Boolean
+
+	/** If this extensions search can be incremented */
+	val isSearchIncrementing: Boolean
 
 	/** If this extension has cloudflare protection that requires interception */
 	val hasCloudFlare: Boolean
@@ -103,9 +122,8 @@ interface Formatter {
 
 	/**
 	 * @param data Data that includes query and other filters
-	 * @param reporter Way to print out debug to log
 	 */
-	fun search(data: Map<Int, *>, reporter: (status: String) -> Unit): Array<Novel.Listing>
+	fun search(data: Map<Int, *>): Array<Novel.Listing>
 
 	/**
 	 * Get the passage of a novel
@@ -118,9 +136,8 @@ interface Formatter {
 	 * Using the novel url, Requests for information on the novel
 	 * @param novelURL url of novel, will be fed into [expandURL] with [KEY_NOVEL_URL]
 	 * @param loadChapters option to load chapters or not, for minor performance options (and debug)
-	 * @param reporter Way to print out debug to log
 	 */
-	fun parseNovel(novelURL: String, loadChapters: Boolean, reporter: (status: String) -> Unit): Novel.Info
+	fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info
 
 	/**
 	 *  @param smallURL URL to enlarge
