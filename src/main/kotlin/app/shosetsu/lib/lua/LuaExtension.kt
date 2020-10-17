@@ -2,7 +2,6 @@ package app.shosetsu.lib.lua
 
 import app.shosetsu.lib.*
 import app.shosetsu.lib.json.*
-import org.json.JSONException
 import org.json.JSONObject
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
@@ -114,24 +113,18 @@ class LuaExtension(val content: String) : IExtension {
 	 */
 	@Suppress("unused")
 	override val exMetaData: IExtension.ExMetaData by lazy {
-		val json = JSONObject(content.substring(0, content.indexOf("\n")).replace("--", "").trim())
-
+		val json = JSONObject(content.lines().first().replace("--", "").trim())
 		IExtension.ExMetaData(
-				json.getInt(J_ID),
-				Version(json.getString(J_VERSION)),
-				Version(json.getString(J_LIB_VERSION)),
-				json.getString(J_AUTHOR),
-				try {
-					json.getString(J_REPO)
-				} catch (e: JSONException) {
-					println("JSON for repo does not exist, substituting")
-					""
-				},
-				json.getJSONArray(J_DEP).map { it as String }.map {
+				id = json.getInt(J_ID),
+				version = Version(json.getString(J_VERSION)),
+				libVersion = Version(json.getString(J_LIB_VERSION)),
+				author = json.getString(J_AUTHOR),
+				repo = json.takeIf { it.has(J_REPO) }?.getString(J_REPO) ?: "",
+				dependencies = json.takeIf { it.has(J_DEP) }?.getJSONArray(J_DEP)?.map { it as String }?.map {
 					it.split(">=").let { split ->
 						split[0] to Version(split[1])
 					}
-				}.toTypedArray()
+				}?.toTypedArray() ?: arrayOf()
 		)
 	}
 
