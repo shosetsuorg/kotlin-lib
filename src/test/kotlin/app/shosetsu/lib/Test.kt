@@ -1,9 +1,11 @@
 package app.shosetsu.lib
 
+import app.shosetsu.lib.json.RepoIndex
 import app.shosetsu.lib.lua.LuaExtension
 import app.shosetsu.lib.lua.ShosetsuLuaLib
 import app.shosetsu.lib.lua.shosetsuGlobals
 import okhttp3.OkHttpClient
+import org.json.JSONObject
 import org.luaj.vm2.LuaValue
 import java.io.File
 import java.util.concurrent.TimeUnit.MILLISECONDS
@@ -28,7 +30,8 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
  *
  * @author github.com/doomsdayrs;github.com/TechnoJo4
  *
- * In IDEA, The Classpath should be shosetsu-services but the Working directory should be shosetsu-extensions.
+ * In IDEA, The Classpath should be shosetsu-services but
+ * the Working directory should be shosetsu-extensions.
  */
 object Test {
 	// CONFIG
@@ -38,6 +41,7 @@ object Test {
 	private const val PRINT_NOVELS = true
 	private const val PRINT_NOVEL_STATS = true
 	private const val PRINT_PASSAGES = true
+	private const val PRINT_REPO_INDEX = true
 
 	private val SOURCES: List<String> = arrayOf<String>(
 			//"en/BestLightNovel",
@@ -75,24 +79,34 @@ object Test {
 
 	@Suppress("ConstantConditionIf")
 	private fun showListing(fmt: IExtension, novels: Array<Novel.Listing>) {
-		if (PRINT_LISTINGS)
-			println("$CPURPLE[" + novels.joinToString(", ") { it.toString() } + "]$CRESET")
+		if (PRINT_LISTINGS) {
+			println("$CPURPLE[")
+			print(novels.joinToString(", ") { it.toString() })
+			println("]$CRESET")
+		}
 
 		println("${novels.size} novels.")
-		if (PRINT_LIST_STATS)
-			println("${novels.count { it.title == "" }} with no title, ${novels.count { it.link == "" }} with no link, ${novels.count { it.imageURL == "" }} with no image url.")
+		if (PRINT_LIST_STATS) {
+			print("${novels.count { it.title == "" }} with no title, ")
+			print("${novels.count { it.link == "" }} with no link, ")
+			print("${novels.count { it.imageURL == "" }} with no image url.")
+			println()
+		}
 
 		println()
 
 		var selectedNovel = 0
-		var novel: Novel.Info = fmt.parseNovel(novels[selectedNovel].link, true)
-		while (novel.chapters.isEmpty()){
+		var novel = fmt.parseNovel(novels[selectedNovel].link, true)
+		while (novel.chapters.isEmpty()) {
 			println("$CRED Chapters are empty, trying next novel $CRESET")
 			selectedNovel++
 			novel = fmt.parseNovel(novels[selectedNovel].link, true)
 		}
-		if (PRINT_NOVELS) println(novel)
-		if (PRINT_NOVEL_STATS) println("${novel.title} - ${novel.chapters.size} chapters.")
+		if (PRINT_NOVELS)
+			println(novel)
+
+		if (PRINT_NOVEL_STATS)
+			println("${novel.title} - ${novel.chapters.size} chapters.")
 
 		println()
 		val passage = fmt.getPassage(novel.chapters[0].link)
@@ -101,7 +115,8 @@ object Test {
 		else
 			println(with(passage) {
 				if (length < 25) "Result: $this"
-				else "$length chars long result: ${take(10)} [...] ${takeLast(10)}"
+				else "$length chars long result: " +
+						"${take(10)} [...] ${takeLast(10)}"
 			})
 	}
 
@@ -137,23 +152,34 @@ object Test {
 	@Throws(java.io.IOException::class, InterruptedException::class)
 	fun main(args: Array<String>) {
 		try {
-			ShosetsuLuaLib.libLoader = { loadScript(File("src/main/resources/lib/$it.lua")) }
+			ShosetsuLuaLib.libLoader = {
+				loadScript(File("src/main/resources/lib/$it.lua"))
+			}
 			ShosetsuLuaLib.httpClient = OkHttpClient.Builder().addInterceptor {
-				it.proceed(it.request().also { request -> println(request.url.toUrl().toString()) })
+				it.proceed(it.request().also { request ->
+					println(request.url.toUrl().toString())
+				})
 			}.build()
+
+			if (PRINT_REPO_INDEX)
+				println(RepoIndex(JSONObject(
+						File("src/main/resources/index.json")
+				)))
 
 			for (extensionPath in SOURCES) {
 				println("\n\n========== $extensionPath ==========")
 
 				val extension = LuaExtension(File(extensionPath))
-				val settingsModel: Map<Int, *> = extension.settingsModel.also {
-					println("Settings model:")
-					it.printOut()
-				}.mapify()
-				val searchFiltersModel: Map<Int, *> = extension.searchFiltersModel.also {
-					println("SearchFilters Model:")
-					it.printOut()
-				}.mapify()
+				val settingsModel: Map<Int, *> =
+						extension.settingsModel.also {
+							println("Settings model:")
+							it.printOut()
+						}.mapify()
+				val searchFiltersModel: Map<Int, *> =
+						extension.searchFiltersModel.also {
+							println("SearchFilters Model:")
+							it.printOut()
+						}.mapify()
 
 				println(CCYAN)
 				println("ID       : ${extension.formatterID}")
@@ -167,17 +193,22 @@ object Test {
 
 				extension.listings.forEach { l ->
 					with(l) {
-						println("\n-------- Listing \"${name}\" ${if (isIncrementing) "(incrementing)" else ""} --------")
+						print("\n-------- Listing \"${name}\" ")
+						print(if (isIncrementing) "(incrementing)" else "")
+						println(" --------")
+
 						var novels = getListing(
 								HashMap(searchFiltersModel).apply {
-									this[PAGE_INDEX] = if (isIncrementing) 1 else null
+									this[PAGE_INDEX] =
+											if (isIncrementing) 1 else null
 								}
 						)
 
 						if (isIncrementing)
-							novels += getListing(HashMap(searchFiltersModel).apply {
-								this[PAGE_INDEX] = 2
-							})
+							novels += getListing(HashMap(searchFiltersModel)
+									.apply {
+										this[PAGE_INDEX] = 2
+									})
 
 						showListing(extension, novels)
 						try {
@@ -218,7 +249,9 @@ object Test {
 		} catch (e: Exception) {
 			e.printStackTrace()
 			e.message?.let {
-				print("\n\u001B[31m${it.substring(it.lastIndexOf("}") + 1)}\n")
+				print(CRED)
+				print(it.substring(it.lastIndexOf("}") + 1))
+				println(CRESET)
 			}
 		}
 	}
