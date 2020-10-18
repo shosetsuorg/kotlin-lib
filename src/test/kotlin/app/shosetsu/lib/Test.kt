@@ -102,6 +102,7 @@ object Test {
 			selectedNovel++
 			novel = fmt.parseNovel(novels[selectedNovel].link, true)
 		}
+    
 		if (PRINT_NOVELS)
 			println(novel)
 
@@ -170,6 +171,7 @@ object Test {
 				println("\n\n========== $extensionPath ==========")
 
 				val extension = LuaExtension(File(extensionPath))
+
 				val settingsModel: Map<Int, *> =
 						extension.settingsModel.also {
 							println("Settings model:")
@@ -201,6 +203,7 @@ object Test {
 								HashMap(searchFiltersModel).apply {
 									this[PAGE_INDEX] =
 											if (isIncrementing) 1 else null
+
 								}
 						)
 
@@ -209,6 +212,7 @@ object Test {
 									.apply {
 										this[PAGE_INDEX] = 2
 									})
+
 
 						showListing(extension, novels)
 						try {
