@@ -41,19 +41,20 @@ object Test {
 	private const val PRINT_NOVELS = true
 	private const val PRINT_NOVEL_STATS = true
 	private const val PRINT_PASSAGES = true
-	private const val PRINT_REPO_INDEX = true
+	private const val PRINT_REPO_INDEX = false
+	private const val PRINT_METADATA = false
 
 	private val SOURCES: List<String> = arrayOf<String>(
 			//"en/BestLightNovel",
 			//"en/BoxNovel",
 			//"en/CreativeNovels",
-			//"en/FastNovel", // line 54, nil
-			//"en/Foxaholic", //Needs to use ajax to get chapters, Investigate `action=manga_get_chapters&manga=######`
+			//"en/FastNovel",
+			//"en/Foxaholic", // Needs to use ajax to get chapters, TODO: Investigate `action=manga_get_chapters&manga=######`
 			//"en/KissLightNovels",
 			//"en/MNovelFree", //Doesn't seem to be a novelfull
-			//"en/MTLNovel",
+			"en/MTLNovel",
 			//"en/NovelFull",
-			//"en/NovelTrench", // --:70 attempt to concatenate string and boolean for search
+			//"en/NovelTrench",
 			//"en/ReadNovelFull",
 			//"en/VipNovel",
 			//"en/VolareNovels",
@@ -67,9 +68,9 @@ object Test {
 	// END CONFIG
 
 	private val globals = shosetsuGlobals()
-	private fun loadScript(file: File): LuaValue {
+	private fun loadScript(file: File, source_pre: String = "ext"): LuaValue {
 		val l = try {
-			globals.load(file.readText())!!
+			globals.load(file.readText(), "$source_pre(${file.name})")!!
 		} catch (e: Error) {
 			throw e
 		}
@@ -96,6 +97,7 @@ object Test {
 		println()
 
 		var selectedNovel = 0
+		println(novels[selectedNovel].link)
 		var novel = fmt.parseNovel(novels[selectedNovel].link, true)
 		while (novel.chapters.isEmpty()) {
 			println("$CRED Chapters are empty, trying next novel $CRESET")
@@ -121,6 +123,7 @@ object Test {
 			})
 	}
 
+	@Suppress("UNCHECKED_CAST")
 	fun Array<Filter<*>>.printOut(indent: Int = 0) {
 		forEach {
 			val tabs = StringBuilder("\t").apply { for (i in 0 until indent) this.append("\t") }
@@ -135,10 +138,9 @@ object Test {
 					it.filters.printOut(indent + 1)
 				}
 				is Filter.Group<*> -> {
-					it.filters.map { it as Filter<*> }.toTypedArray().printOut(indent + 1)
+					(it.filters as Array<Filter<*>>).printOut(indent + 1)
 				}
-				else -> {
-				}
+				else -> { }
 			}
 		}
 	}
@@ -154,7 +156,7 @@ object Test {
 	fun main(args: Array<String>) {
 		try {
 			ShosetsuLuaLib.libLoader = {
-				loadScript(File("src/main/resources/lib/$it.lua"))
+				loadScript(File("src/main/resources/lib/$it.lua"), "lib")
 			}
 			ShosetsuLuaLib.httpClient = OkHttpClient.Builder().addInterceptor {
 				it.proceed(it.request().also { request ->
@@ -190,7 +192,8 @@ object Test {
 				println("Image    : ${extension.imageURL}")
 				println("Settings : $settingsModel")
 				println("Filters  : $searchFiltersModel")
-				println("MetaData : ${extension.exMetaData}")
+				if (PRINT_METADATA)
+					println("MetaData : ${extension.exMetaData}")
 				println(CRESET)
 
 				extension.listings.forEach { l ->

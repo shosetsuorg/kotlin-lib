@@ -33,7 +33,7 @@ import java.security.InvalidParameterException
  *
  * @param content extension script
  */
-class LuaExtension(val content: String) : IExtension {
+class LuaExtension(val content: String, val dname: String = "unknown") : IExtension {
 	companion object {
 
 		private const val KEY_ID = "id"
@@ -106,7 +106,7 @@ class LuaExtension(val content: String) : IExtension {
 
 	}
 
-	constructor(file: File) : this(file.readText())
+	constructor(file: File) : this(file.readText(), file.name)
 
 	/**
 	 * Returns the metadata that is at the header of the extension
@@ -133,7 +133,7 @@ class LuaExtension(val content: String) : IExtension {
 	init {
 		val globals = shosetsuGlobals()
 		val l = try {
-			globals.load(content)!!
+			globals.load(content, "ext($dname)")!!
 		} catch (e: Error) {
 			throw e
 		}
@@ -163,13 +163,14 @@ class LuaExtension(val content: String) : IExtension {
 				)
 		}
 
-		// Ensures searchFilters conform to design
-		tableToFilters(source[KEY_SEARCH_FILTERS] as LuaTable).let {
-			println(it.contentDeepToString())
-			if (it.any { it.id == QUERY_INDEX || it.id == PAGE_INDEX })
-				throw InvalidParameterException("Search filters contain illegal ID $QUERY_INDEX||$PAGE_INDEX")
+		// Ensure no reserved filter IDs are used
+		tableToFilters(source[KEY_SEARCH_FILTERS] as LuaTable).let { table ->
+			println(table.contentDeepToString())
+			listOf(QUERY_INDEX, PAGE_INDEX).forEach { reserved ->
+				if (table.any { it.id == reserved })
+					throw InvalidParameterException("Search filter cannot have reserved ID $reserved")
+			}
 		}
-
 	}
 
 	override val name: String by lazy { source[KEY_NAME].tojstring() }
@@ -203,11 +204,11 @@ class LuaExtension(val content: String) : IExtension {
 	}
 
 	override fun getPassage(chapterURL: String): String =
-			source[KEY_GET_PASSAGE].call(expandURL(chapterURL, 1)).tojstring()
+			source[KEY_GET_PASSAGE].call(chapterURL).tojstring()
 
 	override fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info =
 			coerceLuaToJava(source[KEY_PARSE_NOVEL].call(
-					valueOf(expandURL(novelURL, 1)),
+					valueOf(novelURL),
 					valueOf(loadChapters)
 			))
 

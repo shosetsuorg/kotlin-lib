@@ -7,7 +7,7 @@ return function(o, f)
         for k,v in pairs(o) do
             if f(v, k) then
                 j = j + 1
-                t[k] = v
+                t[j] = v
             end
         end
     else
