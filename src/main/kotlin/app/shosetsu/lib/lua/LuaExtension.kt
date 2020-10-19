@@ -35,30 +35,6 @@ import java.security.InvalidParameterException
  */
 class LuaExtension(val content: String, val dname: String = "unknown") : IExtension {
 	companion object {
-
-		private const val KEY_ID = "id"
-		private const val KEY_NAME = "name"
-		private const val KEY_BASE_URL = "baseURL"
-		private const val KEY_IMAGE_URL = "imageURL"
-
-		private const val KEY_HAS_CLOUD_FLARE = "hasCloudFlare"
-
-		private const val KEY_SEARCH = "search"
-		private const val KEY_HAS_SEARCH = "hasSearch"
-		private const val KEY_IS_SEARCH_INC = "isSearchIncrementing"
-		private const val KEY_SEARCH_FILTERS = "searchFilters"
-
-		private const val KEY_SETTINGS = "settings"
-		private const val KEY_UPDATE_SETTING = "updateSetting"
-
-		private const val KEY_CHAPTER_TYPE = "chapterType"
-		private const val KEY_LISTINGS = "listings"
-		private const val KEY_GET_PASSAGE = "getPassage"
-		private const val KEY_PARSE_NOVEL = "parseNovel"
-
-		private const val KEY_EXPAND_URL = "expandURL"
-		private const val KEY_SHRINK_URL = "shrinkURL"
-
 		/**
 		 * Values that may not be present
 		 */
@@ -200,7 +176,8 @@ class LuaExtension(val content: String, val dname: String = "unknown") : IExtens
 	}
 
 	override fun updateSetting(id: Int, value: Any?) {
-		source[KEY_UPDATE_SETTING].takeIf { it.type() == TFUNCTION }?.call(valueOf(id), coerce(value)) ?: return
+		source[KEY_UPDATE_SETTING].takeIf { it.type() == TFUNCTION }?.call(valueOf(id), coerce(value))
+				?: return
 	}
 
 	override fun getPassage(chapterURL: String): String =

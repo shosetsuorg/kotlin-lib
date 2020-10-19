@@ -41,8 +41,8 @@ object Test {
 	private const val PRINT_NOVELS = true
 	private const val PRINT_NOVEL_STATS = true
 	private const val PRINT_PASSAGES = true
-	private const val PRINT_REPO_INDEX = false
-	private const val PRINT_METADATA = false
+	private const val PRINT_REPO_INDEX = true
+	private const val PRINT_META_DATA = true
 
 	private val SOURCES: List<String> = arrayOf<String>(
 			//"en/BestLightNovel",
@@ -52,7 +52,7 @@ object Test {
 			//"en/Foxaholic", // Needs to use ajax to get chapters, TODO: Investigate `action=manga_get_chapters&manga=######`
 			//"en/KissLightNovels",
 			//"en/MNovelFree", //Doesn't seem to be a novelfull
-			"en/MTLNovel",
+			//"en/MTLNovel",
 			//"en/NovelFull",
 			//"en/NovelTrench",
 			//"en/ReadNovelFull",
@@ -165,9 +165,9 @@ object Test {
 			}.build()
 
 			if (PRINT_REPO_INDEX)
-				println(RepoIndex(JSONObject(
-						File("src/main/resources/index.json")
-				)))
+				println(RepoIndex(
+						File("src/main/resources/index.json").readText()
+				))
 
 			for (extensionPath in SOURCES) {
 				println("\n\n========== $extensionPath ==========")
@@ -192,7 +192,7 @@ object Test {
 				println("Image    : ${extension.imageURL}")
 				println("Settings : $settingsModel")
 				println("Filters  : $searchFiltersModel")
-				if (PRINT_METADATA)
+				if (PRINT_META_DATA)
 					println("MetaData : ${extension.exMetaData}")
 				println(CRESET)
 

@@ -3,8 +3,11 @@ package app.shosetsu.lib.json
 import app.shosetsu.lib.Version
 
 /**
- * shosetsu-kotlin-lib
+ * kotlin-lib
  * 17 / 10 / 2020
+ *
+ * Represents an extension on the repository,
+ * listed as "scripts" in the index
  */
 data class RepoExtension internal constructor(
 		val id: Int,
