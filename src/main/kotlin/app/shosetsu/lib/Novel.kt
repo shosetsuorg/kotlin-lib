@@ -34,7 +34,7 @@ class Novel {
 	enum class Status(val title: String) {
 		PUBLISHING("Publishing"), COMPLETED("Completed"), PAUSED("Paused"), UNKNOWN("Unknown");
 
-		override fun toString() = "NovelStatus(title='$title')"
+		override fun toString() = "NovelStatus($title)"
 	}
 
 	@Suppress("ArrayInDataClass")
@@ -52,21 +52,17 @@ class Novel {
 			var chapters: List<Chapter> = arrayListOf()
 	)
 
-	/** Represents the data type chapters are returned as */
+	/** Represents the data type of a chapter */
 	enum class ChapterType {
-		/** Chapters are just strings */
+		/** Strings with no formatting */
 		STRING,
-
-		/** Chapters are HTML webpages */
+		/** HTML pages */
 		HTML,
-
-		/** Chapters are MarkDown strings */
-		MD,
-
-		/** Chapters are epub types */
+		/** Markdown-formatted strings */
+		MARKDOWN,
+		/** EPUB files */
 		EPUB,
-
-		/** Chapters are PDF types */
+		/** PDF files */
 		PDF
 	}
 }

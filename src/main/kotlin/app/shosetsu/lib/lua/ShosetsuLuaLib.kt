@@ -38,13 +38,16 @@ class ShosetsuLuaLib : TwoArgFunction() {
 
 	override fun call(modname: LuaValue, env: LuaValue): LuaValue {
 		val g: Globals = env.checkglobals()
-		g.setmetatable(LuaTable())
-		g.getmetatable()["__index"] = __index(g)
+		__index.load = g["load"] as LuaFunction
+
+		val mt = LuaTable()
+		mt["__index"] = __index
+		g.setmetatable(mt)
 		return g
 	}
 
 	@Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
-	internal class LibFunctions {
+	internal object LibFunctions {
 		fun DEFAULT_CACHE_CONTROL(): CacheControl = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
 		fun DEFAULT_HEADERS(): Headers = Headers.Builder().build()
 		fun DEFAULT_BODY(): RequestBody = FormBody.Builder().build()
@@ -62,70 +65,66 @@ class ShosetsuLuaLib : TwoArgFunction() {
 							Array<Novel.Listing>::class.java) as Array<Novel.Listing>
 				}
 
-		/** Lua Constructor for [Novel.Listing] */
+		/** [Novel.Listing] Constructor */
 		fun _Novel(): Novel.Listing = Novel.Listing()
 
-		/** Lua Constructor for [Novel.Info] */
+		/** [Novel.Info] Constructor */
 		fun _NovelInfo(): Novel.Info = Novel.Info()
 
-		/** Lua Constructor for [Novel.Chapter] */
+		/** [Novel.Chapter] Constructor */
 		fun _NovelChapter(): Novel.Chapter = Novel.Chapter()
 
-		/**
-		 * Lua Constructor for [Novel.Status]
-		 * @param type maps to a certain enum
-		 */
-		fun NovelStatus(type: Int): Novel.Status = when (type) {
+		/** [Novel.Status] Constructor */
+		fun _NovelStatus(type: Int): Novel.Status = when (type) {
 			0 -> Novel.Status.PUBLISHING
 			1 -> Novel.Status.COMPLETED
 			2 -> Novel.Status.PAUSED
 			else -> Novel.Status.UNKNOWN
 		}
 
-		fun ChapterType(type: Int): Novel.ChapterType = when (type) {
+		/** [Novel.ChapterType] Constructor */
+		fun _ChapterType(type: Int): Novel.ChapterType = when (type) {
 			0 -> Novel.ChapterType.STRING
 			1 -> Novel.ChapterType.HTML
 			2 -> Novel.ChapterType.EPUB
 			3 -> Novel.ChapterType.PDF
-			4 -> Novel.ChapterType.MD
+			4 -> Novel.ChapterType.MARKDOWN
 			else -> Novel.ChapterType.STRING
 		}
 
-		/**
-		 * Requests for a certain library to be loaded
-		 */
+		/** Loads libraries from cache or by calling [libLoader] */
 		fun Require(name: String): LuaValue? = libraries[name] ?: libLoader(name).also {
 			libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name")
 		}
 
 		// For filters
 
-		/** @see [app.shosetsu.lib.Filter.Text] */
+		/** [app.shosetsu.lib.Filter.Text] Constructor */
 		fun TextFilter(id: Int, name: String): Filter.Text = Filter.Text(id, name)
 
-		/** @see [app.shosetsu.lib.Filter.Switch] */
+		/** [app.shosetsu.lib.Filter.Switch] Constructor */
 		fun SwitchFilter(id: Int, name: String): Filter.Switch = Filter.Switch(id, name)
 
-		/** @see [app.shosetsu.lib.Filter.Checkbox] */
+		/** [app.shosetsu.lib.Filter.Checkbox] Constructor */
 		fun CheckboxFilter(id: Int, name: String): Filter.Checkbox = Filter.Checkbox(id, name)
 
-		/** @see [app.shosetsu.lib.Filter.Dropdown] */
+		/** [app.shosetsu.lib.Filter.Dropdown] Constructor */
 		fun DropdownFilter(id: Int, name: String, choices: Array<String>): Filter.Dropdown =
 				Filter.Dropdown(id, name, choices)
 
-		/** @see [app.shosetsu.lib.Filter.RadioGroup] */
+		/** [app.shosetsu.lib.Filter.RadioGroup] Constructor */
 		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>): Filter.RadioGroup =
 				Filter.RadioGroup(id, name, choices)
 
-		/** @see [app.shosetsu.lib.Filter.List] */
+		/** [app.shosetsu.lib.Filter.List] Constructor */
 		fun FilterList(name: String, filters: Array<Filter<*>>): Filter.List =
 				Filter.List(name, filters)
 
-		/** @see [app.shosetsu.lib.Filter.Group] */
+		/** [app.shosetsu.lib.Filter.Group] Constructor */
 		fun <T> FilterGroup(name: String, filters: Array<Filter<T>>): Filter.Group<T> =
 				Filter.Group(name, filters)
 
-		// For normal extensions, these simple functions are sufficient.
+
 		fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =
 				Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
 
@@ -159,35 +158,37 @@ class ShosetsuLuaLib : TwoArgFunction() {
 	}
 
 	@Suppress("ClassName")
-	internal class __index(g: Globals) : TwoArgFunction() {
-		private val load: LuaFunction = g["load"] as LuaFunction
-		private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions())
+	internal object __index : TwoArgFunction() {
+		lateinit var load: LuaFunction
+		private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions)
 
-		private val luaFuncs: Map<String, LuaValue> = permaLuaFuncs
-				.map { e -> e.key to load.call(e.value).call() }.toMap()
+		private val luaFuncs: Map<String, LuaValue> by lazy {
+			permaLuaFuncs.map { e -> e.key to load.call(e.value).call() }.toMap()
+		}
 
-		private val wrap: LuaFunction = luaFuncs["wrap"] as LuaFunction
+		private val wrap: LuaFunction by lazy { luaFuncs["wrap"] as LuaFunction }
 
 		override fun call(_self: LuaValue, k: LuaValue): LuaValue {
 			if (k.isstring()) {
+				val f = luaFuncs[k.tojstring()]
+				if (f != null) return f
+
 				val o = lib[k.tostring()]
 				if (o != null && o != LuaValue.NIL)
 					return wrap.call(lib, o)
-				val f = luaFuncs[k.tojstring()]
-				if (f != null) return f
 			}
 			return LuaValue.NIL
 		}
 	}
 
 	companion object {
-		/** Libraries loaded in via shosetsu. Mapping from library name to their returned value. */
+		/** Cache of libraries loaded by the [libLoader] via [LibFunctions.Require] */
 		val libraries: MutableMap<String, LuaValue> = mutableMapOf()
 
-		/** Loads libraries from their names. */
+		/** Loads libraries by name (for [LibFunctions.Require]) */
 		lateinit var libLoader: (name: String) -> LuaValue?
 
-		/** okhttp HTTP Client used by lib functions. */
+		/** okhttp client used by [LibFunctions] */
 		lateinit var httpClient: OkHttpClient
 
 		private val permaLuaFuncs by lazy {
@@ -203,7 +204,8 @@ class ShosetsuLuaLib : TwoArgFunction() {
 					"flatten" to loadResource("flatten.lua"),
 					"Novel" to loadResource("Novel.lua"),
 					"NovelInfo" to loadResource("NovelInfo.lua"),
-					"NovelChapter" to loadResource("NovelChapter.lua")
+					"NovelChapter" to loadResource("NovelChapter.lua"),
+					"NovelStatus" to loadResource("NovelStatus.lua")
 			)
 		}
 	}

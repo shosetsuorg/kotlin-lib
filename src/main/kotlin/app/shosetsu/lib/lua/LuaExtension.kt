@@ -33,32 +33,8 @@ import java.security.InvalidParameterException
  *
  * @param content extension script
  */
-class LuaExtension(val content: String) : IExtension {
+class LuaExtension(val content: String, val dname: String = "unknown") : IExtension {
 	companion object {
-
-		private const val KEY_ID = "id"
-		private const val KEY_NAME = "name"
-		private const val KEY_BASE_URL = "baseURL"
-		private const val KEY_IMAGE_URL = "imageURL"
-
-		private const val KEY_HAS_CLOUD_FLARE = "hasCloudFlare"
-
-		private const val KEY_SEARCH = "search"
-		private const val KEY_HAS_SEARCH = "hasSearch"
-		private const val KEY_IS_SEARCH_INC = "isSearchIncrementing"
-		private const val KEY_SEARCH_FILTERS = "searchFilters"
-
-		private const val KEY_SETTINGS = "settings"
-		private const val KEY_UPDATE_SETTING = "updateSetting"
-
-		private const val KEY_CHAPTER_TYPE = "chapterType"
-		private const val KEY_LISTINGS = "listings"
-		private const val KEY_GET_PASSAGE = "getPassage"
-		private const val KEY_PARSE_NOVEL = "parseNovel"
-
-		private const val KEY_EXPAND_URL = "expandURL"
-		private const val KEY_SHRINK_URL = "shrinkURL"
-
 		/**
 		 * Values that may not be present
 		 */
@@ -106,7 +82,7 @@ class LuaExtension(val content: String) : IExtension {
 
 	}
 
-	constructor(file: File) : this(file.readText())
+	constructor(file: File) : this(file.readText(), file.name)
 
 	/**
 	 * Returns the metadata that is at the header of the extension
@@ -133,7 +109,7 @@ class LuaExtension(val content: String) : IExtension {
 	init {
 		val globals = shosetsuGlobals()
 		val l = try {
-			globals.load(content)!!
+			globals.load(content, "ext($dname)")!!
 		} catch (e: Error) {
 			throw e
 		}
@@ -163,13 +139,14 @@ class LuaExtension(val content: String) : IExtension {
 				)
 		}
 
-		// Ensures searchFilters conform to design
-		tableToFilters(source[KEY_SEARCH_FILTERS] as LuaTable).let {
-			println(it.contentDeepToString())
-			if (it.any { it.id == QUERY_INDEX || it.id == PAGE_INDEX })
-				throw InvalidParameterException("Search filters contain illegal ID $QUERY_INDEX||$PAGE_INDEX")
+		// Ensure no reserved filter IDs are used
+		tableToFilters(source[KEY_SEARCH_FILTERS] as LuaTable).let { table ->
+			println(table.contentDeepToString())
+			listOf(QUERY_INDEX, PAGE_INDEX).forEach { reserved ->
+				if (table.any { it.id == reserved })
+					throw InvalidParameterException("Search filter cannot have reserved ID $reserved")
+			}
 		}
-
 	}
 
 	override val name: String by lazy { source[KEY_NAME].tojstring() }
@@ -199,15 +176,16 @@ class LuaExtension(val content: String) : IExtension {
 	}
 
 	override fun updateSetting(id: Int, value: Any?) {
-		source[KEY_UPDATE_SETTING].takeIf { it.type() == TFUNCTION }?.call(valueOf(id), coerce(value)) ?: return
+		source[KEY_UPDATE_SETTING].takeIf { it.type() == TFUNCTION }?.call(valueOf(id), coerce(value))
+				?: return
 	}
 
 	override fun getPassage(chapterURL: String): String =
-			source[KEY_GET_PASSAGE].call(expandURL(chapterURL, 1)).tojstring()
+			source[KEY_GET_PASSAGE].call(chapterURL).tojstring()
 
 	override fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info =
 			coerceLuaToJava(source[KEY_PARSE_NOVEL].call(
-					valueOf(expandURL(novelURL, 1)),
+					valueOf(novelURL),
 					valueOf(loadChapters)
 			))
 

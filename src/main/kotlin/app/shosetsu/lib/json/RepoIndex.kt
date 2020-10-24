@@ -2,16 +2,20 @@ package app.shosetsu.lib.json
 
 import app.shosetsu.lib.Version
 import org.json.JSONObject
+import java.io.File
 
 /**
  * shosetsu-kotlin-lib
  * 17 / 10 / 2020
+ * @param libraries Libraries used by the repository
+ * @param extensions Extensions listed in this repository
  */
 data class RepoIndex internal constructor(
 		val libraries: List<RepoLibrary>,
 		val extensions: List<RepoExtension>
 ) {
-	constructor(json: String) : this(JSONObject(json))
+	constructor(jsonFile: File) : this(JSONObject(jsonFile))
+	constructor(jsonString: String) : this(JSONObject(jsonString))
 
 	constructor(json: JSONObject) : this(
 			json.getJSONArray("libraries").map { it as JSONObject }.map {
