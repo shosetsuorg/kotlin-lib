@@ -120,7 +120,8 @@ class LuaExtension(val content: String) : IExtension {
 				libVersion = Version(json.getString(J_LIB_VERSION)),
 				author = json.getString(J_AUTHOR),
 				repo = json.takeIf { it.has(J_REPO) }?.getString(J_REPO) ?: "",
-				dependencies = json.takeIf { it.has(J_DEP) }?.getJSONArray(J_DEP)?.map { it as String }?.map {
+				// Using .iterator() to provide android compatiblity
+				dependencies = json.takeIf { it.has(J_DEP) }?.getJSONArray(J_DEP)?.iterator()?.map { it as String }?.map {
 					it.split(">=").let { split ->
 						split[0] to Version(split[1])
 					}

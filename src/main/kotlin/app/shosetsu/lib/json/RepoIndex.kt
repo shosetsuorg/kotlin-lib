@@ -13,14 +13,15 @@ data class RepoIndex internal constructor(
 ) {
 	constructor(json: String) : this(JSONObject(json))
 
+	// Using .iterator() to provide android compatiblity
 	constructor(json: JSONObject) : this(
-			json.getJSONArray("libraries").map { it as JSONObject }.map {
+			json.getJSONArray("libraries").iterator().map { it as JSONObject }.map {
 				RepoLibrary(
 						name = it.getString(J_NAME),
 						version = Version(it.getString(J_VERSION))
 				)
 			},
-			json.getJSONArray("scripts").map { it as JSONObject }.map {
+			json.getJSONArray("scripts").iterator().map { it as JSONObject }.map {
 				RepoExtension(
 						id = it.getInt(J_ID),
 						name = it.getString(J_NAME),
