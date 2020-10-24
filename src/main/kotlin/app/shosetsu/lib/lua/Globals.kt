@@ -102,7 +102,6 @@ fun shosetsuGlobals(): Globals {
 	globals.freezeLib("coroutine")
 	globals.freezeLib("math")
 	globals.freezeLib("os", arrayOf("clock", "date", "difftime", "setlocale", "time"))
-	globals = globals.frozen()
 
-	return globals
+	return globals.frozen()
 }
