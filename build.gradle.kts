@@ -33,7 +33,7 @@ dependencies {
 	implementation("org.jsoup:jsoup:1.12.1")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.10")
 	implementation("org.luaj:luaj-jse:3.0.1")
-	implementation("org.json:json:20190722")
+	implementation("com.beust:klaxon:5.0.1")
 	implementation("com.squareup.okhttp3:okhttp:4.2.1")
 	implementation("com.google.guava:guava:30.0-jre")
 	testImplementation("junit:junit:4.12")

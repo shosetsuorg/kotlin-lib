@@ -2,7 +2,8 @@ package app.shosetsu.lib.lua
 
 import app.shosetsu.lib.*
 import app.shosetsu.lib.json.*
-import org.json.JSONObject
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
@@ -11,6 +12,7 @@ import org.luaj.vm2.lib.OneArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import java.io.File
+import java.io.StringReader
 import java.security.InvalidParameterException
 
 /*
@@ -32,8 +34,13 @@ import java.security.InvalidParameterException
  * 16 / 01 / 2020
  *
  * @param content extension script
+ * @param debugName name to use debug
  */
-class LuaExtension(val content: String, val dname: String = "unknown") : IExtension {
+class LuaExtension(
+		@Suppress("MemberVisibilityCanBePrivate")
+		val content: String,
+		debugName: String = "unknown"
+) : IExtension {
 	companion object {
 		/**
 		 * Values that may not be present
@@ -89,15 +96,16 @@ class LuaExtension(val content: String, val dname: String = "unknown") : IExtens
 	 */
 	@Suppress("unused")
 	override val exMetaData: IExtension.ExMetaData by lazy {
-		val json = JSONObject(content.lines().first().replace("--", "").trim())
+		val metaString = content.lines().first().replace("--", "").trim()
+		val json = Parser.default().parse(StringReader(metaString)) as JsonObject
 		IExtension.ExMetaData(
-				id = json.getInt(J_ID),
-				version = Version(json.getString(J_VERSION)),
-				libVersion = Version(json.getString(J_LIB_VERSION)),
-				author = json.getString(J_AUTHOR),
-				repo = json.takeIf { it.has(J_REPO) }?.getString(J_REPO) ?: "",
-				// Using .toList() to provide android compatiblity
-				dependencies = json.takeIf { it.has(J_DEP) }?.getJSONArray(J_DEP)?.toList()?.map { it as String }?.map {
+				id = json.int(J_ID)!!,
+				version = Version(json.string(J_VERSION)!!),
+				libVersion = Version(json.string(J_LIB_VERSION)!!),
+				author = json.string(J_AUTHOR)!!,
+				repo = json.string(J_REPO) ?: "",
+				// Using .toAndroid() to provide android compatiblity
+				dependencies = json.array<String>(J_DEP)?.map {
 					it.split(">=").let { split ->
 						split[0] to Version(split[1])
 					}
@@ -110,7 +118,7 @@ class LuaExtension(val content: String, val dname: String = "unknown") : IExtens
 	init {
 		val globals = shosetsuGlobals()
 		val l = try {
-			globals.load(content, "ext($dname)")!!
+			globals.load(content, "ext($debugName)")!!
 		} catch (e: Error) {
 			throw e
 		}
