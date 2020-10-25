@@ -1,10 +1,6 @@
 package app.shosetsu.lib
 
 import com.google.common.io.Resources
-import org.luaj.vm2.LuaTable
-import org.luaj.vm2.LuaValue
-import org.luaj.vm2.lib.jse.CoerceJavaToLua
-import org.luaj.vm2.lib.jse.CoerceLuaToJava
 
 /*
  * This file is part of shosetsu-kotlin-lib.
@@ -23,7 +19,7 @@ import org.luaj.vm2.lib.jse.CoerceLuaToJava
 fun Array<Filter<*>>.mapify(): Map<Int, Any> = HashMap<Int, Any>().apply hasMap@{
 	this@mapify.forEach {
 		when (val state = it.state) {
-			is Map<*, *> -> this.putAll(state as Map<out Int, Any>)
+			is Map<*, *> -> @Suppress("UNCHECKED_CAST") this.putAll(state as Map<out Int, Any>)
 			else -> this[it.id] = state!!
 		}
 	}
@@ -32,7 +28,7 @@ fun Array<Filter<*>>.mapify(): Map<Int, Any> = HashMap<Int, Any>().apply hasMap@
 fun <T> Array<Filter<T>>.mapifyS(): Map<Int, T> = HashMap<Int, T>().apply hasMap@{
 	this@mapifyS.forEach {
 		when (val state = it.state) {
-			is Map<*, *> -> this.putAll(state as Map<out Int, T>)
+			is Map<*, *> -> @Suppress("UNCHECKED_CAST") this.putAll(state as Map<out Int, T>)
 			else -> this[it.id] = state
 		}
 	}
@@ -42,5 +38,6 @@ fun <T> Array<Filter<T>>.mapifyS(): Map<Int, T> = HashMap<Int, T>().apply hasMap
  * Reads a resource file
  */
 fun loadResource(file: String): String {
+	@Suppress("UnstableApiUsage")
 	return Resources.getResource(file).readText()
 }

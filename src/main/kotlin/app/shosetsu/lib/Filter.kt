@@ -22,8 +22,13 @@ package app.shosetsu.lib
  *
  * @param id [Int] This is a unique calling card for the specific filter / setting
  * If the setting type is ever changed, the ID should be changed
+ *
+ * @param name Name of the filer
+ *
+ * @param state states of the filter stuff
  */
 sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
+	@Suppress("IMPLICIT_CAST_TO_ANY")
 	override fun toString(): String =
 			"Filter(id='$id', name='$name', state=`${if (state is Sequence<*>) state.toString() else state}`)"
 
@@ -91,6 +96,7 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	/**
 	 * A collapsable list of filters
 	 * Includes [Separator]
+	 * @param filters Filters present
 	 */
 	class List(
 			name: String,
@@ -107,8 +113,8 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	 * @param filters Filters present
 	 */
 	class Group<T>(
-		name: String,
-		val filters: Array<Filter<T>>
+			name: String,
+			val filters: Array<Filter<T>>
 	) : Filter<Map<Int, T>>(-1, name, filters.mapifyS()) {
 		override var state: Map<Int, T>
 			get() = filters.mapifyS()

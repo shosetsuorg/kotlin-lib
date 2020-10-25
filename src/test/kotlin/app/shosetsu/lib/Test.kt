@@ -5,7 +5,6 @@ import app.shosetsu.lib.lua.LuaExtension
 import app.shosetsu.lib.lua.ShosetsuLuaLib
 import app.shosetsu.lib.lua.shosetsuGlobals
 import okhttp3.OkHttpClient
-import org.json.JSONObject
 import org.luaj.vm2.LuaValue
 import java.io.File
 import java.util.concurrent.TimeUnit.MILLISECONDS
@@ -104,7 +103,7 @@ object Test {
 			selectedNovel++
 			novel = fmt.parseNovel(novels[selectedNovel].link, true)
 		}
-    
+
 		if (PRINT_NOVELS)
 			println(novel)
 
@@ -139,7 +138,7 @@ object Test {
 				}
 				is Filter.Group<*> -> {
 					(it.filters as Array<Filter<*>>).printOut(indent + 1)
-				}
+        }
 				else -> { }
 			}
 		}
