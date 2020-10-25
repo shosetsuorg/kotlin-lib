@@ -8,4 +8,4 @@ import app.shosetsu.lib.Version
  *
  * Represents a library listed in `libraries` within the repository index
  */
-data class RepoLibrary internal constructor (val name: String, val version: Version)
+data class RepoLibrary internal constructor(val name: String, val version: Version)

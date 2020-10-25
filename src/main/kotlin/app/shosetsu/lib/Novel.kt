@@ -56,12 +56,16 @@ class Novel {
 	enum class ChapterType {
 		/** Strings with no formatting */
 		STRING,
+
 		/** HTML pages */
 		HTML,
+
 		/** Markdown-formatted strings */
 		MARKDOWN,
+
 		/** EPUB files */
 		EPUB,
+
 		/** PDF files */
 		PDF
 	}
