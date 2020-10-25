@@ -17,6 +17,7 @@ data class RepoIndex internal constructor(
 		val libraries: List<RepoLibrary>,
 		val extensions: List<RepoExtension>
 ) {
+
 	constructor(jsonFile: File) : this(Parser.default().parse(FileReader(jsonFile)) as JsonObject)
 
 	constructor(jsonString: String) : this(Parser.default().parse(StringReader(jsonString)) as JsonObject)

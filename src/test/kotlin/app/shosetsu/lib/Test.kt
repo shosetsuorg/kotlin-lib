@@ -138,9 +138,8 @@ object Test {
 				}
 				is Filter.Group<*> -> {
 					(it.filters as Array<Filter<*>>).printOut(indent + 1)
-				}
-				else -> {
-				}
+        }
+				else -> { }
 			}
 		}
 	}
