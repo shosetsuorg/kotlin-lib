@@ -39,9 +39,6 @@ object Test {
 	private const val PRINT_LIST_STATS = true
 	private const val PRINT_NOVELS = false
 	private const val PRINT_NOVEL_STATS = true
-	private const val PRINT_PASSAGES = true
-	private const val PRINT_REPO_INDEX = true
-	private const val PRINT_META_DATA = true
 	private const val PRINT_PASSAGES = false
 	private const val PRINT_REPO_INDEX = false
 	private const val PRINT_METADATA = false
