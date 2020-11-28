@@ -163,7 +163,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions)
 
 		private val luaFuncs: Map<String, LuaValue> by lazy {
-			permaLuaFuncs.map { e -> e.key to load.call(e.value).call() }.toMap()
+			permaLuaFuncs.map { e -> e.key to load.call(LuaValue.valueOf(e.value), LuaValue.valueOf("luafunc(${e.key})")).call() }.toMap()
 		}
 
 		private val wrap: LuaFunction by lazy { luaFuncs["wrap"] as LuaFunction }

@@ -37,23 +37,25 @@ object Test {
 	private const val SEARCH_VALUE = "world"
 	private const val PRINT_LISTINGS = true
 	private const val PRINT_LIST_STATS = true
-	private const val PRINT_NOVELS = true
+	private const val PRINT_NOVELS = false
 	private const val PRINT_NOVEL_STATS = true
-	private const val PRINT_PASSAGES = true
-	private const val PRINT_REPO_INDEX = true
-	private const val PRINT_META_DATA = true
+	private const val PRINT_PASSAGES = false
+	private const val PRINT_REPO_INDEX = false
+	private const val PRINT_METADATA = false
+	private const val REPEAT = false
 
 	private val SOURCES: List<String> = arrayOf<String>(
 			//"en/BestLightNovel",
 			//"en/BoxNovel",
 			//"en/CreativeNovels",
 			//"en/FastNovel",
-			//"en/Foxaholic", // Needs to use ajax to get chapters, TODO: Investigate `action=manga_get_chapters&manga=######`
+			//"en/Foxaholic", // TODO: Investigate
 			//"en/KissLightNovels",
 			//"en/MNovelFree", //Doesn't seem to be a novelfull
 			//"en/MTLNovel",
 			//"en/NovelFull",
 			//"en/NovelTrench",
+			//"en/ReadLightNovel",
 			//"en/ReadNovelFull",
 			//"en/VipNovel",
 			//"en/VolareNovels",
@@ -214,6 +216,22 @@ object Test {
 									.apply {
 										this[PAGE_INDEX] = 2
 									})
+
+						if (REPEAT) {
+							novels = getListing(
+									HashMap(searchFiltersModel).apply {
+										this[PAGE_INDEX] =
+												if (isIncrementing) 1 else null
+
+									}
+							)
+
+							if (isIncrementing)
+								novels += getListing(HashMap(searchFiltersModel)
+										.apply {
+											this[PAGE_INDEX] = 2
+										})
+						}
 
 
 						showListing(extension, novels)
