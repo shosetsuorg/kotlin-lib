@@ -41,7 +41,7 @@ object Test {
 	private const val PRINT_NOVEL_STATS = true
 	private const val PRINT_PASSAGES = false
 	private const val PRINT_REPO_INDEX = false
-	private const val PRINT_METADATA = false
+	private const val PRINT_META_DATA = false
 	private const val REPEAT = false
 
 	private val SOURCES: List<String> = arrayOf<String>(
@@ -140,8 +140,9 @@ object Test {
 				}
 				is Filter.Group<*> -> {
 					(it.filters as Array<Filter<*>>).printOut(indent + 1)
-        }
-				else -> { }
+				}
+				else -> {
+				}
 			}
 		}
 	}
