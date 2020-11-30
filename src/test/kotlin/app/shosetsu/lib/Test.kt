@@ -89,9 +89,9 @@ object Test {
 
 		println("${novels.size} novels.")
 		if (PRINT_LIST_STATS) {
-			print("${novels.count { it.title == "" }} with no title, ")
-			print("${novels.count { it.link == "" }} with no link, ")
-			print("${novels.count { it.imageURL == "" }} with no image url.")
+			print("${novels.count { it.title.isEmpty() }} with no title, ")
+			print("${novels.count { it.link.isEmpty() }} with no link, ")
+			print("${novels.count { it.imageURL.isEmpty() }} with no image url.")
 			println()
 		}
 
@@ -126,20 +126,29 @@ object Test {
 
 	@Suppress("UNCHECKED_CAST")
 	fun Array<Filter<*>>.printOut(indent: Int = 0) {
-		forEach {
-			val tabs = StringBuilder("\t").apply { for (i in 0 until indent) this.append("\t") }
-			val name = it.javaClass.simpleName.let {
+		forEach { filter ->
+			val id = filter.id
+			val fName = filter.name
+
+			val tabs = StringBuilder("\t").apply {
+				for (i in 0 until indent)
+					this.append("\t")
+			}
+			val name = filter.javaClass.simpleName.let {
 				if (it.length > 7)
 					it.substring(0, 6)
 				else it
 			}
-			println("$tabs>${name}\t[${it.id}]\t${it.name}\t={${it.state?.javaClass?.simpleName}}")
-			when (it) {
+			val fullName = filter.state?.javaClass?.simpleName
+
+			println("$tabs>${name}\t[$id]\t${fName}\t={$fullName}")
+			when (filter) {
 				is Filter.List -> {
-					it.filters.printOut(indent + 1)
+					filter.filters.printOut(indent + 1)
 				}
 				is Filter.Group<*> -> {
-					(it.filters as Array<Filter<*>>).printOut(indent + 1)
+					(filter.filters as Array<Filter<*>>)
+							.printOut(indent + 1)
 				}
 				else -> {
 				}
@@ -158,7 +167,10 @@ object Test {
 	fun main(args: Array<String>) {
 		try {
 			ShosetsuLuaLib.libLoader = {
-				loadScript(File("src/main/resources/lib/$it.lua"), "lib")
+				loadScript(
+						File("src/main/resources/lib/$it.lua"),
+						"lib"
+				)
 			}
 			ShosetsuLuaLib.httpClient = OkHttpClient.Builder().addInterceptor {
 				it.proceed(it.request().also { request ->
