@@ -1,4 +1,5 @@
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "app.shosetsu.lib"
 version = "1.0.0"
@@ -40,3 +41,7 @@ dependencies {
 //	implementation("org.jetbrains.kolin:kotlin-test:v1.3.61")
 }
 
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+	languageVersion = "1.4"
+}
