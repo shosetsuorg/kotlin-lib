@@ -1,6 +1,8 @@
 package app.shosetsu.lib.lua
 
 import app.shosetsu.lib.*
+import app.shosetsu.lib.exceptions.InvalidFilterIDException
+import app.shosetsu.lib.exceptions.MissingOrInvalidKeysException
 import app.shosetsu.lib.json.*
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
@@ -8,12 +10,10 @@ import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
 import org.luaj.vm2.LuaValue.*
-import org.luaj.vm2.lib.OneArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import java.io.File
 import java.io.StringReader
-import java.security.InvalidParameterException
 
 /*
  * This file is part of shosetsu-services.
@@ -37,54 +37,57 @@ import java.security.InvalidParameterException
  * @param debugName name to use debug
  */
 class LuaExtension(
-		@Suppress("MemberVisibilityCanBePrivate")
-		val content: String,
-		debugName: String = "unknown"
+	@Suppress("MemberVisibilityCanBePrivate")
+	val content: String,
+	debugName: String = "unknown"
 ) : IExtension {
 	companion object {
 		/**
 		 * Values that may not be present
 		 */
 		val defaults: Map<String, LuaValue> = mapOf(
-				KEY_IMAGE_URL to EMPTYSTRING,
-				KEY_HAS_CLOUD_FLARE to FALSE,
-				KEY_HAS_SEARCH to TRUE,
-				KEY_IS_SEARCH_INC to TRUE,
-				KEY_SEARCH_FILTERS to LuaTable(),
-				KEY_SETTINGS to LuaTable(),
-				KEY_CHAPTER_TYPE to coerce(Novel.ChapterType.STRING)
+			KEY_IMAGE_URL to EMPTYSTRING,
+			KEY_HAS_CLOUD_FLARE to FALSE,
+			KEY_HAS_SEARCH to TRUE,
+			KEY_IS_SEARCH_INC to TRUE,
+			KEY_SEARCH_FILTERS to LuaTable(),
+			KEY_SETTINGS to LuaTable(),
+			KEY_CHAPTER_TYPE to coerce(Novel.ChapterType.STRING)
 		)
 
 		/**
 		 * Values that must be present
 		 */
 		val hardKeys: Map<String, Int> = mapOf(
-				KEY_ID to TNUMBER,
-				KEY_NAME to TSTRING,
-				KEY_LISTINGS to TTABLE,
-				KEY_GET_PASSAGE to TFUNCTION,
-				KEY_PARSE_NOVEL to TFUNCTION
+			KEY_ID to TNUMBER,
+			KEY_NAME to TSTRING,
+			KEY_LISTINGS to TTABLE,
+			KEY_GET_PASSAGE to TFUNCTION,
+			KEY_PARSE_NOVEL to TFUNCTION
 		)
 
 		/**
 		 * What is unique about soft keys is they are conditional on the soft key beforehand
 		 * IE, if hasSearch is false, then search does not need to be present in script
 		 */
-		val softKeys: Map<String, Pair<Pair<String, Int>, (LuaValue) -> Boolean>> = mapOf(
-				KEY_HAS_SEARCH to Pair(Pair(KEY_SEARCH, TFUNCTION), { v -> (v == TRUE) }),
-				KEY_SETTINGS to Pair(Pair(KEY_UPDATE_SETTING, TFUNCTION), { v -> (v as LuaTable).length() != 0 })
-		)
-
-		private fun makeLuaReporter(f: (status: String) -> Unit) = object : OneArgFunction() {
-			override fun call(p0: LuaValue?): LuaValue {
-				f(p0!!.tojstring())
-				return LuaValue.NIL
-			}
-		}
+		val softKeys: Map<String, Pair<Pair<String, Int>, (LuaValue) -> Boolean>> =
+			mapOf(
+				KEY_HAS_SEARCH to Pair(
+					Pair(KEY_SEARCH, TFUNCTION),
+					{ v -> (v == TRUE) }),
+				KEY_SETTINGS to Pair(
+					Pair(KEY_UPDATE_SETTING, TFUNCTION),
+					{ v -> (v as LuaTable).length() != 0 })
+			)
 
 		private fun tableToFilters(table: LuaTable): Array<Filter<*>> =
-				table.keys().map { table[it] }.filter { !it.isnil() }
-						.map { CoerceLuaToJava.coerce(it, Any::class.java) as Filter<*> }.toTypedArray()
+			table.keys().map { table[it] }.filter { !it.isnil() }
+				.map {
+					CoerceLuaToJava.coerce(
+						it,
+						Any::class.java
+					) as Filter<*>
+				}.toTypedArray()
 
 
 	}
@@ -96,20 +99,22 @@ class LuaExtension(
 	 */
 	@Suppress("unused")
 	override val exMetaData: IExtension.ExMetaData by lazy {
-		val metaString = content.lines().first().replace("--", "").trim()
-		val json = Parser.default().parse(StringReader(metaString)) as JsonObject
+		val metaString = content.lines().first()
+			.replace("--", "").trim()
+		val json =
+			Parser.default().parse(StringReader(metaString)) as JsonObject
 		IExtension.ExMetaData(
-				id = json.int(J_ID)!!,
-				version = Version(json.string(J_VERSION)!!),
-				libVersion = Version(json.string(J_LIB_VERSION)!!),
-				author = json.string(J_AUTHOR)!!,
-				repo = json.string(J_REPO) ?: "",
-				// Using .toAndroid() to provide android compatiblity
-				dependencies = json.array<String>(J_DEP)?.map {
-					it.split(">=").let { split ->
-						split[0] to Version(split[1])
-					}
-				}?.toTypedArray() ?: arrayOf()
+			id = json.int(J_ID)!!,
+			version = Version(json.string(J_VERSION)!!),
+			libVersion = Version(json.string(J_LIB_VERSION)!!),
+			author = json.string(J_AUTHOR)!!,
+			repo = json.string(J_REPO) ?: "",
+			// Using .toAndroid() to provide android compatiblity
+			dependencies = json.array<String>(J_DEP)?.map {
+				it.split(">=").let { split ->
+					split[0] to Version(split[1])
+				}
+			}?.toTypedArray() ?: arrayOf()
 		)
 	}
 
@@ -125,17 +130,23 @@ class LuaExtension(
 		source = l.call() as LuaTable
 
 		// If the modified default value doesnt exist, it assigns the default
-		defaults.filter { source[it.key].isnil() }.forEach { source[it.key] = it.value }
+		defaults.filter { source[it.key].isnil() }
+			.forEach { source[it.key] = it.value }
 
-		// If any required value is not found, it throws an NullPointerException
-		with(hardKeys.filter { source.get(it.key).type() != it.value }.map { it.key }) {
+		// If any required value is not found,
+		// it throws an NullPointerException
+		with(hardKeys.filter { expected ->
+			source.get(expected.key).type() != expected.value
+		}.map { it.key }) {
 			if (isNotEmpty())
-				throw NullPointerException(
-						"LuaScript has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" })
+				throw MissingOrInvalidKeysException(
+					debugName,
+					this
 				)
 		}
 
-		// If any of the softKeys matching their condition of requirement are not found, it throws an NullPointerException
+		// If any of the softKeys matching their condition of requirement
+		// are not found, it throws an NullPointerException
 		with(softKeys.filter {
 			val t = it.value.first
 			if (it.value.second(source[it.key])) {
@@ -143,8 +154,9 @@ class LuaExtension(
 			} else false
 		}.map { it.value.first.first }) {
 			if (isNotEmpty())
-				throw NullPointerException(
-						"LuaScript has missing or invalid:" + fold("", { a, s -> "$a\n\t\t$s;" })
+				throw MissingOrInvalidKeysException(
+					debugName,
+					this
 				)
 		}
 
@@ -153,18 +165,32 @@ class LuaExtension(
 			println(table.contentDeepToString())
 			listOf(QUERY_INDEX, PAGE_INDEX).forEach { reserved ->
 				if (table.any { it.id == reserved })
-					throw InvalidParameterException("Search filter cannot have reserved ID $reserved")
+					throw InvalidFilterIDException(debugName, reserved)
 			}
 		}
 	}
 
-	override val name: String by lazy { source[KEY_NAME].tojstring() }
-	override val baseURL: String by lazy { source[KEY_BASE_URL].tojstring() }
-	override val formatterID by lazy { source[KEY_ID].toint() }
-	override val imageURL: String by lazy { source[KEY_IMAGE_URL].tojstring() }
-	override val hasCloudFlare by lazy { source[KEY_HAS_CLOUD_FLARE].toboolean() }
-	override val hasSearch by lazy { source[KEY_HAS_SEARCH].toboolean() }
-	override val isSearchIncrementing: Boolean by lazy { source[KEY_IS_SEARCH_INC].toboolean() }
+	override val name: String by lazy {
+		source[KEY_NAME].tojstring()
+	}
+	override val baseURL: String by lazy {
+		source[KEY_BASE_URL].tojstring()
+	}
+	override val formatterID by lazy {
+		source[KEY_ID].toint()
+	}
+	override val imageURL: String by lazy {
+		source[KEY_IMAGE_URL].tojstring()
+	}
+	override val hasCloudFlare by lazy {
+		source[KEY_HAS_CLOUD_FLARE].toboolean()
+	}
+	override val hasSearch by lazy {
+		source[KEY_HAS_SEARCH].toboolean()
+	}
+	override val isSearchIncrementing: Boolean by lazy {
+		source[KEY_IS_SEARCH_INC].toboolean()
+	}
 
 	@Suppress("UNCHECKED_CAST")
 	override val listings: Array<IExtension.Listing> by lazy {
@@ -185,22 +211,28 @@ class LuaExtension(
 	}
 
 	override fun updateSetting(id: Int, value: Any?) {
-		source[KEY_UPDATE_SETTING].takeIf { it.type() == TFUNCTION }?.call(valueOf(id), coerce(value))
-				?: return
+		source[KEY_UPDATE_SETTING].takeIf { it.type() == TFUNCTION }
+			?.call(valueOf(id), coerce(value))
+			?: return
 	}
 
 	override fun getPassage(chapterURL: String): String =
-			source[KEY_GET_PASSAGE].call(chapterURL).tojstring()
+		source[KEY_GET_PASSAGE].call(chapterURL).tojstring()
 
-	override fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info =
-			coerceLuaToJava(source[KEY_PARSE_NOVEL].call(
-					valueOf(novelURL),
-					valueOf(loadChapters)
-			))
+	override fun parseNovel(
+		novelURL: String,
+		loadChapters: Boolean
+	): Novel.Info =
+		coerceLuaToJava(
+			source[KEY_PARSE_NOVEL].call(
+				valueOf(novelURL),
+				valueOf(loadChapters)
+			)
+		)
 
 	@Suppress("UNCHECKED_CAST")
 	override fun search(data: Map<Int, *>): Array<Novel.Listing> =
-			coerceLuaToJava(source[KEY_SEARCH].call(data.toLua()))
+		coerceLuaToJava(source[KEY_SEARCH].call(data.toLua()))
 
 	override fun expandURL(smallURL: String, type: Int): String {
 		val f = source[KEY_EXPAND_URL]

@@ -4,3 +4,5 @@ target/*
 .gradle
 out/*
 build
+
+*.odg

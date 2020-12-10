@@ -36,30 +36,34 @@ interface IExtension {
 	 *
 	 */
 	data class ExMetaData(
-			val id: Int,
-			val version: Version,
-			val libVersion: Version,
-			val author: String,
-			val repo: String,
-			val dependencies: Array<Pair<String, Version>>
+		val id: Int,
+		val version: Version,
+		val libVersion: Version,
+		val author: String,
+		val repo: String,
+		val dependencies: Array<Pair<String, Version>>
 	)
 
 	/**
-	 * This represents a "Page" that the source might have for listing novels
-	 * Many sources have a singular listing, which contains filters and queries
-	 * Some sources have extra pages to display sources, such as a separate page for latest updates or most viewed
+	 * This represents a "Page" that the source might have for listing novels.
+	 *
+	 * Many sources have a singular listing,
+	 * which contains filters and queries.
+	 *
+	 * Some sources have extra pages to display sources, such as
+	 * a separate page for latest updates or most viewed
 	 */
 	class Listing(
-			/** Name of this listing */
-			val name: String,
+		/** Name of this listing */
+		val name: String,
 
-			/** If you can continue scrolling for more data or not */
-			val isIncrementing: Boolean,
+		/** If you can continue scrolling for more data or not */
+		val isIncrementing: Boolean,
 
-			/**
-			 * This gets data from the listing
-			 */
-			val getListing: (data: Map<Int, *>) -> Array<Novel.Listing>
+		/**
+		 * This gets data from the listing
+		 */
+		val getListing: (data: Map<Int, *>) -> Array<Novel.Listing>
 	)
 
 	/** Meta data of the extension */
@@ -93,7 +97,10 @@ interface IExtension {
 	/** If this extensions search can be incremented */
 	val isSearchIncrementing: Boolean
 
-	/** If this extension has cloudflare protection that requires interception */
+	/**
+	 * If this extension has cloudflare protection that
+	 * requires interception
+	 */
 	val hasCloudFlare: Boolean
 
 	/**
@@ -127,15 +134,20 @@ interface IExtension {
 
 	/**
 	 * Get the passage of a novel
-	 * @param chapterURL of the chapter, will be fed into [expandURL] with [KEY_CHAPTER_URL]
+	 * @param chapterURL of the chapter,
+	 * will be fed into [expandURL] with [KEY_CHAPTER_URL]
+	 *
 	 * @return [String] of data corresponding to the [chapterType]
 	 */
 	fun getPassage(chapterURL: String): String
 
 	/**
 	 * Using the novel url, Requests for information on the novel
-	 * @param novelURL url of novel, will be fed into [expandURL] with [KEY_NOVEL_URL]
-	 * @param loadChapters option to load chapters or not, for minor performance options (and debug)
+	 * @param novelURL url of novel,
+	 * will be fed into [expandURL] with [KEY_NOVEL_URL]
+	 *
+	 * @param loadChapters option to load chapters or not,
+	 * for minor performance options (and debug)
 	 */
 	fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info
 

@@ -1,9 +1,5 @@
 package app.shosetsu.lib.json
-
-/**
- * shosetsu-kotlin-lib
- * 12 / 10 / 2020
- */
+// 12 / 10 / 2020
 
 const val J_ID = "id"
 const val J_NAME = "name"

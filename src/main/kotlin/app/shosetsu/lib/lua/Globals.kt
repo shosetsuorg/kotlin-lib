@@ -11,19 +11,16 @@ import org.luaj.vm2.lib.jse.JseMathLib
 import org.luaj.vm2.lib.jse.JseOsLib
 import org.luaj.vm2.lib.jse.LuajavaLib
 
-/**
- * shosetsu-kotlin-lib
- * 06 / 10 / 2020
- */
+// 06 / 10 / 2020
 
 /**
  * Global values that are passed into lua with [shosetsuGlobals]
  */
 val SHOSETSU_GLOBALS: Map<String, LuaValue> = mapOf<String, LuaValue>(
-		"QUERY" to LuaValue.valueOf(QUERY_INDEX),
-		"PAGE" to LuaValue.valueOf(PAGE_INDEX),
-		"KEY_CHAPTER_URL" to LuaValue.valueOf(IExtension.KEY_CHAPTER_URL),
-		"KEY_NOVEL_URL" to LuaValue.valueOf(IExtension.KEY_NOVEL_URL)
+	"QUERY" to LuaValue.valueOf(QUERY_INDEX),
+	"PAGE" to LuaValue.valueOf(PAGE_INDEX),
+	"KEY_CHAPTER_URL" to LuaValue.valueOf(IExtension.KEY_CHAPTER_URL),
+	"KEY_NOVEL_URL" to LuaValue.valueOf(IExtension.KEY_NOVEL_URL)
 )
 
 fun LuaTable.frozen(name: String, allowed: Array<String>? = null): LuaTable {
@@ -38,6 +35,7 @@ fun LuaTable.frozen(name: String, allowed: Array<String>? = null): LuaTable {
 	val new = LuaTable()
 	mt["__index"] = tbl
 	mt["__newindex"] = object : ZeroArgFunction() {
+		@Throws(LuaError::class)
 		override fun call(): LuaValue = throw LuaError("$name is read-only.")
 	}
 	new.setmetatable(mt)
@@ -45,7 +43,10 @@ fun LuaTable.frozen(name: String, allowed: Array<String>? = null): LuaTable {
 	return new
 }
 
-fun Globals.freezeLib(key: String, allowed: Array<String>? = null) = this.set(key, (this.get(key) as? LuaTable)!!.frozen(key, allowed))
+fun Globals.freezeLib(
+	key: String,
+	allowed: Array<String>? = null
+): Unit = this.set(key, (this.get(key) as LuaTable).frozen(key, allowed))
 
 fun Globals.frozen(): Globals {
 	val mt = LuaTable()
@@ -67,8 +68,14 @@ fun Globals.frozen(): Globals {
 
 	mt["__index"] = this
 	mt["__newindex"] = object : ZeroArgFunction() {
-		// not sure if this is the best idea, but it enforces better code quality/speed and it should reduce risks.
-		override fun call(): LuaValue = throw LuaError("Cannot create a global. Please use a local variable/function.")
+		// not sure if this is the best idea,
+		// but it enforces better code quality/speed and
+		// it should reduce risks.
+		@Throws(LuaError::class)
+		override fun call(): LuaValue =
+			throw LuaError(
+				"Cannot create a global. Please use a local variable/function."
+			)
 	}
 	new.setmetatable(mt)
 	return new
@@ -76,32 +83,39 @@ fun Globals.frozen(): Globals {
 
 fun shosetsuGlobals(): Globals {
 	// Creation of globals
-	var globals = Globals()
-	globals.load(JseBaseLib())
-	globals.load(PackageLib())
-	globals.load(Bit32Lib())
-	globals.load(TableLib())
-	globals.load(StringLib())
-	globals.load(CoroutineLib())
-	globals.load(JseMathLib())
-	globals.load(JseOsLib())
-	globals.load(LuajavaLib())
+	return Globals().apply {
+		load(JseBaseLib())
+		load(PackageLib())
+		load(Bit32Lib())
+		load(TableLib())
+		load(StringLib())
+		load(CoroutineLib())
+		load(JseMathLib())
+		load(JseOsLib())
+		load(LuajavaLib())
 
-	// Install compilers.
-	LoadState.install(globals)
-	LuaC.install(globals)
+		// Install compilers.
+		LoadState.install(this)
+		LuaC.install(this)
 
-	// Load shosetsu environment
-	globals.load(ShosetsuLuaLib())
-	SHOSETSU_GLOBALS.forEach { (s, luaValue) -> globals.set(s, luaValue) }
+		// Load shosetsu environment
+		load(ShosetsuLuaLib())
+		SHOSETSU_GLOBALS.forEach { (s, luaValue) -> set(s, luaValue) }
 
-	// Freezing & Sandboxing
-	globals.freezeLib("package")
-	globals.freezeLib("bit32")
-	globals.freezeLib("table")
-	globals.freezeLib("coroutine")
-	globals.freezeLib("math")
-	globals.freezeLib("os", arrayOf("clock", "date", "difftime", "setlocale", "time"))
-
-	return globals.frozen()
+		// Freezing & Sandboxing
+		freezeLib("package")
+		freezeLib("bit32")
+		freezeLib("table")
+		freezeLib("coroutine")
+		freezeLib("math")
+		freezeLib(
+			"os", arrayOf(
+				"clock",
+				"date",
+				"difftime",
+				"setlocale",
+				"time"
+			)
+		)
+	}.frozen()
 }
