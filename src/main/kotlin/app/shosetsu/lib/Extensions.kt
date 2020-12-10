@@ -16,23 +16,29 @@ import com.google.common.io.Resources
  * along with shosetsu-kotlin-lib.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-fun Array<Filter<*>>.mapify(): Map<Int, Any> = HashMap<Int, Any>().apply hasMap@{
-	this@mapify.forEach {
-		when (val state = it.state) {
-			is Map<*, *> -> @Suppress("UNCHECKED_CAST") this.putAll(state as Map<out Int, Any>)
-			else -> this[it.id] = state!!
+fun Array<Filter<*>>.mapify(): Map<Int, Any> =
+	HashMap<Int, Any>().apply hasMap@{
+		this@mapify.forEach {
+			when (val state = it.state) {
+				is Map<*, *> ->
+					@Suppress("UNCHECKED_CAST")
+					this.putAll(state as Map<out Int, Any>)
+				else -> this[it.id] = state!!
+			}
 		}
 	}
-}
 
-fun <T> Array<Filter<T>>.mapifyS(): Map<Int, T> = HashMap<Int, T>().apply hasMap@{
-	this@mapifyS.forEach {
-		when (val state = it.state) {
-			is Map<*, *> -> @Suppress("UNCHECKED_CAST") this.putAll(state as Map<out Int, T>)
-			else -> this[it.id] = state
+fun <T> Array<Filter<T>>.mapifyS(): Map<Int, T> =
+	HashMap<Int, T>().apply hasMap@{
+		this@mapifyS.forEach {
+			when (val state = it.state) {
+				is Map<*, *> ->
+					@Suppress("UNCHECKED_CAST")
+					this.putAll(state as Map<out Int, T>)
+				else -> this[it.id] = state
+			}
 		}
 	}
-}
 
 /**
  * Reads a resource file

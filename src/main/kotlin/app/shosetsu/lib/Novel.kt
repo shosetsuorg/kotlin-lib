@@ -23,50 +23,70 @@ package app.shosetsu.lib
  * @author github.com/doomsdayrs
  */
 class Novel {
-	data class Listing(var title: String = "unknown", var link: String = "", var imageURL: String = "")
-	data class Chapter(
-			var release: String = "unknown",
-			var title: String = "unknown",
-			var link: String = "",
-			var order: Double = 0.0
+	data class Listing(
+		var title: String = "unknown",
+		var link: String = "",
+		var imageURL: String = ""
 	)
 
-	enum class Status(val title: String) {
-		PUBLISHING("Publishing"), COMPLETED("Completed"), PAUSED("Paused"), UNKNOWN("Unknown");
+	data class Chapter(
+		var release: String = "unknown",
+		var title: String = "unknown",
+		var link: String = "",
+		var order: Double = 0.0
+	)
+
+	enum class Status(val title: String, val key: Int) {
+		PUBLISHING("Publishing", 0),
+		COMPLETED("Completed", 1),
+		PAUSED("Paused", 2),
+		UNKNOWN("Unknown", -1);
+
 
 		override fun toString() = "NovelStatus($title)"
+
+		companion object {
+			fun fromInt(key: Int): Status =
+				values().find { it.key == key } ?: UNKNOWN
+		}
 	}
 
 	@Suppress("ArrayInDataClass")
 	data class Info(
-			var title: String = "unknown",
-			var alternativeTitles: Array<String> = arrayOf(),
-			var imageURL: String = "",
-			var language: String = "unknown",
-			var description: String = "unknown",
-			var status: Status = Status.UNKNOWN,
-			var tags: Array<String> = arrayOf(),
-			var genres: Array<String> = arrayOf(),
-			var authors: Array<String> = arrayOf(),
-			var artists: Array<String> = arrayOf(),
-			var chapters: List<Chapter> = arrayListOf()
+		var title: String = "unknown",
+		var alternativeTitles: Array<String> = arrayOf(),
+		var imageURL: String = "",
+		var language: String = "unknown",
+		var description: String = "unknown",
+		var status: Status = Status.UNKNOWN,
+		var tags: Array<String> = arrayOf(),
+		var genres: Array<String> = arrayOf(),
+		var authors: Array<String> = arrayOf(),
+		var artists: Array<String> = arrayOf(),
+		var chapters: List<Chapter> = arrayListOf()
 	)
 
 	/** Represents the data type of a chapter */
-	enum class ChapterType {
+	enum class ChapterType(val key: Int) {
 		/** Strings with no formatting */
-		STRING,
+		STRING(0),
 
 		/** HTML pages */
-		HTML,
+		HTML(1),
 
 		/** Markdown-formatted strings */
-		MARKDOWN,
+		MARKDOWN(4),
 
 		/** EPUB files */
-		EPUB,
+		EPUB(2),
 
 		/** PDF files */
-		PDF
+		PDF(3);
+
+		companion object {
+			fun fromInt(key: Int): ChapterType =
+				values().find { it.key == key } ?: STRING
+		}
+
 	}
 }

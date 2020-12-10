@@ -17,25 +17,34 @@ val KOTLIN_LIB_VERSION = Version(1, 0, 0)
  * @param patch Incremented with bug fixes that don't destroy backwards compatibility
  */
 data class Version(
-		val major: Int,
-		val minor: Int,
-		val patch: Int
+	val major: Int,
+	val minor: Int,
+	val patch: Int
 ) : Comparable<Version> {
 	constructor(array: Array<Int>) : this(array[0], array[1], array[2])
-	constructor(string: String) : this(string.split(".").map { it.toInt() }.toTypedArray())
+
+	constructor(
+		string: String
+	) : this(string.split(".").map { it.toInt() }.toTypedArray())
 
 	/**
 	 * Checks if this is compatible with [other]
 	 */
-	fun isCompatible(other: Version): Boolean = major == other.major && minor >= other.minor
+	@Suppress("MemberVisibilityCanBePrivate")
+	fun isCompatible(other: Version): Boolean =
+		major == other.major && minor >= other.minor
 
 	/**
 	 * Checks if this is compatible with [KOTLIN_LIB_VERSION]
 	 */
-	fun isCompatible(): Boolean = isCompatible(KOTLIN_LIB_VERSION)
+	@Suppress("unused")
+	fun isCompatible(): Boolean =
+		isCompatible(KOTLIN_LIB_VERSION)
 
+	@Suppress("MemberVisibilityCanBePrivate")
 	override fun compareTo(other: Version): Int {
-		if (major == other.major && minor == other.minor && patch == other.patch) return 0
+		if (major == other.major && minor == other.minor && patch == other.patch)
+			return 0
 
 		if (major > other.major) return 1
 		if (major < other.major) return -1

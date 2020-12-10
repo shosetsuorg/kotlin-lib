@@ -20,17 +20,22 @@ package app.shosetsu.lib
  * shosetsu-kotlin-lib
  * 31 / 01 / 2020
  *
- * @param id [Int] This is a unique calling card for the specific filter / setting
+ * @param id [Int] This is a unique calling card
+ * for the specific filter / setting.
+ *
  * If the setting type is ever changed, the ID should be changed
  *
  * @param name Name of the filer
  *
- * @param state states of the filter stuff
+ * @param state States of the filter stuff
  */
 sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	@Suppress("IMPLICIT_CAST_TO_ANY")
 	override fun toString(): String =
-			"Filter(id='$id', name='$name', state=`${if (state is Sequence<*>) state.toString() else state}`)"
+		"Filter(id='$id', name='$name', state=`${
+			if (state is Sequence<*>)
+				state.toString() else state
+		}`)"
 
 	/**
 	 * Represents a header, used to separate different parts of filters/settings
@@ -41,7 +46,7 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	/**
 	 * Divides parts of the filters/settings
 	 */
-	class Separator() : Filter<Unit>(-1, "", Unit)
+	class Separator : Filter<Unit>(-1, "", Unit)
 
 	/**
 	 * Input for text
@@ -54,21 +59,30 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	 * Input for boolean option
 	 * Includes [Separator]
 	 */
-	class Switch(id: Int, name: String) : Filter<Boolean>(id, name, false)
+	class Switch(
+		id: Int,
+		name: String
+	) : Filter<Boolean>(id, name, false)
 
 
 	/**
 	 * Input for boolean option
 	 * Includes [Separator]
 	 */
-	class Checkbox(id: Int, name: String) : Filter<Boolean>(id, name, false)
+	class Checkbox(
+		id: Int,
+		name: String
+	) : Filter<Boolean>(id, name, false)
 
 
 	/**
 	 * Input for ternary value
 	 * Includes [Separator]
 	 */
-	class TriState(id: Int, name: String) : Filter<Int>(id, name, STATE_IGNORED) {
+	class TriState(
+		id: Int,
+		name: String
+	) : Filter<Int>(id, name, STATE_IGNORED) {
 		companion object {
 			const val STATE_IGNORED = 0
 			const val STATE_INCLUDE = 1
@@ -81,14 +95,22 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	 * Input for a choice from a list
 	 * Includes [Separator]
 	 */
-	class Dropdown(id: Int, name: String, val choices: Array<String>) : Filter<Int>(id, name, 0)
+	class Dropdown(
+		id: Int,
+		name: String,
+		val choices: Array<String>
+	) : Filter<Int>(id, name, 0)
 
 
 	/**
 	 * Input for a choice from a list
 	 * Includes [Separator]
 	 */
-	class RadioGroup(id: Int, name: String, val choices: Array<String>) : Filter<Int>(id, name, 0)
+	class RadioGroup(
+		id: Int,
+		name: String,
+		val choices: Array<String>
+	) : Filter<Int>(id, name, 0)
 
 
 	// Grouping
@@ -104,7 +126,7 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	) : Filter<Map<Int, Any>>(-1, name, filters.mapify()) {
 		override var state: Map<Int, Any>
 			get() = filters.mapify()
-			set(value) {}
+			set(_) {}
 	}
 
 	/**
@@ -118,6 +140,6 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	) : Filter<Map<Int, T>>(-1, name, filters.mapifyS()) {
 		override var state: Map<Int, T>
 			get() = filters.mapifyS()
-			set(value) {}
+			set(_) {}
 	}
 }

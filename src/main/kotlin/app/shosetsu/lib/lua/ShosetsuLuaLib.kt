@@ -1,6 +1,8 @@
 package app.shosetsu.lib.lua
 
 import app.shosetsu.lib.*
+import app.shosetsu.lib.exceptions.HTTPException
+import app.shosetsu.lib.exceptions.MissingExtensionLibrary
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -46,9 +48,16 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		return g
 	}
 
-	@Suppress("unused", "PrivatePropertyName", "FunctionName", "MemberVisibilityCanBePrivate")
+	@Suppress(
+		"unused",
+		"PrivatePropertyName",
+		"FunctionName",
+		"MemberVisibilityCanBePrivate"
+	)
 	internal object LibFunctions {
-		fun DEFAULT_CACHE_CONTROL(): CacheControl = CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
+		fun DEFAULT_CACHE_CONTROL(): CacheControl =
+			CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
+
 		fun DEFAULT_HEADERS(): Headers = Headers.Builder().build()
 		fun DEFAULT_BODY(): RequestBody = FormBody.Builder().build()
 
@@ -59,11 +68,12 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		/** Lua Constructor for [IExtension.Listing] */
 		@Suppress("UNCHECKED_CAST")
 		fun Listing(name: String, increments: Boolean, func: LuaFunction) =
-				IExtension.Listing(name, increments) { data ->
-					CoerceLuaToJava.coerce(
-							func.call(data.toLua()),
-							Array<Novel.Listing>::class.java) as Array<Novel.Listing>
-				}
+			IExtension.Listing(name, increments) { data ->
+				CoerceLuaToJava.coerce(
+					func.call(data.toLua()),
+					Array<Novel.Listing>::class.java
+				) as Array<Novel.Listing>
+			}
 
 		/** [Novel.Listing] Constructor */
 		fun _Novel(): Novel.Listing = Novel.Listing()
@@ -75,75 +85,100 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		fun _NovelChapter(): Novel.Chapter = Novel.Chapter()
 
 		/** [Novel.Status] Constructor */
-		fun _NovelStatus(type: Int): Novel.Status = when (type) {
-			0 -> Novel.Status.PUBLISHING
-			1 -> Novel.Status.COMPLETED
-			2 -> Novel.Status.PAUSED
-			else -> Novel.Status.UNKNOWN
-		}
+		fun _NovelStatus(type: Int): Novel.Status = Novel.Status.fromInt(type)
 
 		/** [Novel.ChapterType] Constructor */
-		fun _ChapterType(type: Int): Novel.ChapterType = when (type) {
-			0 -> Novel.ChapterType.STRING
-			1 -> Novel.ChapterType.HTML
-			2 -> Novel.ChapterType.EPUB
-			3 -> Novel.ChapterType.PDF
-			4 -> Novel.ChapterType.MARKDOWN
-			else -> Novel.ChapterType.STRING
-		}
+		fun _ChapterType(type: Int): Novel.ChapterType =
+			Novel.ChapterType.fromInt(type)
 
 		/** Loads libraries from cache or by calling [libLoader] */
-		fun Require(name: String): LuaValue? = libraries[name] ?: libLoader(name).also {
-			libraries[name] = it ?: throw LuaError("Missing Library:\n\t\t$name")
-		}
+		@Throws(LuaError::class)
+		fun Require(name: String): LuaValue =
+			libLoader(name)
+				?: throw MissingExtensionLibrary("Missing Library:\n\t\t$name")
+
 
 		// For filters
 
 		/** [app.shosetsu.lib.Filter.Text] Constructor */
-		fun TextFilter(id: Int, name: String): Filter.Text = Filter.Text(id, name)
+		fun TextFilter(id: Int, name: String): Filter.Text =
+			Filter.Text(id, name)
 
 		/** [app.shosetsu.lib.Filter.Switch] Constructor */
-		fun SwitchFilter(id: Int, name: String): Filter.Switch = Filter.Switch(id, name)
+		fun SwitchFilter(id: Int, name: String): Filter.Switch =
+			Filter.Switch(id, name)
 
 		/** [app.shosetsu.lib.Filter.Checkbox] Constructor */
-		fun CheckboxFilter(id: Int, name: String): Filter.Checkbox = Filter.Checkbox(id, name)
+		fun CheckboxFilter(id: Int, name: String): Filter.Checkbox =
+			Filter.Checkbox(id, name)
 
 		/** [app.shosetsu.lib.Filter.Dropdown] Constructor */
-		fun DropdownFilter(id: Int, name: String, choices: Array<String>): Filter.Dropdown =
-				Filter.Dropdown(id, name, choices)
+		fun DropdownFilter(
+			id: Int,
+			name: String,
+			choices: Array<String>
+		): Filter.Dropdown =
+			Filter.Dropdown(id, name, choices)
 
 		/** [app.shosetsu.lib.Filter.RadioGroup] Constructor */
-		fun RadioGroupFilter(id: Int, name: String, choices: Array<String>): Filter.RadioGroup =
-				Filter.RadioGroup(id, name, choices)
+		fun RadioGroupFilter(
+			id: Int,
+			name: String,
+			choices: Array<String>
+		): Filter.RadioGroup =
+			Filter.RadioGroup(id, name, choices)
 
 		/** [app.shosetsu.lib.Filter.List] Constructor */
 		fun FilterList(name: String, filters: Array<Filter<*>>): Filter.List =
-				Filter.List(name, filters)
+			Filter.List(name, filters)
 
 		/** [app.shosetsu.lib.Filter.Group] Constructor */
-		fun <T> FilterGroup(name: String, filters: Array<Filter<T>>): Filter.Group<T> =
-				Filter.Group(name, filters)
+		fun <T> FilterGroup(
+			name: String,
+			filters: Array<Filter<T>>
+		): Filter.Group<T> =
+			Filter.Group(name, filters)
 
 
-		fun _GET(url: String, headers: Headers, cacheControl: CacheControl): Request =
-				Request.Builder().url(url).headers(headers).cacheControl(cacheControl).build()
+		fun _GET(
+			url: String,
+			headers: Headers,
+			cacheControl: CacheControl
+		): Request =
+			Request.Builder().url(url).headers(headers)
+				.cacheControl(cacheControl).build()
 
-		fun _POST(url: String, headers: Headers, body: RequestBody, cacheControl: CacheControl): Request =
-				Request.Builder().url(url).post(body).headers(headers).cacheControl(cacheControl).build()
+		fun _POST(
+			url: String,
+			headers: Headers,
+			body: RequestBody,
+			cacheControl: CacheControl
+		): Request =
+			Request.Builder().url(url).post(body).headers(headers)
+				.cacheControl(cacheControl).build()
 
 
 		fun Document(str: String): Document = Jsoup.parse(str)!!
 		fun Request(req: Request): Response = httpClient.newCall(req).execute()
+
+		@Throws(HTTPException::class)
 		fun RequestDocument(req: Request): Document = Document(
-				Request(req).let { r ->
-					r.takeIf { it.code == 200 }?.body?.string() ?: {
-						r.closeQuietly()
-						throw HTTPException(r.code)
-					}()
+			Request(req).let { r ->
+				r.takeIf { it.code == 200 }?.body?.string() ?: run {
+					r.closeQuietly()
+					throw HTTPException(r.code)
 				}
+			}
 		)
 
-		fun GETDocument(url: String): Document = RequestDocument(_GET(url, DEFAULT_HEADERS(), DEFAULT_CACHE_CONTROL()))
+		@Throws(HTTPException::class)
+		fun GETDocument(url: String): Document = RequestDocument(
+			_GET(
+				url,
+				DEFAULT_HEADERS(),
+				DEFAULT_CACHE_CONTROL()
+			)
+		)
 
 		// For advanced users who want to (or need to) do everything themselves.
 		fun HttpClient(): OkHttpClient = httpClient
@@ -154,7 +189,8 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		fun DefaultCacheControl(): CacheControl.Builder = CacheControl.Builder()
 
 		fun MediaType(str: String): MediaType = str.toMediaType()
-		fun RequestBody(data: String, type: MediaType): RequestBody = data.toRequestBody(type)
+		fun RequestBody(data: String, type: MediaType): RequestBody =
+			data.toRequestBody(type)
 	}
 
 	@Suppress("ClassName")
@@ -163,7 +199,12 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		private val lib: LuaValue = CoerceJavaToLua.coerce(LibFunctions)
 
 		private val luaFuncs: Map<String, LuaValue> by lazy {
-			permaLuaFuncs.map { e -> e.key to load.call(LuaValue.valueOf(e.value), LuaValue.valueOf("luafunc(${e.key})")).call() }.toMap()
+			permaLuaFuncs.map { e ->
+				e.key to load.call(
+					LuaValue.valueOf(e.value),
+					LuaValue.valueOf("luafunc(${e.key})")
+				).call()
+			}.toMap()
 		}
 
 		private val wrap: LuaFunction by lazy { luaFuncs["wrap"] as LuaFunction }
@@ -182,9 +223,6 @@ class ShosetsuLuaLib : TwoArgFunction() {
 	}
 
 	companion object {
-		/** Cache of libraries loaded by the [libLoader] via [LibFunctions.Require] */
-		val libraries: MutableMap<String, LuaValue> = mutableMapOf()
-
 		/** Loads libraries by name (for [LibFunctions.Require]) */
 		lateinit var libLoader: (name: String) -> LuaValue?
 
@@ -193,19 +231,19 @@ class ShosetsuLuaLib : TwoArgFunction() {
 
 		private val permaLuaFuncs by lazy {
 			mapOf(
-					"GET" to loadResource("GET.lua"),
-					"POST" to loadResource("POST.lua"),
-					"map" to loadResource("map.lua"),
-					"mapNotNil" to loadResource("mapNotNil.lua"),
-					"filter" to loadResource("filter.lua"),
-					"map2flat" to loadResource("map2flat.lua"),
-					"first" to loadResource("first.lua"),
-					"wrap" to loadResource("wrap.lua"),
-					"flatten" to loadResource("flatten.lua"),
-					"Novel" to loadResource("Novel.lua"),
-					"NovelInfo" to loadResource("NovelInfo.lua"),
-					"NovelChapter" to loadResource("NovelChapter.lua"),
-					"NovelStatus" to loadResource("NovelStatus.lua")
+				"GET" to loadResource("GET.lua"),
+				"POST" to loadResource("POST.lua"),
+				"map" to loadResource("map.lua"),
+				"mapNotNil" to loadResource("mapNotNil.lua"),
+				"filter" to loadResource("filter.lua"),
+				"map2flat" to loadResource("map2flat.lua"),
+				"first" to loadResource("first.lua"),
+				"wrap" to loadResource("wrap.lua"),
+				"flatten" to loadResource("flatten.lua"),
+				"Novel" to loadResource("Novel.lua"),
+				"NovelInfo" to loadResource("NovelInfo.lua"),
+				"NovelChapter" to loadResource("NovelChapter.lua"),
+				"NovelStatus" to loadResource("NovelStatus.lua")
 			)
 		}
 	}
