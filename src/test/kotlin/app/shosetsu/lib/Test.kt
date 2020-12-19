@@ -4,6 +4,8 @@ import app.shosetsu.lib.json.RepoIndex
 import app.shosetsu.lib.lua.LuaExtension
 import app.shosetsu.lib.lua.ShosetsuLuaLib
 import app.shosetsu.lib.lua.shosetsuGlobals
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import java.io.File
@@ -41,37 +43,43 @@ object Test {
 	// CONFIG
 
 	private const val SEARCH_VALUE = "world"
-	private const val PRINT_LISTINGS = true
-	private const val PRINT_LIST_STATS = true
+	private const val PRINT_LISTINGS = false
+	private const val PRINT_LIST_STATS = false
 	private const val PRINT_NOVELS = false
-	private const val PRINT_NOVEL_STATS = true
+	private const val PRINT_NOVEL_STATS = false
 	private const val PRINT_PASSAGES = false
-	private const val PRINT_REPO_INDEX = false
-	private const val PRINT_META_DATA = false
+	private const val PRINT_REPO_INDEX = true
+	private const val PRINT_META_DATA = true
 	private const val REPEAT = false
+
+	/** Load only the [SPECIFIC_NOVEL_URL] to test */
+	private const val SPECIFIC_NOVEL = false
+
+	/** Novel to load via the extension, useful for novel cases */
+	private const val SPECIFIC_NOVEL_URL = "/god-of-slaughter"
 
 	// END CONFIG
 
 	private val SOURCES: List<String> = arrayOf<String>(
-			//"en/BestLightNovel",
-			//"en/BoxNovel",
-			//"en/CreativeNovels",
-			//"en/FastNovel",
-			//"en/Foxaholic", // TODO: Investigate
-			//"en/KissLightNovels",
-			//"en/MNovelFree", //Doesn't seem to be a novelfull
-			//"en/MTLNovel",
-			//"en/NovelFull",
-			//"en/NovelTrench",
-			//"en/ReadLightNovel",
-			//"en/ReadNovelFull",
-			//"en/VipNovel",
-			//"en/VolareNovels",
-			//"en/WuxiaWorld",
-			//"jp/Syosetsu",
-			//"pt/SaikaiScan",
-			//"zn/15doc",
-			//"zn/Tangsanshu"
+		//"en/BestLightNovel",
+		//"en/BoxNovel",
+		//"en/CreativeNovels",
+		//"en/FastNovel",
+		//"en/Foxaholic", // TODO: Investigate
+		//"en/KissLightNovels",
+		//"en/MNovelFree", //Doesn't seem to be a novelfull
+		//"en/MTLNovel",
+		//"en/NovelFull",
+		//"en/NovelTrench",
+		"en/ReadLightNovel",
+		//"en/ReadNovelFull",
+		//"en/VipNovel",
+		//"en/VolareNovels",
+		//"en/WuxiaWorld",
+		//"jp/Syosetsu",
+		//"pt/SaikaiScan",
+		//"zn/15doc",
+		//"zn/Tangsanshu"
 	).map { "src/main/resources/src/$it.lua" }
 	private val globals = shosetsuGlobals()
 
@@ -86,8 +94,8 @@ object Test {
 		ShosetsuLuaLib.libLoader = {
 			outputTimedValue("loadScript") {
 				loadScript(
-						File("src/main/resources/lib/$it.lua"),
-						"lib"
+					File("src/main/resources/lib/$it.lua"),
+					"lib"
 				)
 			}
 		}
@@ -107,6 +115,40 @@ object Test {
 			throw e
 		}
 		return l.call()!!
+	}
+
+	private fun showNovel(ext: IExtension, novelURL: String) {
+		val novel = outputTimedValue("ext.parseNovel") {
+			ext.parseNovel(novelURL, true)
+		}
+
+		while (novel.chapters.isEmpty()) {
+			println("$CRED Chapters are empty $CRESET")
+			return
+		}
+
+		if (PRINT_NOVELS)
+			println(novel)
+
+		if (PRINT_NOVEL_STATS)
+			println("${novel.title} - ${novel.chapters.size} chapters.")
+
+		println()
+
+
+		val passage = outputTimedValue("ext.getPassage") {
+			ext.getPassage(novel.chapters[0].link)
+		}
+
+
+		if (PRINT_PASSAGES)
+			println("Passage:\t$passage")
+		else
+			println(with(passage) {
+				if (length < 25) "Result: $this"
+				else "$length chars long result: " +
+						"${take(10)} [...] ${takeLast(10)}"
+			})
 	}
 
 	@ExperimentalTime
@@ -190,7 +232,7 @@ object Test {
 				}
 				is Filter.Group<*> -> {
 					(filter.filters as Array<Filter<*>>)
-							.printOut(indent + 1)
+						.printOut(indent + 1)
 				}
 				else -> {
 				}
@@ -222,117 +264,130 @@ object Test {
 			try {
 				if (PRINT_REPO_INDEX)
 					println(outputTimedValue("RepoIndexLoad") {
-						RepoIndex(
+						Json { prettyPrint = true }.encodeToString(
+							RepoIndex.fromString(
 								File("src/main/resources/index.json")
-										.readText()
+									.readText()
+							)
 						)
 					})
 
-				for (extensionPath in SOURCES) {
-					println("\n\n========== $extensionPath ==========")
+				kotlin.run {
+					for (extensionPath in SOURCES) {
+						println("\n\n========== $extensionPath ==========")
 
 
-					val extension = outputTimedValue("LuaExtension") {
-						LuaExtension(File(extensionPath))
-					}
-					val settingsModel: Map<Int, *> =
+						val extension = outputTimedValue("LuaExtension") {
+							LuaExtension(File(extensionPath))
+						}
+
+						if (SPECIFIC_NOVEL) {
+							showNovel(extension, SPECIFIC_NOVEL_URL)
+							return@run
+						}
+
+
+						val settingsModel: Map<Int, *> =
 							extension.settingsModel.also {
 								println("Settings model:")
 								it.printOut()
 							}.mapify()
-					val searchFiltersModel: Map<Int, *> =
+						val searchFiltersModel: Map<Int, *> =
 							extension.searchFiltersModel.also {
 								println("SearchFilters Model:")
 								it.printOut()
 							}.mapify()
 
-					println(CCYAN)
-					println("ID       : ${extension.formatterID}")
-					println("Name     : ${extension.name}")
-					println("BaseURL  : ${extension.baseURL}")
-					println("Image    : ${extension.imageURL}")
-					println("Settings : $settingsModel")
-					println("Filters  : $searchFiltersModel")
-					if (PRINT_META_DATA)
-						println("MetaData : ${extension.exMetaData}")
-					println(CRESET)
+						println(CCYAN)
+						println("ID       : ${extension.formatterID}")
+						println("Name     : ${extension.name}")
+						println("BaseURL  : ${extension.baseURL}")
+						println("Image    : ${extension.imageURL}")
+						println("Settings : $settingsModel")
+						println("Filters  : $searchFiltersModel")
+						if (PRINT_META_DATA)
+							println("MetaData : ${Json { prettyPrint = true }.encodeToString(extension.exMetaData)}")
+						println(CRESET)
 
-					extension.listings.forEach { l ->
-						with(l) {
-							print("\n-------- Listing \"${name}\" ")
-							print(if (isIncrementing) "(incrementing)" else "")
-							println(" --------")
+						extension.listings.forEach { l ->
+							with(l) {
+								print("\n-------- Listing \"${name}\" ")
+								print(if (isIncrementing) "(incrementing)" else "")
+								println(" --------")
 
-							var novels = getListing(
+								var novels = getListing(
 									HashMap(searchFiltersModel).apply {
 										this[PAGE_INDEX] =
-												if (isIncrementing) 1 else null
+											if (isIncrementing) 1 else null
 
 									}
-							)
-
-							if (isIncrementing)
-								novels += getListing(HashMap(searchFiltersModel)
-										.apply {
-											this[PAGE_INDEX] = 2
-										})
-
-							if (REPEAT) {
-								novels = getListing(
-										HashMap(searchFiltersModel).apply {
-											this[PAGE_INDEX] =
-													if (isIncrementing) 1 else null
-
-										}
 								)
 
 								if (isIncrementing)
 									novels += getListing(HashMap(searchFiltersModel)
+										.apply {
+											this[PAGE_INDEX] = 2
+										})
+
+								if (REPEAT) {
+									novels = getListing(
+										HashMap(searchFiltersModel).apply {
+											this[PAGE_INDEX] =
+												if (isIncrementing) 1 else null
+
+										}
+									)
+
+									if (isIncrementing)
+										novels += getListing(HashMap(searchFiltersModel)
 											.apply {
 												this[PAGE_INDEX] = 2
 											})
-							}
+								}
 
 
-							showListing(extension, novels)
-							try {
-								MILLISECONDS.sleep(500)
-							} catch (e: InterruptedException) {
-								e.printStackTrace()
+								showListing(extension, novels)
+								try {
+									MILLISECONDS.sleep(500)
+								} catch (e: InterruptedException) {
+									e.printStackTrace()
+								}
 							}
 						}
-					}
 
-					if (extension.hasSearch) {
-						println("\n-------- Search --------")
-						showListing(
+						if (extension.hasSearch) {
+							println("\n-------- Search --------")
+							showListing(
 								extension,
 								outputTimedValue("ext.search") {
 									extension.search(
-											HashMap(searchFiltersModel).apply {
-												set(QUERY_INDEX, SEARCH_VALUE)
-												set(PAGE_INDEX, 0)
-											}
+										HashMap(searchFiltersModel).apply {
+											set(QUERY_INDEX, SEARCH_VALUE)
+											set(PAGE_INDEX, 0)
+										}
 									)
 								}
-						)
-						if (extension.isSearchIncrementing) {
-							showListing(
+							)
+							if (extension.isSearchIncrementing) {
+								showListing(
 									extension,
 									outputTimedValue("ext.search") {
 										extension.search(
-												HashMap(searchFiltersModel).apply {
-													set(QUERY_INDEX, SEARCH_VALUE)
-													set(PAGE_INDEX, 2)
-												}
+											HashMap(searchFiltersModel).apply {
+												set(QUERY_INDEX, SEARCH_VALUE)
+												set(PAGE_INDEX, 2)
+											}
 										)
 									}
-							)
+								)
+							}
 						}
-					}
 
-					MILLISECONDS.sleep(500)
+						MILLISECONDS.sleep(500)
+					}
 				}
+
+
 				println("\n\tTESTS COMPLETE")
 			} catch (e: Exception) {
 				e.printStackTrace()

@@ -1,5 +1,9 @@
 package app.shosetsu.lib
 
+import app.shosetsu.lib.json.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
 /*
  * This file is part of shosetsu-services.
  * shosetsu-services is free software: you can redistribute it and/or modify
@@ -32,16 +36,27 @@ interface IExtension {
 	}
 
 	/**
+	 * @param id ID
 	 * @param version 3 index array
-	 *
+	 * @param libVersion Version of the library this extension was made for
+	 * @param author Author / Creator of this extension
+	 * @param repo Repository URL that this extension is connected with
+	 * @param dependencies
 	 */
+	@Serializable
 	data class ExMetaData(
+		@SerialName(J_ID)
 		val id: Int,
+		@SerialName(J_VERSION)
 		val version: Version,
+		@SerialName(J_LIB_VERSION)
 		val libVersion: Version,
-		val author: String,
-		val repo: String,
-		val dependencies: Array<Pair<String, Version>>
+		@SerialName(J_AUTHOR)
+		val author: String = "",
+		@SerialName(J_REPO)
+		val repo: String = "",
+		@SerialName(J_DEP)
+		val dependencies: Map<String, Version> = mapOf()
 	)
 
 	/**

@@ -3,9 +3,8 @@ package app.shosetsu.lib.lua
 import app.shosetsu.lib.*
 import app.shosetsu.lib.exceptions.InvalidFilterIDException
 import app.shosetsu.lib.exceptions.MissingOrInvalidKeysException
-import app.shosetsu.lib.json.*
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Parser
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
@@ -13,7 +12,6 @@ import org.luaj.vm2.LuaValue.*
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import java.io.File
-import java.io.StringReader
 
 /*
  * This file is part of shosetsu-services.
@@ -99,23 +97,7 @@ class LuaExtension(
 	 */
 	@Suppress("unused")
 	override val exMetaData: IExtension.ExMetaData by lazy {
-		val metaString = content.lines().first()
-			.replace("--", "").trim()
-		val json =
-			Parser.default().parse(StringReader(metaString)) as JsonObject
-		IExtension.ExMetaData(
-			id = json.int(J_ID)!!,
-			version = Version(json.string(J_VERSION)!!),
-			libVersion = Version(json.string(J_LIB_VERSION)!!),
-			author = json.string(J_AUTHOR)!!,
-			repo = json.string(J_REPO) ?: "",
-			// Using .toAndroid() to provide android compatiblity
-			dependencies = json.array<String>(J_DEP)?.map {
-				it.split(">=").let { split ->
-					split[0] to Version(split[1])
-				}
-			}?.toTypedArray() ?: arrayOf()
-		)
+		Json.decodeFromString(content.lines().first().replaceFirst("--", "").trim())
 	}
 
 	private val source: LuaTable

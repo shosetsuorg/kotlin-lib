@@ -1,5 +1,7 @@
 package app.shosetsu.lib
 
+import kotlinx.serialization.Serializable
+
 
 /**
  * Version of the kotlin-lib shosetsu is currently using
@@ -16,11 +18,14 @@ val KOTLIN_LIB_VERSION = Version(1, 0, 0)
  * @param minor Incremented with feature releases that don't destroy backwards compatibility
  * @param patch Incremented with bug fixes that don't destroy backwards compatibility
  */
+@Serializable(with = VersionSerializer::class)
 data class Version(
 	val major: Int,
 	val minor: Int,
 	val patch: Int
 ) : Comparable<Version> {
+
+
 	constructor(array: Array<Int>) : this(array[0], array[1], array[2])
 
 	constructor(
