@@ -56,8 +56,17 @@ interface IExtension {
 		@SerialName(J_REPO)
 		val repo: String = "",
 		@SerialName(J_DEP)
-		val dependencies: Map<String, Version> = mapOf()
-	)
+		val stringDep: List<String>
+	) {
+		val dependencies: Map<String, Version> by lazy {
+			val v = stringDep.map { value -> value.split(">=").let { dep -> dep.first() to dep[1] } }
+			val map = HashMap<String, Version>()
+			v.forEach { (dep, ver) ->
+				map[dep] = Version(ver)
+			}
+			map
+		}
+	}
 
 	/**
 	 * This represents a "Page" that the source might have for listing novels.
