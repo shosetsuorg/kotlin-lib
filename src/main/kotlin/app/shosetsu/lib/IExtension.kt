@@ -56,7 +56,7 @@ interface IExtension {
 		@SerialName(J_REPO)
 		val repo: String = "",
 		@SerialName(J_DEP)
-		val stringDep: List<String>
+		val stringDep: List<String> = listOf()
 	) {
 		val dependencies: Map<String, Version> by lazy {
 			val v = stringDep.map { value -> value.split(">=").let { dep -> dep.first() to dep[1] } }
