@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient
 import org.luaj.vm2.LuaValue
 import java.io.File
 import java.util.concurrent.TimeUnit.MILLISECONDS
+import kotlin.system.exitProcess
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
@@ -41,24 +42,22 @@ import kotlin.time.measureTimedValue
 object Test {
 
 	// CONFIG
-
 	private const val SEARCH_VALUE = "world"
 	private const val PRINT_LISTINGS = false
-	private const val PRINT_LIST_STATS = false
+	private const val PRINT_LIST_STATS = true
 	private const val PRINT_NOVELS = false
-	private const val PRINT_NOVEL_STATS = false
+	private const val PRINT_NOVEL_STATS = true
 	private const val PRINT_PASSAGES = false
-	private const val PRINT_REPO_INDEX = true
-	private const val PRINT_META_DATA = true
+	private const val PRINT_REPO_INDEX = false
+	private const val PRINT_METADATA = false
 	private const val REPEAT = false
 
 	/** Load only the [SPECIFIC_NOVEL_URL] to test */
 	private const val SPECIFIC_NOVEL = false
 
 	/** Novel to load via the extension, useful for novel cases */
-	private const val SPECIFIC_NOVEL_URL = "/god-of-slaughter"
-
-	// END CONFIG
+	private const val SPECIFIC_NOVEL_URL = "/"
+	private const val SPECIFIC_CHAPTER = 0
 
 	private val SOURCES: List<String> = arrayOf<String>(
 		//"en/BestLightNovel",
@@ -81,6 +80,8 @@ object Test {
 		//"zn/15doc",
 		//"zn/Tangsanshu"
 	).map { "src/main/resources/src/$it.lua" }
+	// END CONFIG
+
 	private val globals = shosetsuGlobals()
 
 	/** Resets the color of a line */
@@ -129,17 +130,13 @@ object Test {
 
 		if (PRINT_NOVELS)
 			println(novel)
-
 		if (PRINT_NOVEL_STATS)
 			println("${novel.title} - ${novel.chapters.size} chapters.")
-
 		println()
 
-
 		val passage = outputTimedValue("ext.getPassage") {
-			ext.getPassage(novel.chapters[0].link)
+			ext.getPassage(novel.chapters[SPECIFIC_CHAPTER].link)
 		}
-
 
 		if (PRINT_PASSAGES)
 			println("Passage:\t$passage")
@@ -305,7 +302,7 @@ object Test {
 						println("Image    : ${extension.imageURL}")
 						println("Settings : $settingsModel")
 						println("Filters  : $searchFiltersModel")
-						if (PRINT_META_DATA)
+						if (PRINT_METADATA)
 							println("MetaData : ${Json { prettyPrint = true }.encodeToString(extension.exMetaData)}")
 						println(CRESET)
 
@@ -389,6 +386,7 @@ object Test {
 
 
 				println("\n\tTESTS COMPLETE")
+				exitProcess(0)
 			} catch (e: Exception) {
 				e.printStackTrace()
 				e.message?.let {
@@ -396,6 +394,7 @@ object Test {
 					print(it.substring(it.lastIndexOf("}") + 1))
 					println(CRESET)
 				}
+				exitProcess(1)
 			}
 		}
 	}
