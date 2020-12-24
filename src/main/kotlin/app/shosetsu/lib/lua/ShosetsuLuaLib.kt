@@ -240,6 +240,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 				"first" to loadResource("first.lua"),
 				"wrap" to loadResource("wrap.lua"),
 				"flatten" to loadResource("flatten.lua"),
+				"pipeline" to loadResource("pipeline.lua"),
 				"Novel" to loadResource("Novel.lua"),
 				"NovelInfo" to loadResource("NovelInfo.lua"),
 				"NovelChapter" to loadResource("NovelChapter.lua"),
