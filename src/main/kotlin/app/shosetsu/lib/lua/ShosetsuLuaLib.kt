@@ -244,7 +244,8 @@ class ShosetsuLuaLib : TwoArgFunction() {
 				"Novel" to loadResource("Novel.lua"),
 				"NovelInfo" to loadResource("NovelInfo.lua"),
 				"NovelChapter" to loadResource("NovelChapter.lua"),
-				"NovelStatus" to loadResource("NovelStatus.lua")
+				"NovelStatus" to loadResource("NovelStatus.lua"),
+				"asTable" to loadResource("asTable.lua"),
 			)
 		}
 	}
