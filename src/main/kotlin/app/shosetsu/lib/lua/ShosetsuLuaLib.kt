@@ -151,6 +151,19 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			Request.Builder().url(url).headers(headers)
 				.cacheControl(cacheControl).build()
 
+		fun _NodeVisitor(head: LuaFunction, tail: LuaFunction, elems_only: Boolean) =
+			object : NodeVisitor {
+				override fun head(node: Node?, depth: Int) {
+					if (!elems_only || node is Element)
+						head.call(CoerceJavaToLua.coerce(node), LuaValue.valueOf(depth))
+				}
+
+				override fun tail(node: Node?, depth: Int) {
+					if (!elems_only || node is Element)
+						tail.call(CoerceJavaToLua.coerce(node), LuaValue.valueOf(depth))
+				}
+			}
+
 		fun _POST(
 			url: String,
 			headers: Headers,
@@ -270,6 +283,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 				"flatten" to loadResource("flatten.lua"),
 				"pipeline" to loadResource("pipeline.lua"),
 				"pageOfElem" to loadResource("pageOfElem.lua"),
+				"NodeVisitor" to loadResource("NodeVisitor.lua"),
 				"Novel" to loadResource("Novel.lua"),
 				"NovelInfo" to loadResource("NovelInfo.lua"),
 				"NovelChapter" to loadResource("NovelChapter.lua"),
