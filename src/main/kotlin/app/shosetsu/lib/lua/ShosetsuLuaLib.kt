@@ -9,6 +9,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.closeQuietly
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+import org.jsoup.nodes.Node
+import org.jsoup.select.NodeVisitor
 import org.luaj.vm2.*
 import org.luaj.vm2.lib.TwoArgFunction
 import org.luaj.vm2.lib.jse.CoerceJavaToLua
@@ -157,6 +160,31 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			Request.Builder().url(url).post(body).headers(headers)
 				.cacheControl(cacheControl).build()
 
+		fun _PageOfElem(elem: Element, remove_style_attr: Boolean, custom_style: String, keep_scripts: Boolean): String {
+			val toRemove = mutableListOf<Element>()
+			elem.traverse(object : NodeVisitor {
+				override fun head(node: Node?, depth: Int) {
+					if (node !is Element) return
+
+					if (!keep_scripts && node.tagName() == "script" ||
+						remove_style_attr && node.tagName() == "style") {
+						toRemove.add(node)
+						return
+					}
+
+					node.attributes().forEach {
+						if (remove_style_attr && it.key == "style" || !keep_scripts && it.key.startsWith("on"))
+							node.removeAttr(it.key)
+					}
+				}
+
+				override fun tail(node: Node?, depth: Int) {}
+			})
+			toRemove.forEach { it.remove() }
+
+			val head = if (custom_style != "") "<style type=\"text/css\">$custom_style</style>" else ""
+			return "<!DOCTYPE html><html><head>$head</head><body>${elem.outerHtml()}</body></html>"
+		}
 
 		fun Document(str: String): Document = Jsoup.parse(str)!!
 		fun Request(req: Request): Response = httpClient.newCall(req).execute()
@@ -241,9 +269,11 @@ class ShosetsuLuaLib : TwoArgFunction() {
 				"wrap" to loadResource("wrap.lua"),
 				"flatten" to loadResource("flatten.lua"),
 				"pipeline" to loadResource("pipeline.lua"),
+				"pageOfElem" to loadResource("pageOfElem.lua"),
 				"Novel" to loadResource("Novel.lua"),
 				"NovelInfo" to loadResource("NovelInfo.lua"),
 				"NovelChapter" to loadResource("NovelChapter.lua"),
+				"ChapterType" to loadResource("ChapterType.lua"),
 				"NovelStatus" to loadResource("NovelStatus.lua")
 			)
 		}
