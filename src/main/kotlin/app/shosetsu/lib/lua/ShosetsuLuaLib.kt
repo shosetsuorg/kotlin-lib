@@ -89,7 +89,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 
 		/** [Novel.ChapterType] Constructor */
 		fun _ChapterType(type: Int): Novel.ChapterType =
-			Novel.ChapterType.fromInt(type)
+			Novel.ChapterType.valueOf(type)
 
 		/** Loads libraries from cache or by calling [libLoader] */
 		@Throws(LuaError::class)

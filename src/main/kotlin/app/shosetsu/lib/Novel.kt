@@ -68,6 +68,8 @@ class Novel {
 
 	/** Represents the data type of a chapter */
 	enum class ChapterType(val key: Int) {
+
+		@Deprecated("Replace with HTML")
 		/** Strings with no formatting */
 		STRING(0),
 
@@ -84,7 +86,7 @@ class Novel {
 		PDF(3);
 
 		companion object {
-			fun fromInt(key: Int): ChapterType =
+			fun valueOf(key: Int): ChapterType =
 				values().find { it.key == key } ?: STRING
 		}
 
