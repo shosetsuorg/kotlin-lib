@@ -67,23 +67,23 @@ class Novel {
 	)
 
 	/** Represents the data type of a chapter */
-	enum class ChapterType(val key: Int) {
+	enum class ChapterType(val key: Int, val fileExtension: String) {
 
 		@Deprecated("Replace with HTML")
 		/** Strings with no formatting */
-		STRING(0),
+		STRING(0, "txt"),
 
 		/** HTML pages */
-		HTML(1),
+		HTML(1, "html"),
 
 		/** Markdown-formatted strings */
-		MARKDOWN(4),
+		MARKDOWN(4, "md"),
 
 		/** EPUB files */
-		EPUB(2),
+		EPUB(2, "epub"),
 
 		/** PDF files */
-		PDF(3);
+		PDF(3, "pdf");
 
 		companion object {
 			fun valueOf(key: Int): ChapterType =
