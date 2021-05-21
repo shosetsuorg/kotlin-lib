@@ -67,6 +67,7 @@ object Test {
 	private val SOURCES: Array<Pair<String, ExtensionType>> =
 		// Should be an array of the path of the script to the type of that script
 		arrayOf<Pair<String, ExtensionType>>()
+
 	// END CONFIG
 
 	private val globals = shosetsuGlobals()
