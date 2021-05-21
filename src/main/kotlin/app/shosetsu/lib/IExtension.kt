@@ -163,7 +163,7 @@ interface IExtension {
 	 *
 	 * @return [String] of data corresponding to the [chapterType]
 	 */
-	fun getPassage(chapterURL: String): String
+	fun getPassage(chapterURL: String): ByteArray
 
 	/**
 	 * Using the novel url, Requests for information on the novel

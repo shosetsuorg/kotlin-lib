@@ -198,8 +198,8 @@ class LuaExtension(
 			?: return
 	}
 
-	override fun getPassage(chapterURL: String): String =
-		source[KEY_GET_PASSAGE].call(chapterURL).tojstring()
+	override fun getPassage(chapterURL: String): ByteArray =
+		source[KEY_GET_PASSAGE].call(chapterURL).checkstring().m_bytes
 
 	override fun parseNovel(
 		novelURL: String,

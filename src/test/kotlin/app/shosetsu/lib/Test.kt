@@ -47,7 +47,7 @@ object Test {
 	private const val PRINT_LIST_STATS = true
 	private const val PRINT_NOVELS = false
 	private const val PRINT_NOVEL_STATS = true
-	private const val PRINT_PASSAGES = false
+	private const val PRINT_PASSAGES = true
 	private const val PRINT_REPO_INDEX = false
 	private const val PRINT_METADATA = false
 	private const val REPEAT = false
@@ -60,7 +60,7 @@ object Test {
 	private const val SPECIFIC_CHAPTER = 0
 
 	private val SOURCES: List<String> = arrayOf<String>(
-		//"en/BestLightNovel",
+		"en/BestLightNovel",
 		//"en/BoxNovel",
 		//"en/CreativeNovels",
 		//"en/FastNovel",
@@ -70,7 +70,7 @@ object Test {
 		//"en/MTLNovel",
 		//"en/NovelFull",
 		//"en/NovelTrench",
-		"en/ReadLightNovel",
+		//"en/ReadLightNovel",
 		//"en/ReadNovelFull",
 		//"en/VipNovel",
 		//"en/VolareNovels",
@@ -139,9 +139,9 @@ object Test {
 		}
 
 		if (PRINT_PASSAGES)
-			println("Passage:\t$passage")
+			println("Passage:\t${passage.decodeToString()}")
 		else
-			println(with(passage) {
+			println(with(passage.decodeToString()) {
 				if (length < 25) "Result: $this"
 				else "$length chars long result: " +
 						"${take(10)} [...] ${takeLast(10)}"
@@ -196,9 +196,9 @@ object Test {
 
 
 		if (PRINT_PASSAGES)
-			println("Passage:\t$passage")
+			println("Passage:\t${passage.decodeToString()}")
 		else
-			println(with(passage) {
+			println(with(passage.decodeToString()) {
 				if (length < 25) "Result: $this"
 				else "$length chars long result: " +
 						"${take(10)} [...] ${takeLast(10)}"
