@@ -1,5 +1,6 @@
 package app.shosetsu.lib.json
 
+import app.shosetsu.lib.ExtensionType
 import app.shosetsu.lib.Version
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -36,7 +37,9 @@ data class RepoExtension internal constructor(
 	@SerialName(J_LIB_VERSION)
 	val libVersion: Version,
 	@SerialName(J_MD5)
-	val md5: String
+	val md5: String,
+	@SerialName(J_EXTENSION_TYPE)
+	val type: ExtensionType
 )
 
 

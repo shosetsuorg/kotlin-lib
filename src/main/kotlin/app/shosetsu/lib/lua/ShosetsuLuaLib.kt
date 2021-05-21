@@ -159,7 +159,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 
 
 		fun Document(str: String): Document = Jsoup.parse(str)!!
-		fun Request(req: Request): Response = httpClient.newCall(req).execute()
+		fun Request(req: Request): Response = ShosetsuSharedLib.httpClient.newCall(req).execute()
 
 		@Throws(HTTPException::class)
 		fun RequestDocument(req: Request): Document = Document(
@@ -181,7 +181,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		)
 
 		// For advanced users who want to (or need to) do everything themselves.
-		fun HttpClient(): OkHttpClient = httpClient
+		fun HttpClient(): OkHttpClient = ShosetsuSharedLib.httpClient
 
 		fun RequestBuilder(): Request.Builder = Request.Builder()
 		fun HeadersBuilder(): Headers.Builder = Headers.Builder()
@@ -227,8 +227,15 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		lateinit var libLoader: (name: String) -> LuaValue?
 
 		/** okhttp client used by [LibFunctions] */
-		lateinit var httpClient: OkHttpClient
-
+		@Deprecated(
+			"Use ShosetsuSharedLib",
+			ReplaceWith("ShosetsuSharedLib.httpClient", "app.shosetsu.lib.ShosetsuSharedLib")
+		)
+		var httpClient: OkHttpClient
+			get() = ShosetsuSharedLib.httpClient
+			set(value) {
+				ShosetsuSharedLib.httpClient = value
+			}
 		private val permaLuaFuncs by lazy {
 			mapOf(
 				"GET" to loadResource("GET.lua"),
