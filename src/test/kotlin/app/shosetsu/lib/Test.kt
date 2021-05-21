@@ -1,6 +1,10 @@
 package app.shosetsu.lib
 
+import app.shosetsu.lib.ExtensionType.KotlinScript
+import app.shosetsu.lib.ExtensionType.LuaScript
+import app.shosetsu.lib.ShosetsuSharedLib.httpClient
 import app.shosetsu.lib.json.RepoIndex
+import app.shosetsu.lib.kts.KtsExtension
 import app.shosetsu.lib.lua.LuaExtension
 import app.shosetsu.lib.lua.ShosetsuLuaLib
 import app.shosetsu.lib.lua.shosetsuGlobals
@@ -12,6 +16,7 @@ import java.io.File
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import kotlin.system.exitProcess
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
@@ -33,10 +38,7 @@ import kotlin.time.measureTimedValue
  * shosetsu-services
  * 03 / June / 2019
  *
- * @author github.com/doomsdayrs;github.com/TechnoJo4
- *
- * In IDEA, The Classpath should be shosetsu-services but
- * the Working directory should be shosetsu-extensions.
+ * @author github.com/doomsdayrs; github.com/TechnoJo4
  */
 @ExperimentalTime
 object Test {
@@ -59,27 +61,13 @@ object Test {
 	private const val SPECIFIC_NOVEL_URL = "/"
 	private const val SPECIFIC_CHAPTER = 0
 
-	private val SOURCES: List<String> = arrayOf<String>(
-		"en/BestLightNovel",
-		//"en/BoxNovel",
-		//"en/CreativeNovels",
-		//"en/FastNovel",
-		//"en/Foxaholic", // TODO: Investigate
-		//"en/KissLightNovels",
-		//"en/MNovelFree", //Doesn't seem to be a novelfull
-		//"en/MTLNovel",
-		//"en/NovelFull",
-		//"en/NovelTrench",
-		//"en/ReadLightNovel",
-		//"en/ReadNovelFull",
-		//"en/VipNovel",
-		//"en/VolareNovels",
-		//"en/WuxiaWorld",
-		//"jp/Syosetsu",
-		//"pt/SaikaiScan",
-		//"zn/15doc",
-		//"zn/Tangsanshu"
-	).map { "src/main/resources/src/$it.lua" }
+	/** Replace with the directory of the extensions you want to use*/
+	private const val DIRECTORY = ""
+
+	private val SOURCES: Array<Pair<String, ExtensionType>> =
+		// Should be an array of the path of the script to the type of that script
+		arrayOf<Pair<String, ExtensionType>>()
+
 	// END CONFIG
 
 	private val globals = shosetsuGlobals()
@@ -95,12 +83,12 @@ object Test {
 		ShosetsuLuaLib.libLoader = {
 			outputTimedValue("loadScript") {
 				loadScript(
-					File("src/main/resources/lib/$it.lua"),
+					File("$DIRECTORY/src/main/resources/lib/$it.lua"),
 					"lib"
 				)
 			}
 		}
-		ShosetsuLuaLib.httpClient = OkHttpClient.Builder().addInterceptor {
+		httpClient = OkHttpClient.Builder().addInterceptor {
 			outputTimedValue("Time till response") {
 				it.proceed(it.request().also { request ->
 					println(request.url.toUrl().toString())
@@ -246,7 +234,7 @@ object Test {
 
 	@ExperimentalTime
 	private fun printExecutionTime(job: String, time: Duration) {
-		printExecutionTime(job, time.inMilliseconds)
+		printExecutionTime(job, time.toDouble(DurationUnit.MILLISECONDS))
 	}
 
 	private fun printExecutionTime(job: String, timeMs: Double) {
@@ -275,7 +263,11 @@ object Test {
 
 
 						val extension = outputTimedValue("LuaExtension") {
-							LuaExtension(File(extensionPath))
+							val file = File(extensionPath.first)
+							when (extensionPath.second) {
+								LuaScript -> LuaExtension(file)
+								KotlinScript -> KtsExtension(file)
+							}
 						}
 
 						if (SPECIFIC_NOVEL) {

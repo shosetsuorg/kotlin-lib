@@ -9,6 +9,7 @@ const val J_VERSION = "ver"
 const val J_LIB_VERSION = "libVer"
 const val J_FILE_NAME = "fileName"
 const val J_IMAGE_URL = "imageURL"
+const val J_EXTENSION_TYPE = "type"
 
 
 // LuaExtension
