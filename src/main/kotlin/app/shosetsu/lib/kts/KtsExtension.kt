@@ -8,7 +8,6 @@ import kotlin.time.ExperimentalTime
  * shosetsu-services
  * 06 / 10 / 2020
  */
-@ExperimentalTime
 class KtsExtension(
 	private val content: String,
 	private val _kts: IExtension = KtsObjectLoader().load(content)
