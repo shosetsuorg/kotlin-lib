@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.io.File
 
 /**
  * shosetsu-kotlin-lib
@@ -24,6 +23,6 @@ data class RepoIndex internal constructor(
 		const val LIBS_KEY = "libraries"
 		const val SCPS_KEY = "scripts"
 
-		fun fromString(json: String): RepoIndex = Json.decodeFromString(json)
+		fun fromString(content: String, json: Json = Json {}): RepoIndex = json.decodeFromString(content)
 	}
 }

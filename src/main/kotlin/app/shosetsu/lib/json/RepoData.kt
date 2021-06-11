@@ -39,7 +39,7 @@ data class RepoExtension internal constructor(
 	@SerialName(J_MD5)
 	val md5: String,
 	@SerialName(J_EXTENSION_TYPE)
-	val type: ExtensionType
+	val type: ExtensionType = ExtensionType.LuaScript
 )
 
 
