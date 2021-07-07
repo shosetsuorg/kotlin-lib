@@ -239,8 +239,8 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		fun RequestBody(data: String, type: MediaType): RequestBody =
 			data.toRequestBody(type)
 
-		fun Log(name: String, arguments: LuaValue) {
-			ShosetsuSharedLib.logger(name, arguments.tojstring())
+		fun Log(name: String, arguments: String) {
+			ShosetsuSharedLib.logger(name, arguments)
 		}
 	}
 
