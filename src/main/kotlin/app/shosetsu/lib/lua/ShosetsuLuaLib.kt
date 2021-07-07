@@ -173,14 +173,20 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			Request.Builder().url(url).post(body).headers(headers)
 				.cacheControl(cacheControl).build()
 
-		fun _PageOfElem(elem: Element, remove_style_attr: Boolean, custom_style: String, keep_scripts: Boolean): String {
+		fun _PageOfElem(
+			elem: Element,
+			remove_style_attr: Boolean,
+			custom_style: String,
+			keep_scripts: Boolean
+		): String {
 			val toRemove = mutableListOf<Element>()
 			elem.traverse(object : NodeVisitor {
 				override fun head(node: Node?, depth: Int) {
 					if (node !is Element) return
 
 					if (!keep_scripts && node.tagName() == "script" ||
-						remove_style_attr && node.tagName() == "style") {
+						remove_style_attr && node.tagName() == "style"
+					) {
 						toRemove.add(node)
 						return
 					}
@@ -232,6 +238,10 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		fun MediaType(str: String): MediaType = str.toMediaType()
 		fun RequestBody(data: String, type: MediaType): RequestBody =
 			data.toRequestBody(type)
+
+		fun Log(name: String, arguments: LuaValue) {
+			ShosetsuSharedLib.logger(name, arguments.tojstring())
+		}
 	}
 
 	@Suppress("ClassName")

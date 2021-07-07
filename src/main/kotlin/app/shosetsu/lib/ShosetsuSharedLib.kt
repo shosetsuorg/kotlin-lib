@@ -9,4 +9,6 @@ import okhttp3.OkHttpClient
 object ShosetsuSharedLib {
 	/** okhttp HTTP Client used by lib functions. */
 	lateinit var httpClient: OkHttpClient
+
+	lateinit var logger: (extensionName: String, log: String) -> Unit
 }
