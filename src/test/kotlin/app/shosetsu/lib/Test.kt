@@ -352,7 +352,7 @@ object Test {
 									extension.search(
 										HashMap(searchFiltersModel).apply {
 											set(QUERY_INDEX, SEARCH_VALUE)
-											set(PAGE_INDEX, 0)
+											set(PAGE_INDEX, 1)
 										}
 									)
 								}
