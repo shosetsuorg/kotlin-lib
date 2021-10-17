@@ -59,3 +59,59 @@ data class RepoLibrary internal constructor(
 	@SerialName(J_VERSION)
 	val version: Version
 )
+
+/**
+ * 17 / 10 / 2020
+ *
+ * Represents a style listed in `styles` within the repository index
+ *
+ * @param id Primary key, should be completely unique
+ * @param name Name of style sheet, this is shown to users
+ * @param fileName Filename of the css file, used internally by shosetsu
+ * @param authors Authors who created this
+ */
+@Serializable
+data class RepoStyle internal constructor(
+	@SerialName(J_ID)
+	val id: Int,
+
+	@SerialName(J_NAME)
+	val name: String,
+
+	@SerialName(J_FILE_NAME)
+	val fileName: String,
+
+	@SerialName(J_VERSION)
+	val version: Version,
+
+	@SerialName(J_AUTHORS)
+	val authors: List<RepoAuthor> = listOf(),
+
+	@SerialName(J_IMAGE_URL)
+	val imageURL: String = "",
+
+	@SerialName(J_SUPPORTED)
+	val supported: List<Int> = listOf()
+)
+
+/**
+ * 17 / 10 / 2020
+ *
+ * Represents an author.
+ *
+ * These are weak entities that are dependent on what they are attached to.
+ *
+ * @param name Your name
+ * @param imageURL A friendly image to display to users
+ */
+@Serializable
+data class RepoAuthor internal constructor(
+	@SerialName(J_NAME)
+	val name: String,
+
+	@SerialName(J_IMAGE_URL)
+	val imageURL: String = "",
+
+	@SerialName(J_WEBSITE)
+	val website: String = ""
+)
