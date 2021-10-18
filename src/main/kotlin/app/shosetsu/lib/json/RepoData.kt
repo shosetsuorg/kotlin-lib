@@ -84,6 +84,12 @@ data class RepoStyle internal constructor(
 	@SerialName(J_VERSION)
 	val version: Version,
 
+	@SerialName(J_DESCRIPTION)
+	val description: String = "",
+
+	@SerialName(J_CHANGELOG)
+	val changeLog: String = "",
+
 	@SerialName(J_AUTHORS)
 	val authors: List<RepoAuthor> = listOf(),
 
@@ -108,6 +114,9 @@ data class RepoStyle internal constructor(
 data class RepoAuthor internal constructor(
 	@SerialName(J_NAME)
 	val name: String,
+
+	@SerialName(J_DESCRIPTION)
+	val description: String = "",
 
 	@SerialName(J_IMAGE_URL)
 	val imageURL: String = "",
