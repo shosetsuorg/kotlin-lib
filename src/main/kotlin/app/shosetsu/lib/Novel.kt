@@ -68,7 +68,7 @@ class Novel {
 		var genres: Array<String> = arrayOf(),
 		var authors: Array<String> = arrayOf(),
 		var artists: Array<String> = arrayOf(),
-		var chapters: List<Chapter> = arrayListOf()
+		var chapters: Array<Chapter> = arrayOf()
 	)
 
 	/** Represents the data type of a chapter */
