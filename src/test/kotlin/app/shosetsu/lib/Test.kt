@@ -34,6 +34,8 @@ import kotlin.time.measureTimedValue
  * along with shosetsu-services.  If not, see https://www.gnu.org/licenses/.
  */
 
+private val json = Json { prettyPrint = true }
+
 /**
  * shosetsu-services
  * 03 / June / 2019
@@ -249,7 +251,7 @@ object Test {
 			try {
 				if (PRINT_REPO_INDEX)
 					println(outputTimedValue("RepoIndexLoad") {
-						Json { prettyPrint = true }.encodeToString(
+						json.encodeToString(
 							RepoIndex.fromString(
 								File("src/main/resources/index.json")
 									.readText()

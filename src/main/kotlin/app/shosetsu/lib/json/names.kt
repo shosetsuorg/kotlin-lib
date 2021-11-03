@@ -10,7 +10,11 @@ const val J_LIB_VERSION = "libVer"
 const val J_FILE_NAME = "fileName"
 const val J_IMAGE_URL = "imageURL"
 const val J_EXTENSION_TYPE = "type"
-
+const val J_SUPPORTED = "supported"
+const val J_AUTHORS = "authors"
+const val J_WEBSITE = "website"
+const val J_DESCRIPTION = "desc"
+const val J_CHANGELOG = "changes"
 
 // LuaExtension
 const val J_AUTHOR = "author"
