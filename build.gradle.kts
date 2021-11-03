@@ -1,5 +1,4 @@
 import org.gradle.jvm.tasks.Jar
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "app.shosetsu.lib"
 version = "1.0.0"
@@ -11,12 +10,15 @@ plugins {
 	kotlin("plugin.serialization") version "1.5.31"
 	maven
 }
-tasks.withType<KotlinCompile> { kotlinOptions.jvmTarget = "1.8" }
-
 
 val dokkaJar by tasks.creating(Jar::class) {
 	group = JavaBasePlugin.DOCUMENTATION_GROUP
 	description = "Assembles Kotlin docs with Dokka"
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 repositories {
@@ -52,10 +54,4 @@ dependencies {
 	testImplementation(kotlin("script-util"))
 
 	testImplementation(kotlin("test"))
-}
-
-
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-	languageVersion = "1.5"
 }
