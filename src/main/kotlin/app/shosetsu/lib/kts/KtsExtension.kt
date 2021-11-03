@@ -1,8 +1,7 @@
 package app.shosetsu.lib.kts
-
+/*
 import app.shosetsu.lib.IExtension
 import java.io.File
-import kotlin.time.ExperimentalTime
 
 /**
  * shosetsu-services
@@ -14,3 +13,4 @@ class KtsExtension(
 ) : IExtension by _kts {
 	constructor(file: File) : this(file.readText())
 }
+*/
