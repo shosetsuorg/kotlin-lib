@@ -30,6 +30,7 @@ dependencies {
 
 	// ### Core Libraries
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+	implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.1") // For MPP time control
 
 	// java only
 	implementation("org.jsoup:jsoup:1.13.1")
