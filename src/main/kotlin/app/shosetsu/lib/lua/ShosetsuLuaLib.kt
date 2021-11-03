@@ -1,6 +1,7 @@
 package app.shosetsu.lib.lua
 
 import app.shosetsu.lib.*
+import app.shosetsu.lib.ShosetsuSharedLib.shosetsuHeaders
 import app.shosetsu.lib.exceptions.HTTPException
 import app.shosetsu.lib.exceptions.MissingExtensionLibrary
 import okhttp3.*
@@ -61,7 +62,15 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		fun DEFAULT_CACHE_CONTROL(): CacheControl =
 			CacheControl.Builder().maxAge(10, TimeUnit.MINUTES).build()
 
-		fun DEFAULT_HEADERS(): Headers = Headers.Builder().build()
+		fun DEFAULT_HEADERS(): Headers = Headers.Builder()
+			.apply {
+				// Apply default headers
+				shosetsuHeaders.forEach { (name, value) ->
+					add(name, value)
+				}
+			}
+			.build()
+
 		fun DEFAULT_BODY(): RequestBody = FormBody.Builder().build()
 
 		fun <E> List(): ArrayList<E> = ArrayList()
