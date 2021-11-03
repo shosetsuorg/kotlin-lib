@@ -3,6 +3,7 @@ package app.shosetsu.lib.lua
 import app.shosetsu.lib.*
 import app.shosetsu.lib.exceptions.HTTPException
 import app.shosetsu.lib.exceptions.MissingExtensionLibrary
+import kotlinx.datetime.Clock
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -241,6 +242,17 @@ class ShosetsuLuaLib : TwoArgFunction() {
 
 		fun Log(name: String, arguments: String) {
 			ShosetsuSharedLib.logger(name, arguments)
+		}
+
+		/**
+		 * Delay by [milliseconds]
+		 */
+		fun delay(milliseconds: Long) {
+			val startTime = Clock.System.now().toEpochMilliseconds()
+			var currentTime: Long
+			do {
+				currentTime = Clock.System.now().toEpochMilliseconds()
+			} while (startTime + milliseconds > currentTime)
 		}
 	}
 
