@@ -11,4 +11,9 @@ object ShosetsuSharedLib {
 	lateinit var httpClient: OkHttpClient
 
 	lateinit var logger: (extensionName: String, log: String) -> Unit
+
+	/**
+	 * Default headers for shosetsu
+	 */
+	var shosetsuHeaders = arrayOf<Pair<String, String>>()
 }
