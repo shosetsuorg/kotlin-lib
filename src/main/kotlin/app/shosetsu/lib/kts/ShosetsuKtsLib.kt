@@ -1,5 +1,5 @@
 package app.shosetsu.lib.kts
-
+/*
 import app.shosetsu.lib.ShosetsuSharedLib.httpClient
 import app.shosetsu.lib.exceptions.HTTPException
 import app.shosetsu.lib.lua.ShosetsuLuaLib.LibFunctions.RequestDocument
@@ -47,3 +47,5 @@ object ShosetsuKtsLib {
 
 	fun getDocument(url: String): Document = RequestDocument(get(url, defaultHeaders, defaultCacheControl))
 }
+
+ */

@@ -4,7 +4,6 @@ import app.shosetsu.lib.ExtensionType.KotlinScript
 import app.shosetsu.lib.ExtensionType.LuaScript
 import app.shosetsu.lib.ShosetsuSharedLib.httpClient
 import app.shosetsu.lib.json.RepoIndex
-import app.shosetsu.lib.kts.KtsExtension
 import app.shosetsu.lib.lua.LuaExtension
 import app.shosetsu.lib.lua.ShosetsuLuaLib
 import app.shosetsu.lib.lua.shosetsuGlobals
@@ -268,7 +267,7 @@ object Test {
 							val file = File(extensionPath.first)
 							when (extensionPath.second) {
 								LuaScript -> LuaExtension(file)
-								KotlinScript -> KtsExtension(file)
+								KotlinScript -> throw Exception("Stub")
 							}
 						}
 

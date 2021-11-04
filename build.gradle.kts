@@ -44,14 +44,14 @@ dependencies {
 	testImplementation(kotlin("stdlib"))
 	testImplementation(kotlin("stdlib-jdk8"))
 
-	testImplementation("net.java.dev.jna:jna:5.9.0") // for KTS
+	//testImplementation("net.java.dev.jna:jna:5.8.0") // for KTS
 
 	testImplementation(kotlin("reflect"))
-	testImplementation(kotlin("script-runtime"))
-	testImplementation(kotlin("script-util"))
-	testImplementation(kotlin("compiler-embeddable"))
-	testImplementation(kotlin("scripting-compiler-embeddable"))
-	testImplementation(kotlin("script-util"))
+	//testImplementation(kotlin("script-runtime"))
+	//testImplementation(kotlin("script-util"))
+	//testImplementation(kotlin("compiler-embeddable"))
+	//testImplementation(kotlin("scripting-compiler-embeddable"))
+	//testImplementation(kotlin("script-util"))
 
 	testImplementation(kotlin("test"))
 }
