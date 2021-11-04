@@ -8,5 +8,6 @@ enum class ExtensionType {
 	LuaScript,
 
 	/** .kts */
+	@Deprecated("Does not work on android")
 	KotlinScript
 }

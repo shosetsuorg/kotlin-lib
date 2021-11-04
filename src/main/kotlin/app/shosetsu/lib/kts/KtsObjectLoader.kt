@@ -1,5 +1,5 @@
 package app.shosetsu.lib.kts
-
+/*
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
@@ -20,3 +20,4 @@ class KtsObjectLoader(classLoader: ClassLoader? = Thread.currentThread().context
 			.getOrElse @Throws(RuntimeException::class) { throw RuntimeException("Cannot load script", it) }
 			.castOrError()
 }
+ */
