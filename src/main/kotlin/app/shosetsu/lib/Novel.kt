@@ -47,7 +47,12 @@ class Novel {
 
 		companion object {
 			fun fromInt(key: Int): Status =
-				values().find { it.key == key } ?: UNKNOWN
+				when (key) {
+					0 -> PUBLISHING
+					1 -> COMPLETED
+					2 -> PAUSED
+					else -> UNKNOWN
+				}
 		}
 	}
 
@@ -87,7 +92,13 @@ class Novel {
 
 		companion object {
 			fun valueOf(key: Int): ChapterType =
-				values().find { it.key == key } ?: STRING
+				when (key) {
+					1 -> HTML
+					4 -> MARKDOWN
+					2 -> EPUB
+					3 -> PDF
+					else -> STRING
+				}
 		}
 
 	}
