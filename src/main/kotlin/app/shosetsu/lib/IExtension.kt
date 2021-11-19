@@ -147,6 +147,13 @@ interface IExtension {
 	val chapterType: Novel.ChapterType
 
 	/**
+	 * Specifies what index should be used when incrementing pages.
+	 *
+	 * This is useful as some websites follow 0..1..2 and some follow 1..2..3
+	 */
+	val startIndex: Int
+
+	/**
 	 * Applies a setting a value
 	 */
 	fun updateSetting(id: Int, value: Any?)
