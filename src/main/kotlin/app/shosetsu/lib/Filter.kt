@@ -29,7 +29,11 @@ package app.shosetsu.lib
  *
  * @param state States of the filter stuff
  */
-sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
+sealed class Filter<T> {
+	abstract val id: Int
+	abstract val name: String
+	abstract var state: T
+
 	@Suppress("IMPLICIT_CAST_TO_ANY")
 	override fun toString(): String =
 		"Filter(id='$id', name='$name', state=`${
@@ -41,48 +45,63 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	 * Represents a header, used to separate different parts of filters/settings
 	 * Includes [Separator]
 	 */
-	class Header(name: String) : Filter<Unit>(-1, name, Unit)
+	class Header(override val name: String) : Filter<Unit>() {
+		override var state: Unit = Unit
+		override val id: Int = -1
+	}
 
 	/**
 	 * Divides parts of the filters/settings
 	 */
-	class Separator : Filter<Unit>(-1, "", Unit)
+	class Separator : Filter<Unit>() {
+		override var state: Unit = Unit
+		override val id: Int = -1
+		override val name: String = ""
+	}
 
 	/**
 	 * Input for text
 	 * Includes [Separator]
 	 */
-	class Text(id: Int, name: String) : Filter<String>(id, name, "")
+	data class Text(
+		override val id: Int,
+		override val name: String,
+		override var state: String = ""
+	) : Filter<String>()
 
 
 	/**
 	 * Input for boolean option
 	 * Includes [Separator]
 	 */
-	class Switch(
-		id: Int,
-		name: String
-	) : Filter<Boolean>(id, name, false)
+	data class Switch(
+		override val id: Int,
+		override val name: String,
+		override var state: Boolean = false
+	) : Filter<Boolean>()
 
 
 	/**
 	 * Input for boolean option
 	 * Includes [Separator]
 	 */
-	class Checkbox(
-		id: Int,
-		name: String
-	) : Filter<Boolean>(id, name, false)
+	data class Checkbox(
+		override val id: Int,
+		override val name: String,
+		override var state: Boolean = false
+	) : Filter<Boolean>()
 
 
 	/**
 	 * Input for ternary value
 	 * Includes [Separator]
 	 */
-	class TriState(
-		id: Int,
-		name: String
-	) : Filter<Int>(id, name, STATE_IGNORED) {
+	data class TriState(
+		override val id: Int,
+		override val name: String,
+		override var state: Int = STATE_IGNORED
+	) : Filter<Int>() {
+
 		companion object {
 			const val STATE_IGNORED = 0
 			const val STATE_INCLUDE = 1
@@ -95,23 +114,24 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	 * Input for a choice from a list
 	 * Includes [Separator]
 	 */
-	class Dropdown(
-		id: Int,
-		name: String,
-		val choices: Array<String>
-	) : Filter<Int>(id, name, 0)
+	data class Dropdown(
+		override val id: Int,
+		override val name: String,
+		val choices: List<String>,
+		override var state: Int = 0
+	) : Filter<Int>()
 
 
 	/**
 	 * Input for a choice from a list
 	 * Includes [Separator]
 	 */
-	class RadioGroup(
-		id: Int,
-		name: String,
-		val choices: Array<String>
-	) : Filter<Int>(id, name, 0)
-
+	data class RadioGroup(
+		override val id: Int,
+		override val name: String,
+		val choices: List<String>,
+		override var state: Int = 0
+	) : Filter<Int>()
 
 	// Grouping
 
@@ -120,13 +140,12 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	 * Includes [Separator]
 	 * @param filters Filters present
 	 */
-	class List(
-			name: String,
-			val filters: Array<Filter<*>>
-	) : Filter<Map<Int, Any>>(-1, name, filters.mapify()) {
-		override var state: Map<Int, Any>
-			get() = filters.mapify()
-			set(_) {}
+	data class FList(
+		override val name: String,
+		val filters: List<Filter<*>>,
+		override var state: Map<Int, Any> = filters.mapify()
+	) : Filter<Map<Int, Any>>() {
+		override val id: Int = -1
 	}
 
 	/**
@@ -134,12 +153,11 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	 * Includes [Separator]
 	 * @param filters Filters present
 	 */
-	class Group<T>(
-			name: String,
-			val filters: Array<Filter<T>>
-	) : Filter<Map<Int, T>>(-1, name, filters.mapifyS()) {
-		override var state: Map<Int, T>
-			get() = filters.mapifyS()
-			set(_) {}
+	data class Group<T>(
+		override val name: String,
+		val filters: List<Filter<T>>,
+		override var state: Map<Int, T> = filters.mapifyS()
+	) : Filter<Map<Int, T>>() {
+		override val id: Int = -1
 	}
 }
