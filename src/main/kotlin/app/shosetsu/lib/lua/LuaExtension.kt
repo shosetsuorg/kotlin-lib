@@ -52,7 +52,7 @@ class LuaExtension(
 			KEY_SEARCH_FILTERS to LuaTable(),
 			KEY_SETTINGS to LuaTable(),
 			KEY_CHAPTER_TYPE to coerce(Novel.ChapterType.STRING),
-			KEY_START_INDEX to LuaInteger.ZERO
+			KEY_START_INDEX to LuaInteger.ONE
 		)
 
 		/**
