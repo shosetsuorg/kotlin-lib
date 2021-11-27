@@ -15,6 +15,7 @@ internal const val KEY_SEARCH = "search"
 internal const val KEY_HAS_SEARCH = "hasSearch"
 internal const val KEY_IS_SEARCH_INC = "isSearchIncrementing"
 internal const val KEY_SEARCH_FILTERS = "searchFilters"
+internal const val KEY_START_INDEX = "startIndex"
 
 internal const val KEY_SETTINGS = "settings"
 internal const val KEY_UPDATE_SETTING = "updateSetting"

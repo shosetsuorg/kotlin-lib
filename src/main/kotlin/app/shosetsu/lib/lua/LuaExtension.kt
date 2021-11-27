@@ -5,6 +5,7 @@ import app.shosetsu.lib.exceptions.InvalidFilterIDException
 import app.shosetsu.lib.exceptions.MissingOrInvalidKeysException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import org.luaj.vm2.LuaInteger
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
 import org.luaj.vm2.LuaValue
@@ -50,7 +51,8 @@ class LuaExtension(
 			KEY_IS_SEARCH_INC to TRUE,
 			KEY_SEARCH_FILTERS to LuaTable(),
 			KEY_SETTINGS to LuaTable(),
-			KEY_CHAPTER_TYPE to coerce(Novel.ChapterType.STRING)
+			KEY_CHAPTER_TYPE to coerce(Novel.ChapterType.STRING),
+			KEY_START_INDEX to LuaInteger.ONE
 		)
 
 		/**
@@ -174,6 +176,10 @@ class LuaExtension(
 		source[KEY_IS_SEARCH_INC].toboolean()
 	}
 
+	override val startIndex: Int by lazy {
+		source[KEY_START_INDEX].toint()
+	}
+
 	@Suppress("UNCHECKED_CAST")
 	override val listings: Array<IExtension.Listing> by lazy {
 		coerceLuaToJava<Array<IExtension.Listing>>(source[KEY_LISTINGS])
@@ -183,6 +189,7 @@ class LuaExtension(
 	override val searchFiltersModel: Array<Filter<*>> by lazy {
 		tableToFilters(source[KEY_SEARCH_FILTERS] as LuaTable)
 	}
+
 	override val chapterType: Novel.ChapterType by lazy {
 		coerceLuaToJava<Novel.ChapterType>(source[KEY_CHAPTER_TYPE])
 	}
