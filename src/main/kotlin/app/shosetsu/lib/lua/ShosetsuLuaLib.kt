@@ -116,6 +116,10 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		fun TextFilter(id: Int, name: String): Filter.Text =
 			Filter.Text(id, name)
 
+		/** [app.shosetsu.lib.Filter.Password] Constructor */
+		fun PasswordFilter(id: Int, name: String): Filter.Password =
+			Filter.Password(id, name)
+
 		/** [app.shosetsu.lib.Filter.Switch] Constructor */
 		fun SwitchFilter(id: Int, name: String): Filter.Switch =
 			Filter.Switch(id, name)
@@ -218,7 +222,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			return "<!DOCTYPE html><html><head>$head</head><body>${elem.outerHtml()}</body></html>"
 		}
 
-		fun Document(str: String): Document = Jsoup.parse(str)!!
+		fun Document(str: String): Document = Jsoup.parse(str)
 		fun Request(req: Request): Response = ShosetsuSharedLib.httpClient.newCall(req).execute()
 
 		@Throws(HTTPException::class)
