@@ -1,4 +1,4 @@
-[![](https://jitpack.io/v/Doomsdayrs/shosetsu-services.svg)](https://jitpack.io/#Doomsdayrs/shosetsu-services)
+[![](https://jitpack.io/v/shosetsuorg/kotlin-lib.svg)](https://jitpack.io/#shosetsuorg/kotlin-lib)
 
 # Info
 
