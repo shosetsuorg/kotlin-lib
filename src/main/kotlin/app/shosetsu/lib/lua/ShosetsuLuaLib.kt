@@ -124,6 +124,10 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		fun CheckboxFilter(id: Int, name: String): Filter.Checkbox =
 			Filter.Checkbox(id, name)
 
+		/** [app.shosetsu.lib.Filter.TriState] Constructor */
+		fun TriStateFilter(id: Int, name: String): Filter.TriState =
+			Filter.TriState(id, name)
+
 		/** [app.shosetsu.lib.Filter.Dropdown] Constructor */
 		fun DropdownFilter(
 			id: Int,
