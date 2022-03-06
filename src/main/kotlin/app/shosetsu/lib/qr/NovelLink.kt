@@ -3,7 +3,7 @@ package app.shosetsu.lib.qr
 /**
  * 06 / 03 / 2022
  */
-data class NovelQRCode(
+data class NovelLink(
 	val url: String,
-	val extensionQRCode: ExtensionQRCode
+	val extensionQRCode: ExtensionLink
 )

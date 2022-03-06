@@ -3,7 +3,7 @@ package app.shosetsu.lib.qr
 /**
  * 06 / 03 / 2022
  */
-data class ExtensionQRCode(
+data class StyleLink(
 	val id: Int,
-	val repo: RepositoryQRCode
+	val repo: RepositoryLink
 )
