@@ -1,9 +1,9 @@
-package app.shosetsu.lib.qr
+package app.shosetsu.lib.share
 
 /**
  * 06 / 03 / 2022
  */
-data class ExtensionLink(
+data class StyleLink(
 	val id: Int,
 	val repo: RepositoryLink
 )
