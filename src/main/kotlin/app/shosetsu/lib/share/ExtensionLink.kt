@@ -5,5 +5,7 @@ package app.shosetsu.lib.share
  */
 data class ExtensionLink(
 	val id: Int,
+	val name: String,
+	val imageURL: String,
 	val repo: RepositoryLink
 )

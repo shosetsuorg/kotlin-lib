@@ -5,5 +5,6 @@ package app.shosetsu.lib.share
  */
 data class StyleLink(
 	val id: Int,
+	val name: String,
 	val repo: RepositoryLink
 )
