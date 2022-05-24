@@ -5,9 +5,9 @@ version = "1.0.0"
 description = "Kotlin library for shosetsu"
 
 plugins {
-	kotlin("jvm") version "1.6.20"
-	id("org.jetbrains.dokka") version "1.6.20"
-	kotlin("plugin.serialization") version "1.6.20"
+	kotlin("jvm") version "1.6.21"
+	id("org.jetbrains.dokka") version "1.6.21"
+	kotlin("plugin.serialization") version "1.6.21"
 	maven
 }
 
