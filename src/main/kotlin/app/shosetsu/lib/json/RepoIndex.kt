@@ -28,7 +28,6 @@ data class RepoIndex internal constructor(
 		const val SCPS_KEY = "scripts"
 		const val STYL_KEY = "styles"
 
-		@ExperimentalSerializationApi
 		fun fromString(
 			content: String,
 			json: Json = Json {
