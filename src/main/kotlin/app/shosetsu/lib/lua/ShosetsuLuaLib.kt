@@ -166,12 +166,12 @@ class ShosetsuLuaLib : TwoArgFunction() {
 
 		fun _NodeVisitor(head: LuaFunction, tail: LuaFunction, elems_only: Boolean) =
 			object : NodeVisitor {
-				override fun head(node: Node?, depth: Int) {
+				override fun head(node: Node, depth: Int) {
 					if (!elems_only || node is Element)
 						head.call(CoerceJavaToLua.coerce(node), LuaValue.valueOf(depth))
 				}
 
-				override fun tail(node: Node?, depth: Int) {
+				override fun tail(node: Node, depth: Int) {
 					if (!elems_only || node is Element)
 						tail.call(CoerceJavaToLua.coerce(node), LuaValue.valueOf(depth))
 				}
@@ -194,7 +194,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		): String {
 			val toRemove = mutableListOf<Element>()
 			elem.traverse(object : NodeVisitor {
-				override fun head(node: Node?, depth: Int) {
+				override fun head(node: Node, depth: Int) {
 					if (node !is Element) return
 
 					if (!keep_scripts && node.tagName() == "script" ||
@@ -210,7 +210,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 					}
 				}
 
-				override fun tail(node: Node?, depth: Int) {}
+				override fun tail(node: Node, depth: Int) {}
 			})
 			toRemove.forEach { it.remove() }
 
@@ -218,7 +218,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			return "<!DOCTYPE html><html><head>$head</head><body>${elem.outerHtml()}</body></html>"
 		}
 
-		fun Document(str: String): Document = Jsoup.parse(str)!!
+		fun Document(str: String): Document = Jsoup.parse(str)
 		fun Request(req: Request): Response = ShosetsuSharedLib.httpClient.newCall(req).execute()
 
 		@Throws(HTTPException::class)
