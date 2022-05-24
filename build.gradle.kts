@@ -5,9 +5,9 @@ version = "1.0.0"
 description = "Kotlin library for shosetsu"
 
 plugins {
-	kotlin("jvm") version "1.6.10"
-	id("org.jetbrains.dokka") version "1.6.10"
-	kotlin("plugin.serialization") version "1.6.10"
+	kotlin("jvm") version "1.6.20"
+	id("org.jetbrains.dokka") version "1.6.20"
+	kotlin("plugin.serialization") version "1.6.20"
 	maven
 }
 
@@ -22,22 +22,21 @@ java {
 }
 
 repositories {
-	jcenter()
 	mavenCentral()
 	maven("https://jitpack.io")
 }
 
 dependencies {
-	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.0")
+	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.20")
 
 	// ### Core Libraries
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
 
 	// java only
-	implementation("org.jsoup:jsoup:1.14.3")
+	implementation("org.jsoup:jsoup:1.15.1")
 	implementation("org.luaj:luaj-jse:3.0.1")
 	implementation("com.squareup.okhttp3:okhttp:4.9.3")
-	implementation("com.google.guava:guava:31.0.1-jre")
+	implementation("com.google.guava:guava:31.1-jre")
 
 
 	// ### Testing Libraries
