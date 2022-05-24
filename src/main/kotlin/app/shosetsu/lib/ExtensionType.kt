@@ -6,8 +6,4 @@ package app.shosetsu.lib
 enum class ExtensionType {
 	/** .lua */
 	LuaScript,
-
-	/** .kts */
-	@Deprecated("Does not work on android")
-	KotlinScript
 }
