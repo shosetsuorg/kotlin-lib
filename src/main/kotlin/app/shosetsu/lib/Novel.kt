@@ -74,7 +74,6 @@ class Novel {
 	/** Represents the data type of a chapter */
 	enum class ChapterType(val key: Int, val fileExtension: String) {
 
-		@Deprecated("Replace with HTML")
 		/** Strings with no formatting */
 		STRING(0, "txt"),
 
