@@ -104,7 +104,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			Novel.ChapterType.valueOf(type)
 
 		/** Loads libraries from cache or by calling [libLoader] */
-		@Throws(LuaError::class)
+		@Throws(LuaError::class, MissingExtensionLibrary::class)
 		fun Require(name: String): LuaValue =
 			libLoader(name)
 				?: throw MissingExtensionLibrary("Missing Library:\n\t\t$name")

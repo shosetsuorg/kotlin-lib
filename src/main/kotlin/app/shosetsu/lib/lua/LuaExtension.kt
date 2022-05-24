@@ -5,6 +5,7 @@ import app.shosetsu.lib.exceptions.InvalidFilterIDException
 import app.shosetsu.lib.exceptions.MissingOrInvalidKeysException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import org.luaj.vm2.LuaError
 import org.luaj.vm2.LuaInteger
 import org.luaj.vm2.LuaString.EMPTYSTRING
 import org.luaj.vm2.LuaTable
@@ -13,6 +14,7 @@ import org.luaj.vm2.LuaValue.*
 import org.luaj.vm2.lib.jse.CoerceJavaToLua.coerce
 import org.luaj.vm2.lib.jse.CoerceLuaToJava
 import java.io.File
+import kotlin.jvm.Throws
 
 /*
  * This file is part of shosetsu-services.
@@ -35,7 +37,11 @@ import java.io.File
  * @param content extension script
  * @param debugName name to use debug
  */
-class LuaExtension(
+class LuaExtension @Throws(
+	MissingOrInvalidKeysException::class,
+	InvalidFilterIDException::class,
+	LuaError::class
+) constructor(
 	@Suppress("MemberVisibilityCanBePrivate")
 	val content: String,
 	debugName: String = "unknown"
