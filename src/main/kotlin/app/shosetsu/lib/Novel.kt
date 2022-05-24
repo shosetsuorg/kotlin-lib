@@ -79,24 +79,12 @@ class Novel {
 		STRING(0, "txt"),
 
 		/** HTML pages */
-		HTML(1, "html"),
-
-		/** Markdown-formatted strings */
-		MARKDOWN(4, "md"),
-
-		/** EPUB files */
-		EPUB(2, "epub"),
-
-		/** PDF files */
-		PDF(3, "pdf");
+		HTML(1, "html");
 
 		companion object {
 			fun valueOf(key: Int): ChapterType =
 				when (key) {
 					1 -> HTML
-					4 -> MARKDOWN
-					2 -> EPUB
-					3 -> PDF
 					else -> STRING
 				}
 		}
