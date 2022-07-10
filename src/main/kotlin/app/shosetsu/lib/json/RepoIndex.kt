@@ -1,6 +1,5 @@
 package app.shosetsu.lib.json
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -28,12 +27,18 @@ data class RepoIndex internal constructor(
 		const val SCPS_KEY = "scripts"
 		const val STYL_KEY = "styles"
 
+		/**
+		 * JSON parser for [RepoIndex], ensuring that behavior is consistent
+		 */
+		val repositoryJsonParser: Json = Json {
+			encodeDefaults = true
+			ignoreUnknownKeys = true
+		}
+
+		@Deprecated("Use your own functions")
 		fun fromString(
 			content: String,
-			json: Json = Json {
-				encodeDefaults = true
-				ignoreUnknownKeys = true
-			}
+			json: Json = repositoryJsonParser
 		): RepoIndex = json.decodeFromString(content)
 	}
 }
