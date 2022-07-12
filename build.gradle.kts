@@ -35,7 +35,7 @@ dependencies {
 	// java only
 	implementation("org.jsoup:jsoup:1.15.1")
 	implementation("org.luaj:luaj-jse:3.0.1")
-	implementation("com.squareup.okhttp3:okhttp:4.9.3")
+	implementation("com.squareup.okhttp3:okhttp:4.10.0")
 	implementation("com.google.guava:guava:31.1-jre")
 
 
