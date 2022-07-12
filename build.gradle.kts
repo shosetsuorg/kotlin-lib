@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.20")
+	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.21")
 
 	// ### Core Libraries
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
