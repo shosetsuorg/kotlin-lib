@@ -30,12 +30,12 @@ dependencies {
 	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.21")
 
 	// ### Core Libraries
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+	api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
 
 	// java only
-	implementation("org.jsoup:jsoup:1.15.2")
-	implementation("org.luaj:luaj-jse:3.0.1")
-	implementation("com.squareup.okhttp3:okhttp:4.10.0")
+	api("org.jsoup:jsoup:1.15.2")
+	api("org.luaj:luaj-jse:3.0.1")
+	api("com.squareup.okhttp3:okhttp:4.10.0")
 	implementation("com.google.guava:guava:31.1-jre")
 
 
