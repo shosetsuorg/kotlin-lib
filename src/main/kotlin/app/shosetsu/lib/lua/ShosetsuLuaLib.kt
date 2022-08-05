@@ -75,7 +75,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 
 		@Suppress("DeprecatedCallableAddReplaceWith")
 		@Deprecated("No longer using array lists to simplify conversion")
-		fun <E> AsList(arr: Array<E>): Array<E> = arr
+		fun AsList(arr: Any?): Any? = arr
 		fun <E> Reverse(arr: Array<E>): Unit = arr.reverse()
 
 		/** Lua Constructor for [IExtension.Listing] */
