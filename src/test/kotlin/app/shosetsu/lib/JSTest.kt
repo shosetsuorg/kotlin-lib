@@ -16,10 +16,24 @@ class JSTest {
 			var hasSearch = true
 			var isSearchIncrementing = true
 			var hasCloudFlare = false
-			// listings
-			// settingsModel
-			// searchFiltersModel
-			// chapterType
+			var listings = [
+				lib.Listing(
+					"A",
+					false,
+					function ignore(data){
+						return [lib.NovelListing()]
+					}
+				)
+			];
+			var settingsModel = [
+				lib.TextFilter(0, "test"),
+				lib.TextFilter(0, "test"),
+			];
+			var searchFiltersModel = [
+				lib.TextFilter(0, "test"),
+				lib.TextFilter(0, "test"),
+			];
+			var chapterType = lib.ChapterType(0)
 			var startIndex = 0
 
 			const settings = [
@@ -30,6 +44,26 @@ class JSTest {
 				console.log(settings);
 				settings[key] = value;
 				console.log(settings);
+			}
+			
+			function search(data){
+				return [lib.NovelListing()]
+			}
+			
+			function getPassage(chapterURL) {
+				return [];
+			}
+			
+			function parseNovel(novelURL, loadchapters) {
+				return lib.NovelInfo()
+			}
+			
+			function expandURL(smallURL,type){
+				return "big"
+			}
+			
+			function shrinkURL(longURL,type){
+				return "small"
 			}
 		"""
 	}
@@ -43,8 +77,16 @@ class JSTest {
 		println(ext.hasSearch)
 		println(ext.isSearchIncrementing)
 		println(ext.hasCloudFlare)
-		//
+		println(ext.listings.contentToString())
+		//println(ext.settingsModel.contentToString())
+		//println(ext.searchFiltersModel.contentToString())
+		println(ext.chapterType)
 		println(ext.startIndex)
 		ext.updateSetting(1, 2)
+		println(ext.search(emptyMap<Int, Any>()))
+		println(ext.getPassage(""))
+		println(ext.parseNovel("...", false))
+		println(ext.expandURL("small", 0))
+		println(ext.shrinkURL("small", 0))
 	}
 }

@@ -9,11 +9,17 @@ import org.mozilla.javascript.Scriptable
  */
 fun shosetsuJSGlobals(context: Context): Scriptable {
 	val scriptable = context.initSafeStandardObjects()
+	scriptable.put(
+		"lib",
+		scriptable,
+		Context.toObject(ShosetsuJSLib(context, scriptable), scriptable)
+	)
 	scriptable.put("console", scriptable, Context.toObject(JSConsole(), scriptable))
 	return scriptable
 }
 
 class JSConsole {
+
 	fun log(array: NativeArray) {
 		log(array.toArray().contentToString())
 	}

@@ -5,7 +5,6 @@ import app.shosetsu.lib.IExtension
 import app.shosetsu.lib.Novel
 import app.shosetsu.lib.lua.*
 import org.mozilla.javascript.Context
-import org.mozilla.javascript.Function
 import java.io.InputStream
 
 /**
@@ -32,62 +31,84 @@ class JSExtension : IExtension {
 
 	override val exMetaData: IExtension.ExMetaData
 		get() = TODO("Not yet implemented")
+
 	override val name: String by lazy {
-		Context.toString(scope.getOrThrow(KEY_NAME, scope))
+		scope.getOrThrow(KEY_NAME, scope)
 	}
 	override val baseURL: String by lazy {
-		Context.toString(scope.getOrThrow(KEY_BASE_URL, scope))
+		scope.getOrThrow(KEY_BASE_URL, scope)
 	}
 	override val imageURL: String by lazy {
-		Context.toString(scope.getOrThrow(KEY_IMAGE_URL, scope))
+		scope.getOrThrow(KEY_IMAGE_URL, scope)
 	}
 	override val formatterID: Int by lazy {
-		Context.toNumber(scope.getOrThrow(KEY_ID, scope)).toInt()
+		scope.getOrThrow(KEY_ID, scope)
 	}
 	override val hasSearch: Boolean by lazy {
-		Context.toBoolean(scope.getOrThrow(KEY_HAS_SEARCH, scope))
+		scope.getOrThrow(KEY_HAS_SEARCH, scope)
 	}
 	override val isSearchIncrementing: Boolean by lazy {
-		Context.toBoolean(scope.getOrThrow(KEY_IS_SEARCH_INC, scope))
+		scope.getOrThrow(KEY_IS_SEARCH_INC, scope)
 	}
 	override val hasCloudFlare: Boolean by lazy {
-		Context.toBoolean(scope.getOrThrow(KEY_HAS_CLOUD_FLARE, scope))
+		scope.getOrThrow(KEY_HAS_CLOUD_FLARE, scope)
 	}
-	override val listings: Array<IExtension.Listing>
-		get() = TODO("Not yet implemented")
-	override val settingsModel: Array<Filter<*>>
-		get() = TODO("Not yet implemented")
-	override val searchFiltersModel: Array<Filter<*>>
-		get() = TODO("Not yet implemented")
+	override val listings: Array<IExtension.Listing> by lazy {
+		scope.getOrThrow(KEY_LISTINGS, scope)
+	}
+	override val settingsModel: Array<Filter<*>> by lazy {
+		scope.getArrayOrThrow(KEY_SETTINGS, scope)
+	}
+	override val searchFiltersModel: Array<Filter<*>> by lazy {
+		scope.getArrayOrThrow(KEY_SEARCH_FILTERS, scope)
+	}
 	override val chapterType: Novel.ChapterType by lazy {
 		scope.getOrThrow(KEY_CHAPTER_TYPE, scope) as Novel.ChapterType
 	}
 	override val startIndex: Int by lazy {
-		Context.toNumber(scope.getOrThrow(KEY_START_INDEX, scope)).toInt()
+		scope.getOrThrow<Double>(KEY_START_INDEX, scope).toInt()
 	}
 
 	override fun updateSetting(id: Int, value: Any?) {
-		val func = scope.getOrThrow(KEY_UPDATE_SETTING, scope) as Function
-		func.call(jsContext, scope, scope, arrayOf(id, value))
+		scope.callOrThrow(jsContext, KEY_UPDATE_SETTING, scope, id, value)
 	}
 
 	override fun search(data: Map<Int, *>): Array<Novel.Listing> {
-		TODO("Not yet implemented")
+		return scope.callOrThrowReturn(jsContext, KEY_SEARCH, scope, data) ?: emptyArray()
 	}
 
 	override fun getPassage(chapterURL: String): ByteArray {
-		TODO("Not yet implemented")
+		return scope.callOrThrowReturn(jsContext, KEY_GET_PASSAGE, scope, chapterURL)
+			?: ByteArray(0)
 	}
 
 	override fun parseNovel(novelURL: String, loadChapters: Boolean): Novel.Info {
-		TODO("Not yet implemented")
+		return scope.callOrThrowReturn(
+			jsContext,
+			KEY_PARSE_NOVEL,
+			scope,
+			novelURL,
+			loadChapters
+		)!!
 	}
 
 	override fun expandURL(smallURL: String, type: Int): String {
-		TODO("Not yet implemented")
+		return scope.callOrThrowReturn(
+			jsContext,
+			KEY_EXPAND_URL,
+			scope,
+			smallURL,
+			type
+		)!!
 	}
 
 	override fun shrinkURL(longURL: String, type: Int): String {
-		TODO("Not yet implemented")
+		return scope.callOrThrowReturn(
+			jsContext,
+			KEY_SHRINK_URL,
+			scope,
+			longURL,
+			type
+		)!!
 	}
 }
