@@ -54,6 +54,10 @@ sealed class Filter<T>(val id: Int, val name: String, open var state: T) {
 	 */
 	class Text(id: Int, name: String) : Filter<String>(id, name, "")
 
+	/**
+	 * Input for passwords
+	 */
+	class Password(id: Int, name: String) : Filter<String>(id, name, "")
 
 	/**
 	 * Input for boolean option

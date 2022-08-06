@@ -117,6 +117,10 @@ class ShosetsuLuaLib : TwoArgFunction() {
 		fun TextFilter(id: Int, name: String): Filter.Text =
 			Filter.Text(id, name)
 
+		/** [app.shosetsu.lib.Filter.Password] Constructor */
+		fun PasswordFilter(id: Int, name: String): Filter.Password =
+			Filter.Password(id, name)
+
 		/** [app.shosetsu.lib.Filter.Switch] Constructor */
 		fun SwitchFilter(id: Int, name: String): Filter.Switch =
 			Filter.Switch(id, name)
