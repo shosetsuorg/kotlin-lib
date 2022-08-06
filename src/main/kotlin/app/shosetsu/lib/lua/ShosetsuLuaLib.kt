@@ -303,23 +303,23 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			}
 		private val permaLuaFuncs by lazy {
 			mapOf(
-				"GET" to loadResource("GET.lua"),
-				"POST" to loadResource("POST.lua"),
-				"map" to loadResource("map.lua"),
-				"mapNotNil" to loadResource("mapNotNil.lua"),
-				"filter" to loadResource("filter.lua"),
-				"map2flat" to loadResource("map2flat.lua"),
-				"first" to loadResource("first.lua"),
-				"wrap" to loadResource("wrap.lua"),
-				"flatten" to loadResource("flatten.lua"),
-				"pipeline" to loadResource("pipeline.lua"),
-				"pageOfElem" to loadResource("pageOfElem.lua"),
-				"NodeVisitor" to loadResource("NodeVisitor.lua"),
-				"Novel" to loadResource("Novel.lua"),
-				"NovelInfo" to loadResource("NovelInfo.lua"),
-				"NovelChapter" to loadResource("NovelChapter.lua"),
-				"ChapterType" to loadResource("ChapterType.lua"),
-				"NovelStatus" to loadResource("NovelStatus.lua")
+				"GET" to loadResource("lua/GET.lua"),
+				"POST" to loadResource("lua/POST.lua"),
+				"map" to loadResource("lua/map.lua"),
+				"mapNotNil" to loadResource("lua/mapNotNil.lua"),
+				"filter" to loadResource("lua/filter.lua"),
+				"map2flat" to loadResource("lua/map2flat.lua"),
+				"first" to loadResource("lua/first.lua"),
+				"wrap" to loadResource("lua/wrap.lua"),
+				"flatten" to loadResource("lua/flatten.lua"),
+				"pipeline" to loadResource("lua/pipeline.lua"),
+				"pageOfElem" to loadResource("lua/pageOfElem.lua"),
+				"NodeVisitor" to loadResource("lua/NodeVisitor.lua"),
+				"Novel" to loadResource("lua/Novel.lua"),
+				"NovelInfo" to loadResource("lua/NovelInfo.lua"),
+				"NovelChapter" to loadResource("lua/NovelChapter.lua"),
+				"ChapterType" to loadResource("lua/ChapterType.lua"),
+				"NovelStatus" to loadResource("lua/NovelStatus.lua")
 			)
 		}
 	}
