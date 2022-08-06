@@ -73,9 +73,10 @@ class ShosetsuLuaLib : TwoArgFunction() {
 
 		fun DEFAULT_BODY(): RequestBody = FormBody.Builder().build()
 
-		fun <E> List(): ArrayList<E> = ArrayList()
-		fun <E> AsList(arr: Array<E>): ArrayList<E> = ArrayList(arr.asList())
-		fun <E> Reverse(arr: ArrayList<E>): Unit = arr.reverse()
+		@Suppress("DeprecatedCallableAddReplaceWith")
+		@Deprecated("No longer using array lists to simplify conversion")
+		fun AsList(arr: Any?): Any? = arr
+		fun <E> Reverse(arr: Array<E>): Unit = arr.reverse()
 
 		/** Lua Constructor for [IExtension.Listing] */
 		@Suppress("UNCHECKED_CAST")
