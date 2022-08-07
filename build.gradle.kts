@@ -38,6 +38,8 @@ dependencies {
 	api("com.squareup.okhttp3:okhttp:4.10.0")
 	implementation("com.google.guava:guava:31.1-jre")
 
+	// rhino
+	implementation("org.mozilla:rhino:1.7.14")
 
 	// ### Testing Libraries
 	testImplementation(kotlin("stdlib"))
