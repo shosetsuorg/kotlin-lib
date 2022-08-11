@@ -135,7 +135,7 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			name: String,
 			choices: Array<String>
 		): Filter.Dropdown =
-			Filter.Dropdown(id, name, choices)
+			Filter.Dropdown(id, name, choices.toList())
 
 		/** [app.shosetsu.lib.Filter.RadioGroup] Constructor */
 		fun RadioGroupFilter(
@@ -143,18 +143,18 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			name: String,
 			choices: Array<String>
 		): Filter.RadioGroup =
-			Filter.RadioGroup(id, name, choices)
+			Filter.RadioGroup(id, name, choices.toList())
 
 		/** [app.shosetsu.lib.Filter.List] Constructor */
-		fun FilterList(name: String, filters: Array<Filter<*>>): Filter.List =
-			Filter.List(name, filters)
+		fun FilterList(name: String, filters: Array<Filter<*>>): Filter.FList =
+			Filter.FList(name, filters.toList())
 
 		/** [app.shosetsu.lib.Filter.Group] Constructor */
 		fun <T> FilterGroup(
 			name: String,
 			filters: Array<Filter<T>>
 		): Filter.Group<T> =
-			Filter.Group(name, filters)
+			Filter.Group(name, filters.toList())
 
 
 		fun _GET(
@@ -206,7 +206,10 @@ class ShosetsuLuaLib : TwoArgFunction() {
 					}
 
 					node.attributes().forEach {
-						if (remove_style_attr && it.key == "style" || !keep_scripts && it.key.startsWith("on"))
+						if (remove_style_attr && it.key == "style" || !keep_scripts && it.key.startsWith(
+								"on"
+							)
+						)
 							node.removeAttr(it.key)
 					}
 				}
@@ -215,7 +218,8 @@ class ShosetsuLuaLib : TwoArgFunction() {
 			})
 			toRemove.forEach { it.remove() }
 
-			val head = if (custom_style != "") "<style type=\"text/css\">$custom_style</style>" else ""
+			val head =
+				if (custom_style != "") "<style type=\"text/css\">$custom_style</style>" else ""
 			return "<!DOCTYPE html><html><head>$head</head><body>${elem.outerHtml()}</body></html>"
 		}
 

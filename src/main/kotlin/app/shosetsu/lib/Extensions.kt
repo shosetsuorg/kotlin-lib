@@ -16,7 +16,7 @@ import com.google.common.io.Resources
  * along with shosetsu-kotlin-lib.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-fun Array<Filter<*>>.mapify(): Map<Int, Any> =
+fun List<Filter<*>>.mapify(): Map<Int, Any> =
 	HashMap<Int, Any>().apply hasMap@{
 		this@mapify.forEach {
 			when (val state = it.state) {
@@ -28,7 +28,7 @@ fun Array<Filter<*>>.mapify(): Map<Int, Any> =
 		}
 	}
 
-fun <T> Array<Filter<T>>.mapifyS(): Map<Int, T> =
+fun <T> List<Filter<T>>.mapifyS(): Map<Int, T> =
 	HashMap<Int, T>().apply hasMap@{
 		this@mapifyS.forEach {
 			when (val state = it.state) {
