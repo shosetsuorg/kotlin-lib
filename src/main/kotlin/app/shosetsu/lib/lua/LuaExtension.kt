@@ -5,6 +5,7 @@ import app.shosetsu.lib.exceptions.InvalidFilterIDException
 import app.shosetsu.lib.exceptions.MissingOrInvalidKeysException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.luaj.vm2.LuaError
 import org.luaj.vm2.LuaInteger
 import org.luaj.vm2.LuaString.EMPTYSTRING
@@ -232,7 +233,7 @@ class LuaExtension @Throws(
 	override fun expandURL(smallURL: String, type: Int): String {
 		val f = source[KEY_EXPAND_URL]
 		if (f.type() != TFUNCTION) return smallURL
-		return f.call(valueOf(smallURL), valueOf(type)).tojstring()
+		return f.call(valueOf(smallURL), valueOf(type)).tojstring().toHttpUrl().toUri().normalize().toString()
 	}
 
 	override fun shrinkURL(longURL: String, type: Int): String {
