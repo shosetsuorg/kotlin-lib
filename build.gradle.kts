@@ -5,9 +5,9 @@ version = "1.0.0"
 description = "Kotlin library for shosetsu"
 
 plugins {
-	kotlin("jvm") version "1.6.21"
-	id("org.jetbrains.dokka") version "1.6.21"
-	kotlin("plugin.serialization") version "1.6.21"
+	kotlin("jvm") version "1.7.10"
+	id("org.jetbrains.dokka") version "1.7.10"
+	kotlin("plugin.serialization") version "1.7.10"
 	maven
 }
 
@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.21")
+	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.7.10")
 
 	// ### Core Libraries
 	api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
